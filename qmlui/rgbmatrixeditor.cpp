@@ -24,6 +24,7 @@
 
 #include "rgbmatrix.h"
 #include "rgbimage.h"
+#include "rgbgrabber.h"
 #include "rgbtext.h"
 #include "tardis.h"
 #include "doc.h"

@@ -40,6 +40,7 @@
 #include "qlcfixturehead.h"
 #include "qlcmacros.h"
 #include "rgbimage.h"
+#include "rgbgrabber.h"
 #include "sequence.h"
 #include "rgbitem.h"
 #include "rgbtext.h"
@@ -345,7 +346,23 @@ void RGBMatrixEditor::updateExtraOptions()
 
         m_xOffsetSpin->setValue(image->xOffset());
         m_yOffsetSpin->setValue(image->yOffset());
+    }
+    else if (m_matrix->algorithm()->type() == RGBAlgorithm::ScreenGrabber)
+    {
+        m_textGroup->hide();
+        m_imageGroup->show();
+        m_offsetGroup->show();
 
+        RGBGrabber* image = static_cast<RGBGrabber*> (m_matrix->algorithm());
+        Q_ASSERT(image != NULL);
+        m_imageEdit->setText(image->filename());
+
+        int index = m_imageAnimationCombo->findText(RGBGrabber::animationStyleToString(image->animationStyle()));
+        if (index != -1)
+            m_imageAnimationCombo->setCurrentIndex(index);
+
+        m_xOffsetSpin->setValue(image->xOffset());
+        m_yOffsetSpin->setValue(image->yOffset());
     }
     else if (m_matrix->algorithm()->type() == RGBAlgorithm::Text)
     {

@@ -96,6 +96,7 @@ HEADERS += bus.h \
            rgbaudio.h \
            rgbmatrix.h \
            rgbimage.h \
+           rgbgrabber.h \
            rgbplain.h \
            rgbscriptproperty.h \
            rgbscriptscache.h \
@@ -173,6 +174,7 @@ SOURCES += bus.cpp \
            rgbaudio.cpp \
            rgbmatrix.cpp \
            rgbimage.cpp \
+           rgbgrabber.cpp \
            rgbplain.cpp \
            rgbscriptscache.cpp \
            rgbtext.cpp \

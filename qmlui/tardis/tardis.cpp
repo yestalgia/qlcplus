@@ -34,6 +34,7 @@
 #include "rgbmatrix.h"
 #include "vccuelist.h"
 #include "rgbimage.h"
+#include "rgbgrabber.h"
 #include "vcwidget.h"
 #include "vcbutton.h"
 #include "vcslider.h"
@@ -882,12 +883,25 @@ int Tardis::processAction(TardisAction &action, bool undo)
             algo->setFilename(value->toString());
         }
         break;
+        case RGBMatrixSetGrabber:
+        {
+            RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
+            RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
+            algo->setFilename(value->toString());
+        }
+        break;
         case RGBMatrixSetOffset:
         {
             RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
             if (matrix->algorithm()->type() == RGBAlgorithm::Image)
             {
                 RGBImage* algo = static_cast<RGBImage*> (matrix->algorithm());
+                algo->setXOffset(value->toSize().width());
+                algo->setYOffset(value->toSize().height());
+            }
+            else if (matrix->algorithm()->type() == RGBAlgorithm::ScreenGrabber)
+            {
+                RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
                 algo->setXOffset(value->toSize().width());
                 algo->setYOffset(value->toSize().height());
             }

@@ -131,6 +131,7 @@ public:
         RGBMatrixSetText,
         RGBMatrixSetTextFont,
         RGBMatrixSetImage,
+        RGBMatrixSetGrabber,
         RGBMatrixSetOffset,
         RGBMatrixSetAnimationStyle,
 

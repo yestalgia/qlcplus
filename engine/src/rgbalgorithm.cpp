@@ -27,6 +27,7 @@
 #include "rgbalgorithm.h"
 #include "rgbaudio.h"
 #include "rgbimage.h"
+#include "rgbgrabber.h"
 #include "rgbplain.h"
 #include "rgbtext.h"
 #include "doc.h"
@@ -60,10 +61,12 @@ QStringList RGBAlgorithm::algorithms(Doc * doc)
     RGBPlain plain(doc);
     RGBText text(doc);
     RGBImage image(doc);
+    RGBGrabber screenshot(doc);
     RGBAudio audio(doc);
     list << plain.name();
     list << text.name();
     list << image.name();
+    list << screenshot.name();
     list << audio.name();
     list << doc->rgbScriptsCache()->names();
     return list;
@@ -73,12 +76,15 @@ RGBAlgorithm* RGBAlgorithm::algorithm(Doc * doc, const QString& name)
 {
     RGBText text(doc);
     RGBImage image(doc);
+    RGBGrabber screenshot(doc);
     RGBAudio audio(doc);
     RGBPlain plain(doc);
     if (name == text.name())
         return text.clone();
     else if (name == image.name())
         return image.clone();
+    else if (name == screenshot.name())
+        return screenshot.clone();
     else if (name == audio.name())
         return audio.clone();
     else if (name == plain.name())
@@ -107,6 +113,12 @@ RGBAlgorithm* RGBAlgorithm::loader(Doc * doc, QXmlStreamReader &root)
         RGBImage image(doc);
         if (image.loadXML(root) == true)
             algo = image.clone();
+    }
+    if (type == KXMLQLCRGBGrabber)
+    {
+        RGBGrabber screenshot(doc);
+        if (screenshot.loadXML(root) == true)
+            algo = screenshot.clone();
     }
     else if (type == KXMLQLCRGBText)
     {
