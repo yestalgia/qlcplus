@@ -350,19 +350,19 @@ void RGBMatrixEditor::updateExtraOptions()
     else if (m_matrix->algorithm()->type() == RGBAlgorithm::ScreenGrabber)
     {
         m_textGroup->hide();
-        m_imageGroup->show();
-        m_offsetGroup->show();
+        m_imageGroup->hide();
+        m_offsetGroup->hide();
 
-        RGBGrabber* image = static_cast<RGBGrabber*> (m_matrix->algorithm());
-        Q_ASSERT(image != NULL);
-        m_imageEdit->setText(image->filename());
-
-        int index = m_imageAnimationCombo->findText(RGBGrabber::animationStyleToString(image->animationStyle()));
-        if (index != -1)
-            m_imageAnimationCombo->setCurrentIndex(index);
-
-        m_xOffsetSpin->setValue(image->xOffset());
-        m_yOffsetSpin->setValue(image->yOffset());
+//        RGBGrabber* image = static_cast<RGBGrabber*> (m_matrix->algorithm());
+//        Q_ASSERT(image != NULL);
+//        m_imageEdit->setText(image->filename());
+//
+//        int index = m_imageAnimationCombo->findText(RGBGrabber::animationStyleToString(image->animationStyle()));
+//        if (index != -1)
+//            m_imageAnimationCombo->setCurrentIndex(index);
+//
+//        m_xOffsetSpin->setValue(image->xOffset());
+//        m_yOffsetSpin->setValue(image->yOffset());
     }
     else if (m_matrix->algorithm()->type() == RGBAlgorithm::Text)
     {

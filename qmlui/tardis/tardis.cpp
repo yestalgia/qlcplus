@@ -885,9 +885,9 @@ int Tardis::processAction(TardisAction &action, bool undo)
         break;
         case RGBMatrixSetGrabber:
         {
-            RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
-            RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
-            algo->setFilename(value->toString());
+//            RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
+//            RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
+//            algo->setFilename(value->toString());
         }
         break;
         case RGBMatrixSetOffset:
@@ -901,9 +901,9 @@ int Tardis::processAction(TardisAction &action, bool undo)
             }
             else if (matrix->algorithm()->type() == RGBAlgorithm::ScreenGrabber)
             {
-                RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
-                algo->setXOffset(value->toSize().width());
-                algo->setYOffset(value->toSize().height());
+//                RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
+//                algo->setXOffset(value->toSize().width());
+//                algo->setYOffset(value->toSize().height());
             }
             else if (matrix->algorithm()->type() == RGBAlgorithm::Text)
             {
