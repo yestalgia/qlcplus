@@ -1,10 +1,11 @@
 /*
   Q Light Controller Plus
-  rgbimage.h
+  rgbgraber.h
 
   Copyright (c) Heikki Junnila
   Copyright (c) Jano Svitok
   Copyright (c) Massimo Callegari
+  Copyright (c) Hans-Jürgen Tappe
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
