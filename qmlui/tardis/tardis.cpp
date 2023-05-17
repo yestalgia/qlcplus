@@ -885,9 +885,9 @@ int Tardis::processAction(TardisAction &action, bool undo)
         break;
         case RGBMatrixSetGrabber:
         {
-//            RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
-//            RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
-//            algo->setFilename(value->toString());
+            RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
+            RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
+            algo->setSource(value->toString());
         }
         break;
         case RGBMatrixSetOffset:
@@ -899,11 +899,11 @@ int Tardis::processAction(TardisAction &action, bool undo)
                 algo->setXOffset(value->toSize().width());
                 algo->setYOffset(value->toSize().height());
             }
-            else if (matrix->algorithm()->type() == RGBAlgorithm::ScreenGrabber)
+            else if (matrix->algorithm()->type() == RGBAlgorithm::Grabber)
             {
-//                RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
-//                algo->setXOffset(value->toSize().width());
-//                algo->setYOffset(value->toSize().height());
+                RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
+                algo->setXOffset(value->toSize().width());
+                algo->setYOffset(value->toSize().height());
             }
             else if (matrix->algorithm()->type() == RGBAlgorithm::Text)
             {
@@ -913,6 +913,9 @@ int Tardis::processAction(TardisAction &action, bool undo)
             }
         }
         break;
+
+        /* ********************** Image editing actions *********************** */
+
         case RGBMatrixSetAnimationStyle:
         {
             RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
@@ -925,6 +928,39 @@ int Tardis::processAction(TardisAction &action, bool undo)
             {
                 RGBText* algo = static_cast<RGBText*> (matrix->algorithm());
                 algo->setAnimationStyle(RGBText::AnimationStyle(value->toInt()));
+            }
+        }
+        break;
+
+        /* ********************** Grabber editing actions *********************** */
+
+        case RGBMatrixSetGrabberTurning:
+        {
+            RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
+            if (matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+            {
+                RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
+                algo->setImageTurning(RGBGrabber::stringToImageTurning(value->toString()));
+            }
+        }
+        break;
+        case RGBMatrixSetGrabberFlipping:
+        {
+            RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
+            if (matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+            {
+                RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
+                algo->setImageFlipping(RGBGrabber::stringToImageFlipping(value->toString()));
+            }
+        }
+        break;
+        case RGBMatrixSetGrabberScaling:
+        {
+            RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
+            if (matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+            {
+                RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
+                algo->setImageScaling(RGBGrabber::stringToImageScaling(value->toString()));
             }
         }
         break;

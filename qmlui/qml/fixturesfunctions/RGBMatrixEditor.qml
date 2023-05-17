@@ -852,6 +852,168 @@ Rectangle
         }
     }
 
+    /* *************************************************************
+     * **************** Grabber Algorithm parameters *************** */
+    Component
+    {
+        id: grabberAlgoComponent
+
+        GridLayout
+        {
+            id: grabberAlgoGrid
+            columns: 1
+            columnSpacing: 5
+
+            // Row 1
+            RobotoText
+            {
+                height: UISettings.listItemHeight
+                label: qsTr("Source")
+            }
+            CustomComboBox
+            {
+                Layout.fillWidth: true
+                height: editorColumn.itemsHeight
+
+                ListModel
+                {
+                    id: grabberSourceModel
+                    ListElement { mLabel: qsTr("Static"); }
+                    ListElement { mLabel: qsTr("Horizontal"); }
+                    ListElement { mLabel: qsTr("Vertical"); }
+                    ListElement { mLabel: qsTr("Animation"); }
+                }
+                model: grabberSourceModel
+                currentIndex: rgbMatrixEditor.grabberSource
+                onCurrentIndexChanged: rgbMatrixEditor.grabberSource = currentIndex
+            }
+
+            // Row 2
+            RobotoText
+            {
+                height: UISettings.listItemHeight
+                label: qsTr("Turning")
+            }
+            CustomComboBox
+            {
+                Layout.fillWidth: true
+                height: editorColumn.itemsHeight
+
+                ListModel
+                {
+                    id: grabberSourceModel
+                    ListElement { mLabel: qsTr("Static"); }
+                    ListElement { mLabel: qsTr("Horizontal"); }
+                    ListElement { mLabel: qsTr("Vertical"); }
+                    ListElement { mLabel: qsTr("Animation"); }
+                }
+                model: grabberSourceModel
+                currentIndex: rgbMatrixEditor.grabberTurning
+                onCurrentIndexChanged: rgbMatrixEditor.grabberTurning = currentIndex
+            }
+
+            // Row 3
+            RobotoText
+            {
+                height: UISettings.listItemHeight
+                label: qsTr("Flipping")
+            }
+            CustomComboBox
+            {
+                Layout.fillWidth: true
+                height: editorColumn.itemsHeight
+
+                ListModel
+                {
+                    id: grabberFlippingModel
+                    ListElement { mLabel: qsTr("Static"); }
+                    ListElement { mLabel: qsTr("Horizontal"); }
+                    ListElement { mLabel: qsTr("Vertical"); }
+                    ListElement { mLabel: qsTr("Animation"); }
+                }
+                model: grabberFlippingModel
+                currentIndex: rgbMatrixEditor.grabberFlipping
+                onCurrentIndexChanged: rgbMatrixEditor.grabberFlipping = currentIndex
+            }
+
+            // Row 4
+            RobotoText
+            {
+                height: UISettings.listItemHeight
+                label: qsTr("Scaling")
+            }
+            CustomComboBox
+            {
+                Layout.fillWidth: true
+                height: editorColumn.itemsHeight
+
+                ListModel
+                {
+                    id: grabberSourceModel
+                    ListElement { mLabel: qsTr("Static"); }
+                    ListElement { mLabel: qsTr("Horizontal"); }
+                    ListElement { mLabel: qsTr("Vertical"); }
+                    ListElement { mLabel: qsTr("Animation"); }
+                }
+                model: grabberSourceModel
+                currentIndex: rgbMatrixEditor.grabberScaling
+                onCurrentIndexChanged: rgbMatrixEditor.grabberScaling = currentIndex
+            }
+
+            // Row 5
+            RobotoText
+            {
+                height: UISettings.listItemHeight
+                label: qsTr("Offset")
+            }
+            Rectangle
+            {
+                Layout.fillWidth: true
+                height: editorColumn.itemsHeight
+                color: "transparent"
+
+                Row
+                {
+                    id: ioffRow
+                    spacing: 20
+                    anchors.fill: parent
+
+                    property size algoOffset: rgbMatrixEditor.algoOffset
+
+                    RobotoText { height: UISettings.listItemHeight; label: qsTr("X") }
+                    CustomSpinBox
+                    {
+                        height: parent.height
+                        from: -255
+                        to: 255
+                        value: ioffRow.algoOffset.width
+                        onValueModified:
+                        {
+                            var newOffset = ioffRow.algoOffset
+                            newOffset.width = value
+                            rgbMatrixEditor.algoOffset = newOffset
+                        }
+                    }
+
+                    RobotoText { height: UISettings.listItemHeight; label: qsTr("Y") }
+                    CustomSpinBox
+                    {
+                        height: parent.height
+                        from: -255
+                        to: 255
+                        value: ioffRow.algoOffset.height
+                        onValueModified:
+                        {
+                            var newOffset = ioffRow.algoOffset
+                            newOffset.height = value
+                            rgbMatrixEditor.algoOffset = newOffset
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /* ************************************************************ */
     /* ***************  Script Algorithm parameters *************** */
     Component

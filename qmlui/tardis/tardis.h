@@ -133,7 +133,12 @@ public:
         RGBMatrixSetImage,
         RGBMatrixSetGrabber,
         RGBMatrixSetOffset,
+
         RGBMatrixSetAnimationStyle,
+
+        RGBMatrixSetGrabberTurning,
+        RGBMatrixSetGrabberFlipping,
+        RGBMatrixSetGrabberScaling,
 
         AudioSetSource,
         AudioSetVolume,

@@ -108,10 +108,10 @@ public:
     static ImageScaling stringToImageScaling(const QString& str);
     static QStringList imageScalings();
 
-    void setXOffset(QString value);
+    void setXOffset(int offset);
     int xOffset() const;
 
-    void setYOffset(QString value);
+    void setYOffset(int offset);
     int yOffset() const;
 
 private:

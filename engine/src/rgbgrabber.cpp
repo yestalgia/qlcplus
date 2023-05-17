@@ -272,17 +272,9 @@ QStringList RGBGrabber::imageScalings()
     return list;
 }
 
-void RGBGrabber::setXOffset(QString value)
+void RGBGrabber::setXOffset(int offset)
 {
-    bool ok = false;
-    int i = value.toInt(&ok, 10);
-    if (ok)
-        m_xOffset = i;
-    else
-    {
-        m_xOffset = 0;
-        qWarning() << Q_FUNC_INFO << "Invalid x offset:" << value;
-    }
+    m_xOffset = offset;
 }
 
 int RGBGrabber::xOffset() const
@@ -290,17 +282,9 @@ int RGBGrabber::xOffset() const
     return m_xOffset;
 }
 
-void RGBGrabber::setYOffset(QString value)
+void RGBGrabber::setYOffset(int offset)
 {
-    bool ok = false;
-    int i = value.toInt(&ok, 10);
-    if (ok)
-        m_yOffset = i;
-    else
-    {
-        m_yOffset = 0;
-        qWarning() << Q_FUNC_INFO << "Invalid y offset:" << value;
-    }
+    m_yOffset = offset;
 }
 
 int RGBGrabber::yOffset() const
@@ -490,12 +474,27 @@ bool RGBGrabber::loadXML(QXmlStreamReader &root)
         else if (root.name() == KXMLQLCRGBGrabberScaling)
         {
             QString str;
+            int value;
+            bool ok;
             QXmlStreamAttributes attrs = root.attributes();
 
             setImageScaling(stringToImageScaling(root.readElementText()));
 
-            setXOffset(attrs.value(KXMLQLCRGBGrabberOffsetX).toString());
-            setYOffset(attrs.value(KXMLQLCRGBGrabberOffsetY).toString());
+            str = attrs.value(KXMLQLCRGBGrabberOffsetX).toString();
+            ok = false;
+            value = str.toInt(&ok);
+            if (ok == true)
+                setXOffset(value);
+            else
+                qWarning() << Q_FUNC_INFO << "Invalid X offset:" << str;
+
+            str = attrs.value(KXMLQLCRGBGrabberOffsetY).toString();
+            ok = false;
+            value = str.toInt(&ok);
+            if (ok == true)
+                setYOffset(value);
+            else
+                qWarning() << Q_FUNC_INFO << "Invalid Y offset:" << str;
             // root.skipCurrentElement();
         }
         else
