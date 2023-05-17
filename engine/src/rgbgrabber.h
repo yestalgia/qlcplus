@@ -50,16 +50,14 @@ public:
      * Image source
      ************************************************************************/
 public:
-    /** Set filename of the image */
+    /** Set source of the image */
     void setSource(const QString source);
 
-    /** Get filename of the image */
+    /** Get source of the image */
     QString source() const;
 
-    /** Set the image data from an array of RGB888 values */
-//    void setImageData(int width, int height, const QByteArray& pixelData);
-
-private:
+    /** List of available sources to grab from */
+    static QStringList sourceList();
 
 private:
     QString m_source;
@@ -76,7 +74,7 @@ public:
         turn270
     };
 
-    void setImageTurning(ImageTurning turningType);
+    void setImageTurning(QString value);
     ImageTurning imageTurning() const;
 
     static QString imageTurningToString(ImageTurning turningType);
@@ -89,7 +87,7 @@ public:
         horizontally
     };
 
-    void setImageFlipping(ImageFlipping flippingType);
+    void setImageFlipping(QString value);
     ImageFlipping imageFlipping() const;
 
     static QString imageFlippingToString(ImageFlipping flippingType);
@@ -104,16 +102,25 @@ public:
         maxWidthHeight
     };
 
-    void setImageScaling(ImageScaling scalingType);
+    void setImageScaling(QString value);
     ImageScaling imageScaling() const;
     static QString imageScalingToString(ImageScaling scalingType);
     static ImageScaling stringToImageScaling(const QString& str);
     static QStringList imageScalings();
 
+    void setXOffset(QString value);
+    int xOffset() const;
+
+    void setYOffset(QString value);
+    int yOffset() const;
+
 private:
     ImageScaling m_imageScaling;
+    int m_xOffset;
+    int m_yOffset;
     ImageTurning m_imageTurning;
     ImageFlipping m_imageFlipping;
+
 
     /************************************************************************
      * RGBAlgorithm
