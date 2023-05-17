@@ -51,7 +51,7 @@ public:
         Text,
         Script,
         Image,
-        ScreenGrabber,
+        Grabber,
         Audio,
         Plain
     };

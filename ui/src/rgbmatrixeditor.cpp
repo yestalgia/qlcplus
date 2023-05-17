@@ -221,6 +221,14 @@ void RGBMatrixEditor::init()
             this, SLOT(slotImageButtonClicked()));
     connect(m_imageAnimationCombo, SIGNAL(activated(const QString&)),
             this, SLOT(slotImageAnimationActivated(const QString&)));
+    connect(m_grabberSourceCombo, SIGNAL(activated(const QString&)),
+            this, SLOT(slotGrabberSourceActivated(const QString&)));
+    connect(m_grabberTurningCombo, SIGNAL(activated(const QString&)),
+            this, SLOT(slotGrabberTurningActivated(const QString&)));
+    connect(m_grabberFlippingCombo, SIGNAL(activated(const QString&)),
+            this, SLOT(slotGrabberFlippingActivated(const QString&)));
+    connect(m_grabberScalingCombo, SIGNAL(activated(const QString&)),
+            this, SLOT(slotGrabberScalingActivated(const QString&)));
     connect(m_xOffsetSpin, SIGNAL(valueChanged(int)),
             this, SLOT(slotOffsetSpinChanged()));
     connect(m_yOffsetSpin, SIGNAL(valueChanged(int)),
@@ -304,6 +312,26 @@ void RGBMatrixEditor::fillImageAnimationCombo()
     m_imageAnimationCombo->addItems(RGBImage::animationStyles());
 }
 
+void RGBMatrixEditor::fillGrabberSourceCombo()
+{
+    m_grabberSourceCombo->addItems(RGBGrabber::sourceList());
+}
+
+void RGBMatrixEditor::fillGrabberTurningCombo()
+{
+    m_grabberTurningCombo->addItems(RGBGrabber::sourceList());
+}
+
+void RGBMatrixEditor::fillGrabberFlippingCombo()
+{
+    m_grabberFlippingCombo->addItems(RGBGrabber::sourceList());
+}
+
+void RGBMatrixEditor::fillGrabberScalingCombo()
+{
+    m_grabberScalingCombo->addItems(RGBGrabber::sourceList());
+}
+
 void RGBMatrixEditor::updateExtraOptions()
 {
 
@@ -316,6 +344,7 @@ void RGBMatrixEditor::updateExtraOptions()
     {
         m_textGroup->hide();
         m_imageGroup->hide();
+        m_grabberGroup->hide();
         m_offsetGroup->hide();
 
         if (m_matrix->algorithm() != NULL && m_matrix->algorithm()->type() == RGBAlgorithm::Script)
@@ -328,12 +357,14 @@ void RGBMatrixEditor::updateExtraOptions()
     {
         m_textGroup->hide();
         m_imageGroup->hide();
+        m_grabberGroup->hide();
         m_offsetGroup->hide();
     }
     else if (m_matrix->algorithm()->type() == RGBAlgorithm::Image)
     {
         m_textGroup->hide();
         m_imageGroup->show();
+        m_grabberGroup->hide();
         m_offsetGroup->show();
 
         RGBImage* image = static_cast<RGBImage*> (m_matrix->algorithm());
@@ -347,28 +378,41 @@ void RGBMatrixEditor::updateExtraOptions()
         m_xOffsetSpin->setValue(image->xOffset());
         m_yOffsetSpin->setValue(image->yOffset());
     }
-    else if (m_matrix->algorithm()->type() == RGBAlgorithm::ScreenGrabber)
+    else if (m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
     {
         m_textGroup->hide();
         m_imageGroup->hide();
-        m_offsetGroup->hide();
+        m_grabberGroup->show();
+        m_offsetGroup->show();
 
-//        RGBGrabber* image = static_cast<RGBGrabber*> (m_matrix->algorithm());
-//        Q_ASSERT(image != NULL);
-//        m_imageEdit->setText(image->filename());
-//
-//        int index = m_imageAnimationCombo->findText(RGBGrabber::animationStyleToString(image->animationStyle()));
-//        if (index != -1)
-//            m_imageAnimationCombo->setCurrentIndex(index);
-//
-//        m_xOffsetSpin->setValue(image->xOffset());
-//        m_yOffsetSpin->setValue(image->yOffset());
+        RGBGrabber* grabber = static_cast<RGBGrabber*> (m_matrix->algorithm());
+        Q_ASSERT(grabber != NULL);
+
+        int index = m_grabberSourceCombo->findText(grabber->source());
+        if (index != -1)
+            m_grabberSourceCombo->setCurrentIndex(index);
+
+        index = m_grabberTurningCombo->findText(RGBGrabber::imageTurningToString(grabber->imageTurning()));
+        if (index != -1)
+            m_grabberTurningCombo->setCurrentIndex(index);
+
+        index = m_grabberFlippingCombo->findText(RGBGrabber::imageFlippingToString(grabber->imageFlipping()));
+        if (index != -1)
+            m_grabberFlippingCombo->setCurrentIndex(index);
+
+        index = m_grabberScalingCombo->findText(RGBGrabber::imageScalingToString(grabber->imageScaling()));
+        if (index != -1)
+            m_grabberScalingCombo->setCurrentIndex(index);
+
+        m_xOffsetSpin->setValue(grabber->xOffset());
+        m_yOffsetSpin->setValue(grabber->yOffset());
     }
     else if (m_matrix->algorithm()->type() == RGBAlgorithm::Text)
     {
         m_textGroup->show();
-        m_offsetGroup->show();
         m_imageGroup->hide();
+        m_grabberGroup->hide();
+        m_offsetGroup->show();
 
         RGBText* text = static_cast<RGBText*> (m_matrix->algorithm());
         Q_ASSERT(text != NULL);
@@ -868,6 +912,62 @@ void RGBMatrixEditor::slotImageAnimationActivated(const QString& text)
         {
             QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
             algo->setAnimationStyle(RGBImage::stringToAnimationStyle(text));
+        }
+        slotRestartTest();
+    }
+}
+
+void RGBMatrixEditor::slotGrabberSourceActivated(const QString& text)
+{
+    if (m_matrix->algorithm() != NULL && m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+    {
+        RGBGrabber* algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+        Q_ASSERT(algo != NULL);
+        {
+            QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
+            algo->setSource(text);
+        }
+        slotRestartTest();
+    }
+}
+
+void RGBMatrixEditor::slotGrabberTurningActivated(const QString& text)
+{
+    if (m_matrix->algorithm() != NULL && m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+    {
+        RGBGrabber* algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+        Q_ASSERT(algo != NULL);
+        {
+            QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
+            algo->setImageTurning(RGBGrabber::stringToImageTurning(text));
+        }
+        slotRestartTest();
+    }
+}
+
+void RGBMatrixEditor::slotGrabberFlippingActivated(const QString& text)
+{
+    if (m_matrix->algorithm() != NULL && m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+    {
+        RGBGrabber* algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+        Q_ASSERT(algo != NULL);
+        {
+            QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
+            algo->setImageFlipping(RGBGrabber::stringToImageFlipping(text));
+        }
+        slotRestartTest();
+    }
+}
+
+void RGBMatrixEditor::slotGrabberScalingActivated(const QString& text)
+{
+    if (m_matrix->algorithm() != NULL && m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+    {
+        RGBGrabber* algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+        Q_ASSERT(algo != NULL);
+        {
+            QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
+            algo->setImageScaling(RGBGrabber::stringToImageScaling(text));
         }
         slotRestartTest();
     }

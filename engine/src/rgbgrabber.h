@@ -74,7 +74,7 @@ public:
         turn270
     };
 
-    void setImageTurning(QString value);
+    void setImageTurning(ImageTurning turningType);
     ImageTurning imageTurning() const;
 
     static QString imageTurningToString(ImageTurning turningType);
@@ -87,7 +87,7 @@ public:
         horizontally
     };
 
-    void setImageFlipping(QString value);
+    void setImageFlipping(ImageFlipping flippingType);
     ImageFlipping imageFlipping() const;
 
     static QString imageFlippingToString(ImageFlipping flippingType);
@@ -102,7 +102,7 @@ public:
         maxWidthHeight
     };
 
-    void setImageScaling(QString value);
+    void setImageScaling(ImageScaling scalingType);
     ImageScaling imageScaling() const;
     static QString imageScalingToString(ImageScaling scalingType);
     static ImageScaling stringToImageScaling(const QString& str);

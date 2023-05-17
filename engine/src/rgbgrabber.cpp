@@ -111,9 +111,8 @@ QStringList RGBGrabber::sourceList()
  * Image Processing: Turning
  ****************************************************************************/
 
-void RGBGrabber::setImageTurning(QString value)
+void RGBGrabber::setImageTurning(RGBGrabber::ImageTurning turningType)
 {
-    RGBGrabber::ImageTurning turningType = RGBGrabber::stringToImageTurning(value);
     if (turningType >= noturn && turningType <= turn270)
         m_imageTurning = turningType;
     else
@@ -167,9 +166,8 @@ QStringList RGBGrabber::imageTurnings()
  * Image Processing: Flipping
  ****************************************************************************/
 
-void RGBGrabber::setImageFlipping(QString value)
+void RGBGrabber::setImageFlipping(RGBGrabber::ImageFlipping flippingType)
 {
-    RGBGrabber::ImageFlipping flippingType = RGBGrabber::stringToImageFlipping(value);
     if (flippingType >= original && flippingType <= horizontally)
         m_imageFlipping = flippingType;
     else
@@ -218,9 +216,8 @@ QStringList RGBGrabber::imageFlippings()
  * Image Processing: Scaling
  ****************************************************************************/
 
-void RGBGrabber::setImageScaling(QString value)
+void RGBGrabber::setImageScaling(RGBGrabber::ImageScaling scalingType)
 {
-    RGBGrabber::ImageScaling scalingType = RGBGrabber::stringToImageScaling(value);
     if (scalingType >= scaledXY && scalingType <= maxWidthHeight)
         m_imageScaling = scalingType;
     else
@@ -454,73 +451,13 @@ int RGBGrabber::apiVersion() const
 
 RGBAlgorithm::Type RGBGrabber::type() const
 {
-    return RGBAlgorithm::Image;
+    return RGBAlgorithm::Grabber;
 }
 
 int RGBGrabber::acceptColors() const
 {
     return 0;
 }
-
-//QList<RGBScriptProperty> properties()
-//{
-//    RGBScriptProperty sourceProperty;
-//    sourceProperty.m_name = "source";
-//    sourceProperty.m_displayName = KXMLQLCRGBGrabberSource;
-//    sourceProperty.m_type = RGBScriptProperty::List;
-//    sourceProperty.m_listValues = RGBGrabber::sourceList();
-//    sourceProperty.m_readMethod = "RGBGrabber::source";
-//    sourceProperty.m_writeMethod = "RGBGrabber::setSource";
-//
-//    RGBScriptProperty turningProperty;
-//    turningProperty.m_name = "turning";
-//    turningProperty.m_displayName = KXMLQLCRGBGrabberTurning;
-//    turningProperty.m_type = RGBScriptProperty::List;
-//    turningProperty.m_listValues = RGBGrabber::imageTurnings();
-//    turningProperty.m_readMethod = "RGBGrabber::imageTurning";
-//    turningProperty.m_writeMethod = "RGBGrabber::setImageTurning";
-//
-//    RGBScriptProperty flippingProperty;
-//    flippingProperty.m_name = "flipping";
-//    flippingProperty.m_displayName = KXMLQLCRGBGrabberFlipping;
-//    flippingProperty.m_type = RGBScriptProperty::List;
-//    flippingProperty.m_listValues = RGBGrabber::imageFlippings();
-//    flippingProperty.m_readMethod = "RGBGrabber::imageFlipping";
-//    flippingProperty.m_writeMethod = "RGBGrabber::setImageFlipping";
-//
-//    RGBScriptProperty scalingProperty;
-//    scalingProperty.m_name = "scaling";
-//    scalingProperty.m_displayName = KXMLQLCRGBGrabberScaling;
-//    scalingProperty.m_type = RGBScriptProperty::List;
-//    scalingProperty.m_listValues = RGBGrabber::imageScalings();
-//    scalingProperty.m_readMethod = "RGBGrabber::imageScaling";
-//    scalingProperty.m_writeMethod = "RGBGrabber::setImageScaling";
-//
-//    RGBScriptProperty xOffsetProperty;
-//    xOffsetProperty.m_name = "xOffset";
-//    xOffsetProperty.m_displayName = KXMLQLCRGBGrabberOffsetX;
-//    xOffsetProperty.m_type = RGBScriptProperty::Integer;
-//    xOffsetProperty.m_readMethod = "RGBGrabber::xOffset";
-//    xOffsetProperty.m_writeMethod = "RGBGrabber::setXOffset";
-//
-//    RGBScriptProperty yOffsetProperty;
-//    yOffsetProperty.m_name = "xOffset";
-//    yOffsetProperty.m_displayName = KXMLQLCRGBGrabberOffsetY;
-//    yOffsetProperty.m_type = RGBScriptProperty::Integer;
-//    yOffsetProperty.m_readMethod = "RGBGrabber::yOffset";
-//    yOffsetProperty.m_writeMethod = "RGBGrabber::setYOffset";
-//
-//    QList<RGBScriptProperty> properties {
-//        sourceProperty,
-//        turningProperty,
-//        flippingProperty,
-//        scalingProperty,
-//        xOffsetProperty,
-//        yOffsetProperty
-//    };
-//
-//    return properties;
-//}
 
 bool RGBGrabber::loadXML(QXmlStreamReader &root)
 {
@@ -542,24 +479,24 @@ bool RGBGrabber::loadXML(QXmlStreamReader &root)
         {
             setSource(doc()->denormalizeComponentPath(root.readElementText()));
         }
+        else if (root.name() == KXMLQLCRGBGrabberTurning)
+        {
+            setImageTurning(stringToImageTurning(root.readElementText()));
+        }
+        else if (root.name() == KXMLQLCRGBGrabberFlipping)
+        {
+            setImageFlipping(stringToImageFlipping(root.readElementText()));
+        }
         else if (root.name() == KXMLQLCRGBGrabberScaling)
         {
             QString str;
             QXmlStreamAttributes attrs = root.attributes();
 
-            setImageScaling(root.readElementText());
+            setImageScaling(stringToImageScaling(root.readElementText()));
 
             setXOffset(attrs.value(KXMLQLCRGBGrabberOffsetX).toString());
             setYOffset(attrs.value(KXMLQLCRGBGrabberOffsetY).toString());
             // root.skipCurrentElement();
-        }
-        else if (root.name() == KXMLQLCRGBGrabberTurning)
-        {
-            setImageTurning(root.readElementText());
-        }
-        else if (root.name() == KXMLQLCRGBGrabberFlipping)
-        {
-            setImageFlipping(root.readElementText());
         }
         else
         {

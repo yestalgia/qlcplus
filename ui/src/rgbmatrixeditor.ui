@@ -46,7 +46,7 @@
     <widget class="QGraphicsView" name="m_preview"/>
    </item>
    <item row="2" column="3" rowspan="3">
-    <layout class="QVBoxLayout" name="verticalLayout_5">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
      <item>
       <widget class="QGroupBox" name="m_patternGroup">
        <property name="sizePolicy">
@@ -317,6 +317,37 @@
        </layout>
       </widget>
      </item>
+     <item>
+      <widget class="QGroupBox" name="m_grabberGroup">
+       <property name="title">
+        <string>Grabber</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_1">
+        <property name="topMargin">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>4</number>
+        </property>
+        <item row="1" column="0">
+         <widget class="QComboBox" name="m_grabberSourceCombo"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QComboBox" name="m_grabberTurningCombo"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QComboBox" name="m_grabberFlippingCombo"/>
+        </item>
+        <item row="4" column="0">
+         <widget class="QComboBox" name="m_grabberScalingCombo"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+
      <item>
       <widget class="QGroupBox" name="m_offsetGroup">
        <property name="title">

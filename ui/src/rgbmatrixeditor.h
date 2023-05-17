@@ -62,6 +62,10 @@ private:
     void fillFixtureGroupCombo();
     void fillAnimationCombo();
     void fillImageAnimationCombo();
+    void fillGrabberSourceCombo();
+    void fillGrabberTurningCombo();
+    void fillGrabberFlippingCombo();
+    void fillGrabberScalingCombo();
     void updateExtraOptions();
     void updateColors();
     void resetProperties(QLayoutItem *item);
@@ -89,6 +93,11 @@ private slots:
     void slotImageEdited();
     void slotImageButtonClicked();
     void slotImageAnimationActivated(const QString& text);
+
+    void slotGrabberSourceActivated(const QString& text);
+    void slotGrabberTurningActivated(const QString& text);
+    void slotGrabberFlippingActivated(const QString& text);
+    void slotGrabberScalingActivated(const QString& text);
 
     void slotLoopClicked();
     void slotPingPongClicked();
