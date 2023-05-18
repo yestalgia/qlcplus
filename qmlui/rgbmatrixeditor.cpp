@@ -316,6 +316,11 @@ QSize RGBMatrixEditor::algoOffset() const
             RGBText *algo = static_cast<RGBText*> (m_matrix->algorithm());
             return QSize(algo->xOffset(), algo->yOffset());
         }
+        else if (m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+        {
+            RGBGrabber *algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+            return QSize(algo->xOffset(), algo->yOffset());
+        }
     }
     return QSize(0, 0);
 }
@@ -340,6 +345,19 @@ void RGBMatrixEditor::setAlgoOffset(QSize algoOffset)
         else if (m_matrix->algorithm()->type() == RGBAlgorithm::Text)
         {
             RGBText *algo = static_cast<RGBText*> (m_matrix->algorithm());
+            if (algo->xOffset() == algoOffset.width() && algo->yOffset() == algoOffset.height())
+                return;
+
+            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetOffset, m_matrix->id(),
+                                              QSize(algo->xOffset(), algo->yOffset()), algoOffset);
+            QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
+            algo->setXOffset(algoOffset.width());
+            algo->setYOffset(algoOffset.height());
+            emit algoOffsetChanged(algoOffset);
+        }
+        else if (m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+        {
+            RGBGrabber *algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
             if (algo->xOffset() == algoOffset.width() && algo->yOffset() == algoOffset.height())
                 return;
 
@@ -486,6 +504,101 @@ void RGBMatrixEditor::setScriptIntProperty(QString paramName, int value)
     Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetScriptIntValue, m_matrix->id(), QVariant::fromValue(oldValue),
                                       QVariant::fromValue(StringIntPair(paramName, value)));
     m_matrix->setProperty(paramName, QString::number(value));
+}
+
+/* Grabber algorithm */
+
+int RGBMatrixEditor::imageFlipping() const
+{
+    if (m_matrix != nullptr && m_matrix->algorithm() != nullptr)
+    {
+        if (m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+        {
+            RGBGrabber *algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+            return (int)algo->imageFlipping();
+        }
+    }
+    return 0;
+}
+
+void RGBMatrixEditor::setImageFlipping(int newValue)
+{
+    if (m_matrix != nullptr && m_matrix->algorithm() != nullptr)
+    {
+        if (m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+        {
+            RGBGrabber *algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+            if ((int)algo->imageFlipping() == newValue)
+                return;
+
+            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabberFlipping, m_matrix->id(), (int)algo->imageFlipping(), newValue);
+            QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
+            algo->setImageFlipping(RGBGrabber::ImageFlipping(newValue));
+            emit algoFlippingChanged(newValue);
+        }
+    }
+}
+
+int RGBMatrixEditor::imageTurning() const
+{
+    if (m_matrix != nullptr && m_matrix->algorithm() != nullptr)
+    {
+        if (m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+        {
+            RGBGrabber *algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+            return (int)algo->imageTurning();
+        }
+    }
+    return 0;
+}
+
+void RGBMatrixEditor::setImageTurning(int newValue)
+{
+    if (m_matrix != nullptr && m_matrix->algorithm() != nullptr)
+    {
+        if (m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+        {
+            RGBGrabber *algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+            if ((int)algo->imageTurning() == newValue)
+                return;
+
+            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabberTurning, m_matrix->id(), (int)algo->imageTurning(), newValue);
+            QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
+            algo->setImageTurning(RGBGrabber::ImageTurning(newValue));
+            emit algoTurningChanged(newValue);
+        }
+    }
+}
+
+int RGBMatrixEditor::imageScaling() const
+{
+    if (m_matrix != nullptr && m_matrix->algorithm() != nullptr)
+    {
+        if (m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+        {
+            RGBGrabber *algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+            return (int)algo->imageScaling();
+        }
+    }
+    return 0;
+}
+
+void RGBMatrixEditor::setImageScaling(int newValue)
+{
+    if (m_matrix != nullptr && m_matrix->algorithm() != nullptr)
+    {
+        if (m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+        {
+            RGBGrabber *algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+            if ((int)algo->imageScaling() == newValue)
+                return;
+
+            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabberScaling, m_matrix->id(), (int)algo->imageScaling(), newValue);
+            QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
+            algo->setImageScaling(RGBGrabber::ImageScaling(newValue));
+            emit algoScalingChanged(newValue);
+        }
+    }
 }
 
 /************************************************************************

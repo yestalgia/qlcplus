@@ -51,6 +51,10 @@ class RGBMatrixEditor : public FunctionEditor
     Q_PROPERTY(QFont algoTextFont READ algoTextFont WRITE setAlgoTextFont NOTIFY algoTextFontChanged)
     // Image Algorithm specific properties
     Q_PROPERTY(QString algoImagePath READ algoImagePath WRITE setAlgoImagePath NOTIFY algoImagePathChanged)
+    // Grabber Algorithm specific properties
+    Q_PROPERTY(int imageFlipping READ imageFlipping WRITE setImageFlipping NOTIFY algoFlippingChanged)
+    Q_PROPERTY(int imageTurning READ imageTurning WRITE setImageTurning NOTIFY algoTurningChanged)
+    Q_PROPERTY(int imageScaling READ imageScaling WRITE setImageScaling NOTIFY algoScalingChanged)
 
     Q_PROPERTY(int animationStyle READ animationStyle WRITE setAnimationStyle NOTIFY animationStyleChanged)
     Q_PROPERTY(QSize algoOffset READ algoOffset WRITE setAlgoOffset NOTIFY algoOffsetChanged)
@@ -113,6 +117,14 @@ public:
     int animationStyle() const;
     void setAnimationStyle(int style);
 
+    int imageFlipping() const;
+    void setImageFlipping(int newValue);
+    int imageTurning() const;
+    void setImageTurning(int newValue);
+    int imageScaling() const;
+    void setImageScaling(int newValue);
+
+
     /** This is an important method called by the QML world
      *  when a RGBScript algorithm is selected.
      *  The steps are:
@@ -140,6 +152,10 @@ signals:
 
     void algoOffsetChanged(QSize algoOffset);
     void animationStyleChanged(int style);
+
+    void algoFlippingChanged(int newValue);
+    void algoTurningChanged(int newValue);
+    void algoScalingChanged(int newValue);
 
     /************************************************************************
      * Blend mode
