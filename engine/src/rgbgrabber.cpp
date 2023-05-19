@@ -34,6 +34,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QDebug>
+#include <QtMultimedia>
 
 #include "rgbgrabber.h"
 #include "qlcmacros.h"
@@ -95,12 +96,20 @@ QString RGBGrabber::source() const
 
 QStringList RGBGrabber::sourceList()
 {
-    QList<QScreen*> screens = QGuiApplication::screens();
+    const QList<QScreen*> screens = QGuiApplication::screens();
+    const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
     QStringList list;
 
-    for (QScreen* screen: screens)
+    for (const QScreen* screen: screens)
     {
-        list.append(screen->name());
+        QString entry = screen->name();
+        entry.prepend("screen:");
+        list.append(entry);
+    }
+    for (const QCameraInfo &cameraInfo : cameras) {
+        QString entry = cameraInfo.deviceName();
+        entry.prepend("camera:");
+        list.append(entry);
     }
     list.sort(Qt::CaseInsensitive);
 
@@ -314,28 +323,68 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     int xOffs = xOffset();
     int yOffs = yOffset();
 
-    // Identify the configured screen
-    QList<QScreen*> screens = QGuiApplication::screens();
-    QScreen *screen = NULL;
+    if (m_source.startsWith("screen:")) {
+        // Identify the configured screen
+        QList<QScreen*> screens = QGuiApplication::screens();
+        QScreen *screen = NULL;
 
-    // Get the screen by name
-    for (QScreen *checkScreen : screens)
-    {
-        if (checkScreen->name() == m_source)
-            screen = checkScreen;
-    }
-    // Fallback to the primary screen
-    if (screen == NULL)
-    {
-        screen = QGuiApplication::primaryScreen();
-    }
+        // Get the screen by name
+        for (QScreen *checkScreen : screens)
+        {
+            QString search = checkScreen->name();
+            search.prepend("screen:");
+            if (search == m_source) {
+                screen = checkScreen;
+                break;
+            }
+        }
+        // Fallback to the primary screen
+        if (screen == NULL)
+        {
+            screen = QGuiApplication::primaryScreen();
+        }
 
-    // Get the next image
-    if (screen == NULL)
-        return;
+        // Get the next image
+        if (screen == NULL)
+            return;
+        else
+            image = screen->grabWindow(0).toImage();
+    }
+#if 0 // camera
+    else if (m_source.startsWith("camera:")) {
+        const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+        QCamera* camera = NULL;
+
+        // Get the camera by name
+        for (const QCameraInfo &cameraInfo : cameras) {
+            QString search = cameraInfo.deviceName();
+            search.prepend("camera:");
+            if (search == m_source) {
+                camera = new QCamera(cameraInfo);
+                break;
+            }
+        }
+        // Get the next image
+        if (camera != NULL)
+        {
+            QCameraImageCapture* capture = new QCameraImageCapture(camera);
+            capture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
+            camera->setCaptureMode(QCamera::CaptureStillImage);
+            camera->start();
+            camera->searchAndLock();
+            capture->capture();
+            camera->unlock();
+            // Listen for QCameraImageCapture::imageAvailable()
+            connect(capture, &QCameraImageCapture::imageCaptured, [&](int id, const QImage &preview){
+                // Get the preview into the image
+            });
+            QVideoFrame videoFrame;
+            image = videoFrame.pixelFormatFromImageFormat(QVideoFrame::Format_RGB32);
+        }
+    }
+#endif // camera
     else
-        image = screen->grabWindow(0).toImage();
-
+        return;
     // Check if input image size is valid (width & height > 0)
     if (image.width() == 0 || image.height() == 0)
         return;
