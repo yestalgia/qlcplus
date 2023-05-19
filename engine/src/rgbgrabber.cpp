@@ -106,11 +106,13 @@ QStringList RGBGrabber::sourceList()
         entry.prepend("screen:");
         list.append(entry);
     }
+#if 0 // camera
     for (const QCameraInfo &cameraInfo : cameras) {
         QString entry = cameraInfo.deviceName();
         entry.prepend("camera:");
         list.append(entry);
     }
+#endif // camera
     list.sort(Qt::CaseInsensitive);
 
     return list;

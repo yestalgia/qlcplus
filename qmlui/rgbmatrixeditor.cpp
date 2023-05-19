@@ -508,6 +508,24 @@ void RGBMatrixEditor::setScriptIntProperty(QString paramName, int value)
 
 /* Grabber algorithm */
 
+QStringList RGBMatrixEditor::grabberSourceList() const
+{
+    return RGBGrabber::sourceList();
+}
+
+int RGBMatrixEditor::grabberSourceIndex() const
+{
+    QStringList sourceList = RGBGrabber::sourceList();
+
+    if (m_matrix == nullptr || m_matrix->algorithm() == nullptr ||
+            m_matrix->algorithm()->type() != RGBAlgorithm::Grabber)
+                return -1;
+
+    RGBGrabber *algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+
+    return sourceList.indexOf(algo->source());
+}
+
 int RGBMatrixEditor::imageFlipping() const
 {
     if (m_matrix != nullptr && m_matrix->algorithm() != nullptr)

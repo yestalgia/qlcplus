@@ -117,6 +117,8 @@ public:
     int animationStyle() const;
     void setAnimationStyle(int style);
 
+    QStringList grabberSourceList() const;
+    int grabberSourceIndex() const;
     int imageFlipping() const;
     void setImageFlipping(int newValue);
     int imageTurning() const;

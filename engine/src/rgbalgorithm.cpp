@@ -69,6 +69,7 @@ QStringList RGBAlgorithm::algorithms(Doc * doc)
     list << screenshot.name();
     list << audio.name();
     list << doc->rgbScriptsCache()->names();
+    list.sort(Qt::CaseInsensitive);
     return list;
 }
 

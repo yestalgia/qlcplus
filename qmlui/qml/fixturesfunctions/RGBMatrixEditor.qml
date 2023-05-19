@@ -877,16 +877,8 @@ Rectangle
                 Layout.fillWidth: true
                 height: editorColumn.itemsHeight
 
-                ListModel
-                {
-                    id: grabberSourceModel
-                    ListElement { mLabel: qsTr("Static"); }
-                    ListElement { mLabel: qsTr("Horizontal"); }
-                    ListElement { mLabel: qsTr("Vertical"); }
-                    ListElement { mLabel: qsTr("Animation"); }
-                }
-                model: grabberSourceModel
-                currentIndex: rgbMatrixEditor.grabberSource
+                model: rgbMatrixEditor.grabberSourceList
+                currentIndex: rgbMatrixEditor.grabberSourceIndex
                 onCurrentIndexChanged: rgbMatrixEditor.grabberSource = currentIndex
             }
 
@@ -904,10 +896,10 @@ Rectangle
                 ListModel
                 {
                     id: grabberSourceModel
-                    ListElement { mLabel: qsTr("Static"); }
-                    ListElement { mLabel: qsTr("Horizontal"); }
-                    ListElement { mLabel: qsTr("Vertical"); }
-                    ListElement { mLabel: qsTr("Animation"); }
+                    ListElement { mLabel: qsTr("Original"); }
+                    ListElement { mLabel: qsTr("90°"); }
+                    ListElement { mLabel: qsTr("180°"); }
+                    ListElement { mLabel: qsTr("270°"); }
                 }
                 model: grabberSourceModel
                 currentIndex: rgbMatrixEditor.grabberTurning
@@ -928,10 +920,9 @@ Rectangle
                 ListModel
                 {
                     id: grabberFlippingModel
-                    ListElement { mLabel: qsTr("Static"); }
-                    ListElement { mLabel: qsTr("Horizontal"); }
-                    ListElement { mLabel: qsTr("Vertical"); }
-                    ListElement { mLabel: qsTr("Animation"); }
+                    ListElement { mLabel: qsTr("Original"); }
+                    ListElement { mLabel: qsTr("Vertically"); }
+                    ListElement { mLabel: qsTr("Horizontally"); }
                 }
                 model: grabberFlippingModel
                 currentIndex: rgbMatrixEditor.grabberFlipping
@@ -952,10 +943,11 @@ Rectangle
                 ListModel
                 {
                     id: grabberSourceModel
-                    ListElement { mLabel: qsTr("Static"); }
-                    ListElement { mLabel: qsTr("Horizontal"); }
-                    ListElement { mLabel: qsTr("Vertical"); }
-                    ListElement { mLabel: qsTr("Animation"); }
+                    ListElement { mLabel: qsTr("Scaled"); }
+                    ListElement { mLabel: qsTr("Scaled to width"); }
+                    ListElement { mLabel: qsTr("Scaled to height"); }
+                    ListElement { mLabel: qsTr("Scaled to min. w,h"); }
+                    ListElement { mLabel: qsTr("Scaled to max. w,h"); }
                 }
                 model: grabberSourceModel
                 currentIndex: rgbMatrixEditor.grabberScaling
