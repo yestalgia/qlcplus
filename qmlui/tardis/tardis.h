@@ -136,6 +136,7 @@ public:
 
         RGBMatrixSetAnimationStyle,
 
+        RGBMatrixSetGrabberSourceIndex,
         RGBMatrixSetGrabberTurning,
         RGBMatrixSetGrabberFlipping,
         RGBMatrixSetGrabberScaling,

@@ -934,6 +934,16 @@ int Tardis::processAction(TardisAction &action, bool undo)
 
         /* ********************** Grabber editing actions *********************** */
 
+        case RGBMatrixSetGrabberSourceIndex:
+        {
+            RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));
+            if (matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+            {
+                RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
+                algo->setSource(value->toString());
+            }
+        }
+        break;
         case RGBMatrixSetGrabberTurning:
         {
             RGBMatrix *matrix = qobject_cast<RGBMatrix *>(m_doc->function(action.m_objID));

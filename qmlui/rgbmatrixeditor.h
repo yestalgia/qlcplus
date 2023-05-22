@@ -52,6 +52,7 @@ class RGBMatrixEditor : public FunctionEditor
     // Image Algorithm specific properties
     Q_PROPERTY(QString algoImagePath READ algoImagePath WRITE setAlgoImagePath NOTIFY algoImagePathChanged)
     // Grabber Algorithm specific properties
+    Q_PROPERTY(int grabberSourceList READ grabberSourceIndex WRITE setGrabberSourceIndex NOTIFY algoGrabberSourceChanged)
     Q_PROPERTY(int imageFlipping READ imageFlipping WRITE setImageFlipping NOTIFY algoFlippingChanged)
     Q_PROPERTY(int imageTurning READ imageTurning WRITE setImageTurning NOTIFY algoTurningChanged)
     Q_PROPERTY(int imageScaling READ imageScaling WRITE setImageScaling NOTIFY algoScalingChanged)
@@ -119,6 +120,7 @@ public:
 
     QStringList grabberSourceList() const;
     int grabberSourceIndex() const;
+    void setGrabberSourceIndex(int newValue);
     int imageFlipping() const;
     void setImageFlipping(int newValue);
     int imageTurning() const;
@@ -155,6 +157,7 @@ signals:
     void algoOffsetChanged(QSize algoOffset);
     void animationStyleChanged(int style);
 
+    void algoGrabberSourceChanged(int newValue);
     void algoFlippingChanged(int newValue);
     void algoTurningChanged(int newValue);
     void algoScalingChanged(int newValue);
