@@ -324,17 +324,17 @@ void RGBMatrixEditor::fillGrabberSourceCombo()
 
 void RGBMatrixEditor::fillGrabberTurningCombo()
 {
-    m_grabberTurningCombo->addItems(RGBGrabber::sourceList());
+    m_grabberTurningCombo->addItems(RGBGrabber::imageTurnings());
 }
 
 void RGBMatrixEditor::fillGrabberFlippingCombo()
 {
-    m_grabberFlippingCombo->addItems(RGBGrabber::sourceList());
+    m_grabberFlippingCombo->addItems(RGBGrabber::imageFlippings());
 }
 
 void RGBMatrixEditor::fillGrabberScalingCombo()
 {
-    m_grabberScalingCombo->addItems(RGBGrabber::sourceList());
+    m_grabberScalingCombo->addItems(RGBGrabber::imageScalings());
 }
 
 void RGBMatrixEditor::updateExtraOptions()
