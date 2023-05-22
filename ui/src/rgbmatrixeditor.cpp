@@ -173,6 +173,11 @@ void RGBMatrixEditor::init()
     fillFixtureGroupCombo();
     fillAnimationCombo();
     fillImageAnimationCombo();
+    /* Grabber */
+    fillGrabberSourceCombo();
+    fillGrabberTurningCombo();
+    fillGrabberFlippingCombo();
+    fillGrabberScalingCombo();
 
     QPixmap pm(50, 26);
     pm.fill(m_matrix->startColor());
