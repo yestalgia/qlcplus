@@ -378,11 +378,15 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             capture->capture();
             camera->unlock();
             // Listen for QCameraImageCapture::imageAvailable()
-            connect(capture, &QCameraImageCapture::imageCaptured, [&](int id, const QImage &preview){
+            //connect(capture, &QCameraImageCapture::imageCaptured, [&](int id, const QImage &preview){
                 // Get the preview into the image
-            });
-            QVideoFrame videoFrame;
-            image = videoFrame.pixelFormatFromImageFormat(QVideoFrame::Format_RGB32);
+                QVideoFrame videoFrame;
+            //});
+            image = QImage(videoFrame.bits(),
+                videoFrame.width(),
+                videoFrame.height(),
+                videoFrame.bytesPerLine(),
+                QVideoFrame::imageFormatFromPixelFormat(videoFrame.pixelFormat()));
         }
     }
 #endif // camera
