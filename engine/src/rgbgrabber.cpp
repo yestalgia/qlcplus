@@ -428,7 +428,6 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             (imageScaling() == minWidthHeight && size.width() <= size.height()) ||
             (imageScaling() == maxWidthHeight && size.width() > size.height()))
     {
-        // image.newHeight = ceil((image.w / size.w) * size.h)
         int newHeight = ceil(image.width() * size.height(), size.width());
         // Center the image
         yOffs = ceil((newHeight - size.height()), 2);
@@ -440,7 +439,6 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             (imageScaling() == minWidthHeight && size.width() >= size.height()) ||
             (imageScaling() == maxWidthHeight && size.width() < size.height()))
     {
-        // image.newWidth = ceil((image.h / size.h) * size.w)
         int newWidth = ceil(image.height() * size.width(), size.height());
         // Center the image
         xOffs = ceil((newWidth - size.width()), 2);
