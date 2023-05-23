@@ -47,6 +47,7 @@
 #define KXMLQLCRGBGrabberOffsetX      QString("X")
 #define KXMLQLCRGBGrabberOffsetY      QString("Y")
 
+#define CAMERA 0
 
 RGBGrabber::RGBGrabber(Doc * doc)
     : RGBAlgorithm(doc)
@@ -106,7 +107,7 @@ QStringList RGBGrabber::sourceList()
         entry.prepend("screen:");
         list.append(entry);
     }
-#if 0 // camera
+#if CAMERA // camera
     for (const QCameraInfo &cameraInfo : cameras) {
         QString entry = cameraInfo.deviceName();
         entry.prepend("camera:");
@@ -141,23 +142,23 @@ QString RGBGrabber::imageTurningToString(RGBGrabber::ImageTurning turningType)
     {
         default:
         case noturn:
-            return QString("Original");
+            return QString("No turning");
         case turn90:
-            return QString("90°");
+            return QString("Turn 90°");
         case turn180:
-            return QString("180°");
+            return QString("Turn 180°");
         case turn270:
-            return QString("270°");
+            return QString("Turn 270°");
     }
 }
 
 RGBGrabber::ImageTurning RGBGrabber::stringToImageTurning(const QString& str)
 {
-    if (str == QString("90°"))
+    if (str == QString("Turn 90°"))
         return turn90;
-    else if (str == QString("180°"))
+    else if (str == QString("Turn 180°"))
         return turn180;
-    else if (str == QString("270°"))
+    else if (str == QString("Turn 270°"))
         return turn270;
     else
         return noturn;
@@ -196,19 +197,19 @@ QString RGBGrabber::imageFlippingToString(RGBGrabber::ImageFlipping flippingType
     {
         default:
         case original:
-            return QString("Original");
+            return QString("No flipping");
         case vertically:
-            return QString("Vertically");
+            return QString("Flip Vertically");
         case horizontally:
-            return QString("Horizontally");
+            return QString("Flip Horizontally");
     }
 }
 
  RGBGrabber::ImageFlipping RGBGrabber::stringToImageFlipping(const QString& str)
 {
-    if (str == QString("Vertically"))
+    if (str == QString("Flip Vertically"))
         return vertically;
-    else if (str == QString("Horizontally"))
+    else if (str == QString("Flip Horizontally"))
         return horizontally;
     else
         return original;
@@ -246,7 +247,7 @@ QString RGBGrabber::imageScalingToString(RGBGrabber::ImageScaling scalingType)
     {
         default:
         case scaledXY:
-            return QString("Scaled");
+            return QString("Scaled to size");
         case scaledWidth:
             return QString("Scaled to width");
         case scaledHeight:
@@ -352,7 +353,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         else
             image = screen->grabWindow(0).toImage();
     }
-#if 0 // camera
+#if CAMERA // camera
     else if (m_source.startsWith("camera:")) {
         const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
         QCamera* camera = NULL;
@@ -427,22 +428,22 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             (imageScaling() == minWidthHeight && size.width() <= size.height()) ||
             (imageScaling() == maxWidthHeight && size.width() > size.height()))
     {
-        // image.newHeight = ceil(image.w / size.w * size.h)
+        // image.newHeight = ceil((image.w / size.w) * size.h)
         int newHeight = ceil(image.width() * size.height(), size.width());
         // Center the image
-        yOffs = (newHeight - size.height()) / 2;
+        yOffs = ceil((newHeight - size.height()), 2);
         if (yOffs < 0)
             yOffs *= -1;
         image = image.scaled(size.width(), newHeight, Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
     }
-    else if (imageScaling() == scaledHeight||
+    else if (imageScaling() == scaledHeight ||
             (imageScaling() == minWidthHeight && size.width() >= size.height()) ||
             (imageScaling() == maxWidthHeight && size.width() < size.height()))
     {
-        // image.newWidth = ceil(image.h / size.h * size.w)
+        // image.newWidth = ceil((image.h / size.h) * size.w)
         int newWidth = ceil(image.height() * size.width(), size.height());
         // Center the image
-        xOffs = (newWidth - size.width()) / 2;
+        xOffs = ceil((newWidth - size.width()), 2);
         if (xOffs < 0)
             xOffs *= -1;
         image = image.scaled(newWidth, size.height(), Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
@@ -471,7 +472,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
 
 QString RGBGrabber::name() const
 {
-    return QString("Screen Grabber");
+    return QString("Video Grabber");
 }
 
 QString RGBGrabber::author() const
