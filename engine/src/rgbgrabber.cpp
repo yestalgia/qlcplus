@@ -323,8 +323,8 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     QMutexLocker locker(&m_mutex);
     QImage image;
 
-    int xOffs = xOffset();
-    int yOffs = yOffset();
+    int xOffset = xOffset();
+    int yOffset = yOffset();
 
     if (m_source.startsWith("screen:")) {
         // Identify the configured screen
@@ -434,9 +434,10 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     {
         int newHeight = ceil(image.height() * size.width(), image.width());
         // Center the image
-        yOffs = ceil((newHeight - size.height()), 2);
+        float yOffs = newHeight - size.height();
         if (yOffs < 0)
             yOffs *= -1;
+        yOffset += ceil(yOffs, 2);
         image = image.scaled(size.width(), newHeight, Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
     }
     else if (imageScaling() == scaledHeight ||
@@ -445,9 +446,10 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     {
         int newWidth = ceil(image.width() * size.height(), image.height());
         // Center the image
-        xOffs = ceil((newWidth - size.width()), 2);
+        float xOffs = newWidth - size.width();
         if (xOffs < 0)
             xOffs *= -1;
+        xOffset += ceil(xOffs, 2);
         image = image.scaled(newWidth, size.height(), Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
     }
     else
@@ -462,8 +464,8 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         map[y].resize(size.width());
         for (int x = 0; x < size.width(); x++)
         {
-            int x1 = (x + xOffs) % image.width();
-            int y1 = (y + yOffs) % image.height();
+            int x1 = (x + xOffset) % image.width();
+            int y1 = (y + yOffset) % image.height();
 
             map[y][x] = image.pixel(x1,y1);
             if (qAlpha(map[y][x]) == 0)
