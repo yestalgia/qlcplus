@@ -323,8 +323,8 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     QMutexLocker locker(&m_mutex);
     QImage image;
 
-    int xOffset = xOffset();
-    int yOffset = yOffset();
+    int xOffs = xOffset();
+    int yOffs = yOffset();
 
     if (m_source.startsWith("screen:")) {
         // Identify the configured screen
@@ -434,10 +434,10 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     {
         int newHeight = ceil(image.height() * size.width(), image.width());
         // Center the image
-        float yOffs = newHeight - size.height();
-        if (yOffs < 0)
-            yOffs *= -1;
-        yOffset += ceil(yOffs, 2);
+        int scalingOffset = newHeight - size.height();
+        if (scalingOffset < 0)
+            scalingOffset *= -1;
+        yOffs += ceil(scalingOffset, 2);
         image = image.scaled(size.width(), newHeight, Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
     }
     else if (imageScaling() == scaledHeight ||
@@ -446,10 +446,10 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     {
         int newWidth = ceil(image.width() * size.height(), image.height());
         // Center the image
-        float xOffs = newWidth - size.width();
-        if (xOffs < 0)
-            xOffs *= -1;
-        xOffset += ceil(xOffs, 2);
+        int scalingOffset = newWidth - size.width();
+        if (scalingOffset < 0)
+            scalingOffset *= -1;
+        xOffs += ceil(scalingOffset, 2);
         image = image.scaled(newWidth, size.height(), Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
     }
     else
@@ -464,8 +464,8 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         map[y].resize(size.width());
         for (int x = 0; x < size.width(); x++)
         {
-            int x1 = (x + xOffset) % image.width();
-            int y1 = (y + yOffset) % image.height();
+            int x1 = (x + xOffs) % image.width();
+            int y1 = (y + yOffs) % image.height();
 
             map[y][x] = image.pixel(x1,y1);
             if (qAlpha(map[y][x]) == 0)
