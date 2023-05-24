@@ -432,23 +432,23 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             (imageScaling() == minWidthHeight && size.width() <= size.height()) ||
             (imageScaling() == maxWidthHeight && size.width() > size.height()))
     {
-        int newHeight = ceil(image.width() * size.height(), size.width());
+        int newHeight = ceil(image.height() * size.width(), image.width());
         // Center the image
         yOffs = ceil((newHeight - size.height()), 2);
         if (yOffs < 0)
             yOffs *= -1;
-        image = image.scaled(size.width(), newHeight, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        image = image.scaled(size.width(), newHeight, Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
     }
     else if (imageScaling() == scaledHeight ||
             (imageScaling() == minWidthHeight && size.width() >= size.height()) ||
             (imageScaling() == maxWidthHeight && size.width() < size.height()))
     {
-        int newWidth = ceil(image.height() * size.width(), size.height());
+        int newWidth = ceil(image.width() * size.height(), image.height());
         // Center the image
         xOffs = ceil((newWidth - size.width()), 2);
         if (xOffs < 0)
             xOffs *= -1;
-        image = image.scaled(newWidth, size.height(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        image = image.scaled(newWidth, size.height(), Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
     }
     else
     {
