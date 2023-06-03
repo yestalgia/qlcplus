@@ -47,7 +47,7 @@
 #define KXMLQLCRGBGrabberOffsetX      QString("X")
 #define KXMLQLCRGBGrabberOffsetY      QString("Y")
 
-#define CAMERA 1
+#define CAMERA 0
 
 RGBGrabber::RGBGrabber(Doc * doc)
     : RGBAlgorithm(doc)
@@ -97,23 +97,26 @@ QString RGBGrabber::source() const
 
 QStringList RGBGrabber::sourceList()
 {
-    const QList<QScreen*> screens = QGuiApplication::screens();
-    const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
     QStringList list;
 
+    const QList<QScreen*> screens = QGuiApplication::screens();
     for (const QScreen* screen: screens)
     {
         QString entry = screen->name();
         entry.prepend("screen:");
         list.append(entry);
     }
+
 #if CAMERA // camera
-    for (const QCameraInfo &cameraInfo : cameras) {
+    const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+    for (const QCameraInfo &cameraInfo : cameras)
+    {
         QString entry = cameraInfo.deviceName();
         entry.prepend("camera:");
         list.append(entry);
     }
 #endif // camera
+
     list.sort(Qt::CaseInsensitive);
 
     return list;
@@ -437,7 +440,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         image = image.scaled(size.width(), newHeight, Qt::IgnoreAspectRatio, Qt::FastTransformation);
         // Copy the image into a image in target size
         image = image.copy(xOffs,
-                yOffs + (size.height() - newHeight) / 2,
+                yOffs + (newHeight - size.height()) / 2,
                 size.width(),
                 size.height());
     }
@@ -449,7 +452,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         // Scale the image to the target height, with a deviating newWidth
         image = image.scaled(newWidth, size.height(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
         // Copy the image into a image in target size
-        image = image.copy(xOffs + (size.width() - newWidth) / 2,
+        image = image.copy(xOffs + (newWidth - size.width()) / 2,
                 yOffs,
                 size.width(),
                 size.height());
@@ -457,6 +460,10 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     else
     {
         image = image.scaled(size, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        image = image.copy(xOffs,
+                        yOffs,
+                        size.width(),
+                        size.height());
     }
 
     // Prepare map and Fill the colors
@@ -466,10 +473,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         map[y].resize(size.width());
         for (int x = 0; x < size.width(); x++)
         {
-            int x1 = (x + xOffs) % image.width();
-            int y1 = (y + yOffs) % image.height();
-
-            map[y][x] = image.pixel(x1,y1);
+            map[y][x] = image.pixel(x, y);
             if (qAlpha(map[y][x]) == 0)
                 map[y][x] = 0;
         }
