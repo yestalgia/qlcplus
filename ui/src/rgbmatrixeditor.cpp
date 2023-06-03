@@ -1003,6 +1003,18 @@ void RGBMatrixEditor::slotOffsetSpinChanged()
         }
         slotRestartTest();
     }
+
+    if (m_matrix->algorithm() != NULL && m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
+    {
+        RGBImage* algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+        Q_ASSERT(algo != NULL);
+        {
+            QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
+            algo->setXOffset(m_xOffsetSpin->value());
+            algo->setYOffset(m_yOffsetSpin->value());
+        }
+        slotRestartTest();
+    }
 }
 
 void RGBMatrixEditor::slotLoopClicked()
