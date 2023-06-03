@@ -433,24 +433,26 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             (imageScaling() == maxWidthHeight && size.width() > size.height()))
     {
         int newHeight = ceil(image.height() * size.width(), image.width());
-        // Center the image
-        int scalingOffset = newHeight - size.height();
-        if (scalingOffset < 0)
-            scalingOffset *= -1;
-        yOffs += ceil(scalingOffset, 2);
-        image = image.scaled(size.width(), newHeight, Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
+        // Scale the image to the target height, with a deviating newWidth
+        image = image.scaled(size.width(), newHeight, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        // Copy the image into a image in target size
+        image = image.copy(xOffs,
+                yOffs + (size.height() - newHeight) / 2,
+                size.width(),
+                size.height());
     }
     else if (imageScaling() == scaledHeight ||
             (imageScaling() == minWidthHeight && size.width() >= size.height()) ||
             (imageScaling() == maxWidthHeight && size.width() < size.height()))
     {
         int newWidth = ceil(image.width() * size.height(), image.height());
-        // Center the image
-        int scalingOffset = newWidth - size.width();
-        if (scalingOffset < 0)
-            scalingOffset *= -1;
-        xOffs += ceil(scalingOffset, 2);
-        image = image.scaled(newWidth, size.height(), Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
+        // Scale the image to the target height, with a deviating newWidth
+        image = image.scaled(newWidth, size.height(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        // Copy the image into a image in target size
+        image = image.copy(xOffs + (size.width() - newWidth) / 2,
+                yOffs,
+                size.width(),
+                size.height());
     }
     else
     {
