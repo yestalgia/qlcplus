@@ -524,7 +524,7 @@ bool RGBGrabber::loadXML(QXmlStreamReader &root)
     {
         if (root.name() == KXMLQLCRGBGrabberSource)
         {
-            setSource(doc()->denormalizeComponentPath(root.readElementText()));
+            setSource(root.readElementText());
         }
         else if (root.name() == KXMLQLCRGBGrabberTurning)
         {
