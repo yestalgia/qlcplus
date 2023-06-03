@@ -48,7 +48,7 @@
 #define KXMLQLCRGBGrabberOffsetX      QString("X")
 #define KXMLQLCRGBGrabberOffsetY      QString("Y")
 
-#define CAMERA 0
+#define CAMERA 1
 
 RGBGrabber::RGBGrabber(Doc * doc)
     : RGBAlgorithm(doc)
@@ -112,8 +112,8 @@ QStringList RGBGrabber::sourceList()
     const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
     for (const QCameraInfo &cameraInfo : cameras)
     {
-        QString entry = cameraInfo.deviceName();
-        entry.prepend("camera:");
+        QString entry = cameraInfo.description(); // or deviceName()
+        entry.prepend("input:");
         list.append(entry);
     }
 #endif // camera
@@ -358,14 +358,14 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             image = screen->grabWindow(0).toImage();
     }
 #if CAMERA // camera
-    else if (m_source.startsWith("camera:")) {
+    else if (m_source.startsWith("input:")) {
         const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
         QCamera* camera = NULL;
 
         // Get the camera by name
         for (const QCameraInfo &cameraInfo : cameras) {
-            QString search = cameraInfo.deviceName();
-            search.prepend("camera:");
+            QString search = cameraInfo.description(); // or deviceName()
+            search.prepend("input:");
             if (search == m_source) {
                 camera = new QCamera(cameraInfo);
                 break;
