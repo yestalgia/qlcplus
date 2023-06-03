@@ -115,11 +115,11 @@ public:
     int yOffset() const;
 
 private:
+    ImageTurning m_imageTurning;
+    ImageFlipping m_imageFlipping;
     ImageScaling m_imageScaling;
     int m_xOffset;
     int m_yOffset;
-    ImageTurning m_imageTurning;
-    ImageFlipping m_imageFlipping;
 
 
     /************************************************************************

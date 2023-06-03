@@ -44,6 +44,7 @@
 #define KXMLQLCRGBGrabberScaling      QString("Scaling")
 #define KXMLQLCRGBGrabberTurning      QString("Turning")
 #define KXMLQLCRGBGrabberFlipping     QString("Flipping")
+#define KXMLQLCRGBGrabberOffset       QString("Offset")
 #define KXMLQLCRGBGrabberOffsetX      QString("X")
 #define KXMLQLCRGBGrabberOffsetY      QString("Y")
 
@@ -52,22 +53,22 @@
 RGBGrabber::RGBGrabber(Doc * doc)
     : RGBAlgorithm(doc)
     , m_source("")
+    , m_imageTurning(noturn)
+    , m_imageFlipping(original)
     , m_imageScaling(scaledXY)
     , m_xOffset(0)
     , m_yOffset(0)
-    , m_imageTurning(noturn)
-    , m_imageFlipping(original)
 {
 }
 
 RGBGrabber::RGBGrabber(const RGBGrabber& i)
     : RGBAlgorithm(i.doc())
     , m_source(i.source())
+    , m_imageTurning(i.imageTurning())
+    , m_imageFlipping(i.imageFlipping())
     , m_imageScaling(i.imageScaling())
     , m_xOffset(i.m_xOffset)
     , m_yOffset(i.m_yOffset)
-    , m_imageTurning(i.imageTurning())
-    , m_imageFlipping(i.imageFlipping())
 {
 }
 
@@ -535,12 +536,14 @@ bool RGBGrabber::loadXML(QXmlStreamReader &root)
         }
         else if (root.name() == KXMLQLCRGBGrabberScaling)
         {
+            setImageScaling(stringToImageScaling(root.readElementText()));
+        }
+        else if (root.name() == KXMLQLCRGBGrabberOffset)
+        {
             QString str;
             int value;
             bool ok;
             QXmlStreamAttributes attrs = root.attributes();
-
-            setImageScaling(stringToImageScaling(root.readElementText()));
 
             str = attrs.value(KXMLQLCRGBGrabberOffsetX).toString();
             ok = false;
@@ -557,7 +560,7 @@ bool RGBGrabber::loadXML(QXmlStreamReader &root)
                 setYOffset(value);
             else
                 qWarning() << Q_FUNC_INFO << "Invalid Y offset:" << str;
-            // root.skipCurrentElement();
+             root.skipCurrentElement();
         }
         else
         {
@@ -577,13 +580,15 @@ bool RGBGrabber::saveXML(QXmlStreamWriter *doc) const
     doc->writeAttribute(KXMLQLCRGBAlgorithmType, KXMLQLCRGBGrabber);
 
     // Source
-    doc->writeTextElement(KXMLQLCRGBGrabberSource, this->doc()->normalizeComponentPath(m_source));
+    doc->writeTextElement(KXMLQLCRGBGrabberSource, m_source);
 
     // Scaling
-    doc->writeStartElement(KXMLQLCRGBGrabberScaling);
+    doc->writeTextElement(KXMLQLCRGBGrabberScaling, imageScalingToString(imageScaling()));
+
+    // Scaling Offset
+    doc->writeStartElement(KXMLQLCRGBGrabberOffset);
     doc->writeAttribute(KXMLQLCRGBGrabberOffsetX, QString::number(xOffset()));
     doc->writeAttribute(KXMLQLCRGBGrabberOffsetY, QString::number(yOffset()));
-    doc->writeCDATA(imageScalingToString(imageScaling()));
     doc->writeEndElement();
 
     // Turning
