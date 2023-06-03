@@ -1006,7 +1006,7 @@ void RGBMatrixEditor::slotOffsetSpinChanged()
 
     if (m_matrix->algorithm() != NULL && m_matrix->algorithm()->type() == RGBAlgorithm::Grabber)
     {
-        RGBImage* algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
+        RGBGrabber* algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
         Q_ASSERT(algo != NULL);
         {
             QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
