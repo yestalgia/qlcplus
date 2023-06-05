@@ -895,13 +895,13 @@ Rectangle
 
                 ListModel
                 {
-                    id: grabberSourceModel
+                    id: grabberTurnModel
                     ListElement { mLabel: qsTr("Original"); }
                     ListElement { mLabel: qsTr("90°"); }
                     ListElement { mLabel: qsTr("180°"); }
                     ListElement { mLabel: qsTr("270°"); }
                 }
-                model: grabberSourceModel
+                model: grabberTurnModel
                 currentIndex: rgbMatrixEditor.grabberTurning
                 onCurrentIndexChanged: rgbMatrixEditor.grabberTurning = currentIndex
             }
@@ -942,14 +942,14 @@ Rectangle
 
                 ListModel
                 {
-                    id: grabberSourceModel
+                    id: grabberScalingModel
                     ListElement { mLabel: qsTr("Scaled"); }
                     ListElement { mLabel: qsTr("Scaled to width"); }
                     ListElement { mLabel: qsTr("Scaled to height"); }
                     ListElement { mLabel: qsTr("Scaled to min. w,h"); }
                     ListElement { mLabel: qsTr("Scaled to max. w,h"); }
                 }
-                model: grabberSourceModel
+                model: grabberScalingModel
                 currentIndex: rgbMatrixEditor.grabberScaling
                 onCurrentIndexChanged: rgbMatrixEditor.grabberScaling = currentIndex
             }
