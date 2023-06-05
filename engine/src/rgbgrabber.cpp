@@ -384,8 +384,8 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             camera->unlock();
             // Listen for QCameraImageCapture::imageAvailable()
             //connect(capture, &QCameraImageCapture::imageCaptured, [&](int id, const QImage &preview){
-                // Get the preview into the image
-                QVideoFrame videoFrame;
+            // Get the preview into the image
+            QVideoFrame videoFrame;
             //});
             image = QImage(videoFrame.bits(),
                 videoFrame.width(),
@@ -408,13 +408,13 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         case noturn:
             break;
         case turn90:
-            image = image.transformed(QMatrix().rotate(90.0), Qt::FastTransformation);
+            image = image.transformed(QTransform().rotate(90.0), Qt::FastTransformation);
             break;
         case turn180:
-            image = image.transformed(QMatrix().rotate(180.0), Qt::FastTransformation);
+            image = image.transformed(QTransform().rotate(180.0), Qt::FastTransformation);
             break;
         case turn270:
-            image = image.transformed(QMatrix().rotate(270.0), Qt::FastTransformation);
+            image = image.transformed(QTransform().rotate(270.0), Qt::FastTransformation);
             break;
     }
 
