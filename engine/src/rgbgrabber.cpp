@@ -109,6 +109,7 @@ QStringList RGBGrabber::sourceList()
     }
 
 #if CAMERA // camera
+    // Get the list of available cameras
     const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
     for (const QCameraInfo &cameraInfo : cameras)
     {
@@ -407,13 +408,13 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         case noturn:
             break;
         case turn90:
-            image = image.transformed(QMatrix().rotate(90.0));
+            image = image.transformed(QMatrix().rotate(90.0), Qt::FastTransformation);
             break;
         case turn180:
-            image = image.transformed(QMatrix().rotate(180.0));
+            image = image.transformed(QMatrix().rotate(180.0), Qt::FastTransformation);
             break;
         case turn270:
-            image = image.transformed(QMatrix().rotate(270.0));
+            image = image.transformed(QMatrix().rotate(270.0), Qt::FastTransformation);
             break;
     }
 
