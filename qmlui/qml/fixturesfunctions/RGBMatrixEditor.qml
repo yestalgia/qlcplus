@@ -168,7 +168,7 @@ Rectangle
                             paramSection.sectionContents = textAlgoComponent
                         else if (displayText == "Image")
                             paramSection.sectionContents = imageAlgoComponent
-                        else if (displayText == "Grabber")
+                        else if (displayText == "Video Grabber")
                             paramSection.sectionContents = grabberAlgoComponent
                         else
                             paramSection.sectionContents = scriptAlgoComponent
