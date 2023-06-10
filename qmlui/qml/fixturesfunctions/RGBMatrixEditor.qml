@@ -879,7 +879,7 @@ Rectangle
 
                 model: rgbMatrixEditor.grabberSourceList
                 currentIndex: rgbMatrixEditor.grabberSourceIndex
-                onCurrentIndexChanged: rgbMatrixEditor.grabberSourceIndex = currentIndex
+                onDisplayTextChanged: rgbMatrixEditor.grabberSourceIndex = currentIndex
             }
 
             // Row 2
