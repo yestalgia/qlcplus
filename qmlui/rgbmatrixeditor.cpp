@@ -540,7 +540,7 @@ void RGBMatrixEditor::setGrabberSourceIndex(int newValue)
             Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabber, m_matrix->id(), (int)sourceList.indexOf(algo->source()), newValue);
             QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
             algo->setSource(sourceList[newValue]);
-            emit algoGrabberSourceChanged(newValue);
+            emit algoGrabberSourceIndexChanged(newValue);
         }
     }
 }
