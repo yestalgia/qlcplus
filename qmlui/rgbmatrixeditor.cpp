@@ -534,16 +534,25 @@ void RGBMatrixEditor::setGrabberSourceIndex(int newValue)
         {
             RGBGrabber *algo = static_cast<RGBGrabber*> (m_matrix->algorithm());
             QStringList sourceList = RGBGrabber::sourceList();
-            if ((int) sourceList.indexOf(algo->source()) == newValue)
+            if ((int) sourceList.indexOf(algo->source()) == newValue
+                    || sourceList.length() == 0)
                 return;
 
-            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabber, m_matrix->id(), (int)sourceList.indexOf(algo->source()), newValue);
+            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabberSourceIndex, m_matrix->id(),
+                    (int)sourceList.indexOf(algo->source()), newValue);
             QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
-            algo->setSource(sourceList[newValue]);
+            if (newValue < sourceList.length()) {
+                algo->setSource(sourceList.at(newValue));
+            }
+            else
+            {
+                algo->setSource(sourceList.at(0));
+            }
             emit algoGrabberSourceIndexChanged(newValue);
         }
     }
 }
+
 int RGBMatrixEditor::imageFlipping() const
 {
     if (m_matrix != nullptr && m_matrix->algorithm() != nullptr)
