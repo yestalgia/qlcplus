@@ -944,7 +944,7 @@ int Tardis::processAction(TardisAction &action, bool undo)
             if (matrix->algorithm()->type() == RGBAlgorithm::Grabber)
             {
                 RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
-                algo->setImageTurning(RGBGrabber::stringToImageTurning(value->toString()));
+                algo->setImageTurning(RGBGrabber::ImageTurning(value->toInt()));
             }
         }
         break;
@@ -954,7 +954,7 @@ int Tardis::processAction(TardisAction &action, bool undo)
             if (matrix->algorithm()->type() == RGBAlgorithm::Grabber)
             {
                 RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
-                algo->setImageFlipping(RGBGrabber::stringToImageFlipping(value->toString()));
+                algo->setImageFlipping(RGBGrabber::ImageFlipping(value->toInt()));
             }
         }
         break;
@@ -964,7 +964,7 @@ int Tardis::processAction(TardisAction &action, bool undo)
             if (matrix->algorithm()->type() == RGBAlgorithm::Grabber)
             {
                 RGBGrabber* algo = static_cast<RGBGrabber*> (matrix->algorithm());
-                algo->setImageScaling(RGBGrabber::stringToImageScaling(value->toString()));
+                algo->setImageScaling(RGBGrabber::ImageScaling(value->toInt()));
             }
         }
         break;

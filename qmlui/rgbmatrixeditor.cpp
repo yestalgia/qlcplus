@@ -576,7 +576,8 @@ void RGBMatrixEditor::setImageFlipping(int newValue)
             if ((int)algo->imageFlipping() == newValue)
                 return;
 
-            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabberFlipping, m_matrix->id(), (int)algo->imageFlipping(), newValue);
+            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabberFlipping, m_matrix->id(),
+                    (int)algo->imageFlipping(), newValue);
             QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
             algo->setImageFlipping(RGBGrabber::ImageFlipping(newValue));
             emit algoFlippingChanged(newValue);
@@ -607,7 +608,8 @@ void RGBMatrixEditor::setImageTurning(int newValue)
             if ((int)algo->imageTurning() == newValue)
                 return;
 
-            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabberTurning, m_matrix->id(), (int)algo->imageTurning(), newValue);
+            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabberTurning, m_matrix->id(),
+                    (int)algo->imageTurning(), newValue);
             QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
             algo->setImageTurning(RGBGrabber::ImageTurning(newValue));
             emit algoTurningChanged(newValue);
@@ -638,7 +640,8 @@ void RGBMatrixEditor::setImageScaling(int newValue)
             if ((int)algo->imageScaling() == newValue)
                 return;
 
-            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabberScaling, m_matrix->id(), (int)algo->imageScaling(), newValue);
+            Tardis::instance()->enqueueAction(Tardis::RGBMatrixSetGrabberScaling, m_matrix->id(),
+                    (int)algo->imageScaling(), newValue);
             QMutexLocker algorithmLocker(&m_matrix->algorithmMutex());
             algo->setImageScaling(RGBGrabber::ImageScaling(newValue));
             emit algoScalingChanged(newValue);
