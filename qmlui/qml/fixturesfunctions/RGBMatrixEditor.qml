@@ -902,8 +902,8 @@ Rectangle
                     ListElement { mLabel: qsTr("270°"); }
                 }
                 model: grabberTurnModel
-                currentIndex: rgbMatrixEditor.grabberTurning
-                onCurrentIndexChanged: rgbMatrixEditor.grabberTurning = currentIndex
+                currentIndex: rgbMatrixEditor.imageTurning
+                onCurrentIndexChanged: rgbMatrixEditor.imageTurning = currentIndex
             }
 
             // Row 3
@@ -925,8 +925,8 @@ Rectangle
                     ListElement { mLabel: qsTr("Horizontally"); }
                 }
                 model: grabberFlippingModel
-                currentIndex: rgbMatrixEditor.grabberFlipping
-                onCurrentIndexChanged: rgbMatrixEditor.grabberFlipping = currentIndex
+                currentIndex: rgbMatrixEditor.imageFlipping
+                onCurrentIndexChanged: rgbMatrixEditor.imageFlipping = currentIndex
             }
 
             // Row 4
@@ -950,8 +950,8 @@ Rectangle
                     ListElement { mLabel: qsTr("Scaled to max. w,h"); }
                 }
                 model: grabberScalingModel
-                currentIndex: rgbMatrixEditor.grabberScaling
-                onCurrentIndexChanged: rgbMatrixEditor.grabberScaling = currentIndex
+                currentIndex: rgbMatrixEditor.imageScaling
+                onCurrentIndexChanged: rgbMatrixEditor.imageScaling = currentIndex
             }
 
             // Row 5
