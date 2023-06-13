@@ -876,7 +876,7 @@ Rectangle
             {
                 Layout.fillWidth: true
                 height: editorColumn.itemsHeight
-
+                textRole: ""
                 model: rgbMatrixEditor.grabberSourceList
                 currentIndex: rgbMatrixEditor.grabberSourceIndex
                 onDisplayTextChanged: rgbMatrixEditor.grabberSourceIndex = currentIndex
