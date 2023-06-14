@@ -35,6 +35,7 @@
 #include <QScreen>
 #include <QDebug>
 #include <QtMultimedia>
+#include <QObject>
 
 #include "rgbgrabber.h"
 #include "qlcmacros.h"
@@ -61,8 +62,9 @@ RGBGrabber::RGBGrabber(Doc * doc)
 {
 }
 
-RGBGrabber::RGBGrabber(const RGBGrabber& i)
-    : RGBAlgorithm(i.doc())
+RGBGrabber::RGBGrabber(const RGBGrabber& i, QObject *parent)
+    : QObject(parent)
+    , RGBAlgorithm(i.doc())
     , m_source(i.source())
     , m_imageTurning(i.imageTurning())
     , m_imageFlipping(i.imageFlipping())
@@ -78,8 +80,8 @@ RGBGrabber::~RGBGrabber()
 
 RGBAlgorithm* RGBGrabber::clone() const
 {
-    RGBGrabber* image = new RGBGrabber(*this);
-    return static_cast<RGBAlgorithm*> (image);
+    RGBGrabber* grabber = new RGBGrabber(*this);
+    return static_cast<RGBAlgorithm*> (grabber);
 }
 
 /****************************************************************************
@@ -326,7 +328,6 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     Q_UNUSED(rgb);
     Q_UNUSED(step);
     QMutexLocker locker(&m_mutex);
-    QImage image;
 
     int xOffs = xOffset();
     int yOffs = yOffset();
@@ -356,50 +357,53 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         if (screen == NULL)
             return;
         else
-            image = screen->grabWindow(0).toImage();
+        {
+            QImage image = screen->grabWindow(0).toImage();
+            m_rawImage = image;
+        }
     }
 #if CAMERA // camera
     else if (m_source.startsWith("input:")) {
         const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
-        QCamera* camera = NULL;
 
         // Get the camera by name
         for (const QCameraInfo &cameraInfo : cameras) {
             QString search = cameraInfo.description(); // or deviceName()
             search.prepend("input:");
             if (search == m_source) {
-                camera = new QCamera(cameraInfo);
+                m_camera.reset(new QCamera(cameraInfo));
                 break;
             }
         }
         // Get the next image
-        if (camera != NULL)
+        if (m_camera != NULL)
         {
-            QCameraImageCapture* capture = new QCameraImageCapture(camera);
-            capture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
-            camera->setCaptureMode(QCamera::CaptureStillImage);
-            camera->start();
-            camera->searchAndLock();
-            capture->capture();
-            camera->unlock();
-            // Listen for QCameraImageCapture::imageAvailable()
-            //connect(capture, &QCameraImageCapture::imageCaptured, [&](int id, const QImage &preview){
-            // Get the preview into the image
-            QVideoFrame videoFrame;
-            //});
-            image = QImage(videoFrame.bits(),
-                videoFrame.width(),
-                videoFrame.height(),
-                videoFrame.bytesPerLine(),
-                QVideoFrame::imageFormatFromPixelFormat(videoFrame.pixelFormat()));
+            m_imageCapture.reset(new QCameraImageCapture(m_camera.data()));
+            m_imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
+            m_camera->setCaptureMode(QCamera::CaptureStillImage);
+            m_camera->start();
+            m_camera->searchAndLock();
+            m_imageCapture->capture();
+            m_camera->unlock();
+
+            connect(m_imageCapture.data(), &QCameraImageCapture::imageCaptured,
+                    this, [&](int id, const QImage &preview)
+                    {
+                        Q_UNUSED(id);
+                        // Get the image
+                        m_rawImage = preview.copy(0, 0, preview.width(), preview.height());
+                    });
         }
     }
 #endif // camera
     else
         return;
     // Check if input image size is valid (width & height > 0)
-    if (image.width() == 0 || image.height() == 0)
+    if (m_rawImage.isNull() || m_rawImage.width() == 0 || m_rawImage.height() == 0)
         return;
+
+    // Copy the captured image for transformation
+    QImage matrixImage = m_rawImage.copy(0, 0, m_rawImage.width(), m_rawImage.height());;
 
     // Turn the image
     switch (imageTurning())
@@ -408,13 +412,13 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         case noturn:
             break;
         case turn90:
-            image = image.transformed(QTransform().rotate(90.0), Qt::FastTransformation);
+            matrixImage = matrixImage.transformed(QTransform().rotate(90.0), Qt::FastTransformation);
             break;
         case turn180:
-            image = image.transformed(QTransform().rotate(180.0), Qt::FastTransformation);
+            matrixImage = matrixImage.transformed(QTransform().rotate(180.0), Qt::FastTransformation);
             break;
         case turn270:
-            image = image.transformed(QTransform().rotate(270.0), Qt::FastTransformation);
+            matrixImage = matrixImage.transformed(QTransform().rotate(270.0), Qt::FastTransformation);
             break;
     }
 
@@ -425,10 +429,10 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         case original:
             break;
         case vertically:
-            image = image.mirrored(false, true);
+            matrixImage = matrixImage.mirrored(false, true);
             break;
         case horizontally:
-            image = image.mirrored(true, false);
+            matrixImage = matrixImage.mirrored(true, false);
             break;
     }
 
@@ -437,11 +441,11 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             (imageScaling() == minWidthHeight && size.width() <= size.height()) ||
             (imageScaling() == maxWidthHeight && size.width() > size.height()))
     {
-        int newHeight = ceil(image.height() * size.width(), image.width());
+        int newHeight = ceil(matrixImage.height() * size.width(), matrixImage.width());
         // Scale the image to the target height, with a deviating newWidth
-        image = image.scaled(size.width(), newHeight, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        QImage image = matrixImage.scaled(size.width(), newHeight, Qt::IgnoreAspectRatio, Qt::FastTransformation);
         // Copy the image into a image in target size
-        image = image.copy(xOffs,
+        matrixImage = image.copy(xOffs,
                 yOffs + (newHeight - size.height()) / 2,
                 size.width(),
                 size.height());
@@ -450,19 +454,19 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             (imageScaling() == minWidthHeight && size.width() >= size.height()) ||
             (imageScaling() == maxWidthHeight && size.width() < size.height()))
     {
-        int newWidth = ceil(image.width() * size.height(), image.height());
+        int newWidth = ceil(matrixImage.width() * size.height(), matrixImage.height());
         // Scale the image to the target height, with a deviating newWidth
-        image = image.scaled(newWidth, size.height(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        QImage image = matrixImage.scaled(newWidth, size.height(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
         // Copy the image into a image in target size
-        image = image.copy(xOffs + (newWidth - size.width()) / 2,
+        matrixImage = image.copy(xOffs + (newWidth - size.width()) / 2,
                 yOffs,
                 size.width(),
                 size.height());
     }
     else
     {
-        image = image.scaled(size, Qt::IgnoreAspectRatio, Qt::FastTransformation);
-        image = image.copy(xOffs,
+        QImage image = matrixImage.scaled(size, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+        matrixImage = image.copy(xOffs,
                         yOffs,
                         size.width(),
                         size.height());
@@ -475,7 +479,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         map[y].resize(size.width());
         for (int x = 0; x < size.width(); x++)
         {
-            map[y][x] = image.pixel(x, y);
+            map[y][x] = matrixImage.pixel(x, y);
             if (qAlpha(map[y][x]) == 0)
                 map[y][x] = 0;
         }

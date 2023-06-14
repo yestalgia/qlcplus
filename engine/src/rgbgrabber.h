@@ -23,10 +23,13 @@
 #ifndef RGBGRABBER_H
 #define RGBGRABBER_H
 
+#include <QObject>
 #include <QMutexLocker>
 #include <QString>
 #include <QMovie>
 #include <QImage>
+#include <QCamera>
+#include <QCameraImageCapture>
 
 #include "rgbalgorithm.h"
 
@@ -36,11 +39,13 @@
 
 #define KXMLQLCRGBGrabber "Screen Grabber"
 
-class RGBGrabber : public RGBAlgorithm
+class RGBGrabber : public QObject, public RGBAlgorithm
 {
+    Q_OBJECT
+
 public:
     RGBGrabber(Doc * doc);
-    RGBGrabber(const RGBGrabber& t);
+    RGBGrabber(const RGBGrabber& i, QObject *parent = 0);
     ~RGBGrabber();
 
     /** @reimp */
@@ -62,6 +67,11 @@ public:
 private:
     QString m_source;
     QMutex m_mutex;
+
+    QScopedPointer<QCamera> m_camera;
+    QScopedPointer<QCameraImageCapture> m_imageCapture;
+    QImage m_rawImage;
+
 
     /************************************************************************
      * Image Processing
