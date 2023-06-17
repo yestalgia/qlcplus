@@ -2,8 +2,6 @@
   Q Light Controller Plus
   rgbgrabber.cpp
 
-  Copyright (c) Heikki Junnila
-  Copyright (c) Jano Svitok
   Copyright (c) Massimo Callegari
   Copyright (c) Hans-Jürgen Tappe
 
@@ -37,6 +35,9 @@
 #include <QtMultimedia>
 #include <QObject>
 
+// FIXME: Remove
+#include <QTextStream>
+
 #include "rgbgrabber.h"
 #include "qlcmacros.h"
 #include "doc.h"
@@ -54,6 +55,9 @@
 RGBGrabber::RGBGrabber(Doc * doc)
     : RGBAlgorithm(doc)
     , m_source("")
+    , m_camera(0)
+    , m_imageCapture(0)
+    , m_rawImage(0)
     , m_imageTurning(noturn)
     , m_imageFlipping(original)
     , m_imageScaling(scaledXY)
@@ -66,11 +70,14 @@ RGBGrabber::RGBGrabber(const RGBGrabber& i, QObject *parent)
     : QObject(parent)
     , RGBAlgorithm(i.doc())
     , m_source(i.source())
+    , m_camera(0)
+    , m_imageCapture(0)
+    , m_rawImage(0)
     , m_imageTurning(i.imageTurning())
     , m_imageFlipping(i.imageFlipping())
     , m_imageScaling(i.imageScaling())
-    , m_xOffset(i.m_xOffset)
-    , m_yOffset(i.m_yOffset)
+    , m_xOffset(i.xOffset())
+    , m_yOffset(i.yOffset())
 {
 }
 
@@ -332,6 +339,16 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     int xOffs = xOffset();
     int yOffs = yOffset();
 
+    // Prepare map
+    map.resize(size.height());
+    for (int y = 0; y < size.height(); y++)
+    {
+        map[y].resize(size.width());
+    }
+
+    // FIXME: Remove
+    QTextStream cout(stdout, QIODevice::WriteOnly);
+
     if (m_source.startsWith("screen:")) {
         // Identify the configured screen
         QList<QScreen*> screens = QGuiApplication::screens();
@@ -363,47 +380,90 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         }
     }
 #if CAMERA // camera
-    else if (m_source.startsWith("input:")) {
+    else if (m_source.startsWith("input:"))
+    {
         const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
 
+        QCameraInfo thisCameraInfo;
         // Get the camera by name
-        for (const QCameraInfo &cameraInfo : cameras) {
-            QString search = cameraInfo.description(); // or deviceName()
-            search.prepend("input:");
-            if (search == m_source) {
-                m_camera.reset(new QCamera(cameraInfo));
-                break;
-            }
-        }
-        // Get the next image
         if (m_camera != NULL)
         {
-            m_imageCapture.reset(new QCameraImageCapture(m_camera.data()));
+            cout << "Get existing camera info" << Qt::endl;
+            thisCameraInfo = QCameraInfo(*m_camera);
+//            if (thisCameraInfo) {
+//                cout << "But failed to set the info for the existing camera" << Qt::endl;
+//            } else {
+                cout << "and found: " << thisCameraInfo.description() << " at " << thisCameraInfo.deviceName() << Qt::endl;
+//            }
+        }
+        else {
+            cout << "m_camera not available" << Qt::endl;
+        }
+        if (m_camera == NULL || thisCameraInfo.isNull() || thisCameraInfo.description() != m_source)
+        {
+            cout << "Searching for cameras" << Qt::endl;
+            for (const QCameraInfo &cameraInfo : cameras)
+            {
+                QString search = cameraInfo.description(); // or deviceName()
+                search.prepend("input:");
+                if (search == m_source)
+                {
+                    m_camera = new QCamera(cameraInfo);
+                    m_camera->setCaptureMode(QCamera::CaptureStillImage);
+                    m_camera->start();
+                    m_camera->searchAndLock();
+                    cout << "Set Camera on " << cameraInfo.deviceName() << Qt::endl;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            cout << "Camera OK" << Qt::endl;
+        }
+        // Get the next image
+        if (m_camera->isAvailable())
+        {
+            cout << "Get the next image" << Qt::endl;
+            m_imageCapture = new QCameraImageCapture(m_camera);
             m_imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
-            m_camera->setCaptureMode(QCamera::CaptureStillImage);
-            m_camera->start();
-            m_camera->searchAndLock();
+            cout << "Call capture" << Qt::endl;
             m_imageCapture->capture();
-            m_camera->unlock();
+//            m_camera->unlock();
 
-            connect(m_imageCapture.data(), &QCameraImageCapture::imageCaptured,
+            connect(m_imageCapture, &QCameraImageCapture::imageCaptured,
                     this, [&](int id, const QImage &preview)
                     {
                         Q_UNUSED(id);
+                        // FIXME: Remove
+                        QTextStream cout2(stdout, QIODevice::WriteOnly);
+                        cout2 << "Copying captured image" << Qt::endl;
                         // Get the image
-                        m_rawImage = preview.copy(0, 0, preview.width(), preview.height());
+                        m_rawImage = preview;
                     });
         }
+        else
+        {
+            cout << "Camera is not available" << Qt::endl;
+        }
+        cout << "Done initializing capture" << Qt::endl;
     }
 #endif // camera
     else
+    {
+        cout << "Invalid source selected" << Qt::endl;
         return;
+    }
+
     // Check if input image size is valid (width & height > 0)
     if (m_rawImage.isNull() || m_rawImage.width() == 0 || m_rawImage.height() == 0)
+    {
+        cout << "No image. Terminating." << Qt::endl;
         return;
+    }
 
     // Copy the captured image for transformation
-    QImage matrixImage = m_rawImage.copy(0, 0, m_rawImage.width(), m_rawImage.height());;
+    QImage matrixImage = m_rawImage;
 
     // Turn the image
     switch (imageTurning())
@@ -472,11 +532,9 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                         size.height());
     }
 
-    // Prepare map and Fill the colors
-    map.resize(size.height());
+    // Fill the matrix
     for (int y = 0; y < size.height(); y++)
     {
-        map[y].resize(size.width());
         for (int x = 0; x < size.width(); x++)
         {
             map[y][x] = matrixImage.pixel(x, y);
