@@ -68,8 +68,8 @@ private:
     QString m_source;
     QMutex m_mutex;
 
-    QCamera *m_camera;
-    QCameraImageCapture *m_imageCapture;
+    QScopedPointer<QCamera> m_camera;
+    QScopedPointer<QCameraImageCapture> m_imageCapture;
     QImage m_rawImage;
 
 

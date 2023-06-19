@@ -417,7 +417,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                 search.prepend("input:");
                 if (search == m_source)
                 {
-                    m_camera = new QCamera(cameraInfo);
+                    m_camera.reset(new QCamera(cameraInfo));
                     cout << "Set Camera on " << cameraInfo.deviceName() << Qt::endl;
                     break;
                 }
@@ -432,9 +432,9 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
 //        {
             cout << "Configure the Camera" << Qt::endl;
             // Configure the camera
-            m_imageCapture = new QCameraImageCapture(m_camera);
+            m_imageCapture.reset(new QCameraImageCapture(m_camera.data()));
 
-            connect(m_imageCapture, &QCameraImageCapture::imageCaptured,
+            connect(m_imageCapture.data(), &QCameraImageCapture::imageCaptured,
                     this, [&](int id, const QImage &preview)
                     {
                         Q_UNUSED(id);
@@ -444,32 +444,32 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                         // Get the image
                         m_rawImage = preview;
                     });
-            connect(m_camera, QOverload<QCamera::Error>::of(&QCamera::error), this, [&]()
+            connect(m_camera.data(), QOverload<QCamera::Error>::of(&QCamera::error), this, [&]()
                     {
-                        qWarning() << "ERR: Camera: " << m_camera->errorString();
+                        // FIXME: Remove
+                        QTextStream cout2(stdout, QIODevice::WriteOnly);
+                        cout2 << "ERR: Camera: " << m_camera.data()->errorString() << Qt::endl;
+                        qWarning() << "ERR: Camera: " << m_camera.data()->errorString();
                     });
-            connect(m_imageCapture, QOverload<int, QCameraImageCapture::Error, const QString &>::of(&QCameraImageCapture::error),
+            connect(m_imageCapture.data(), QOverload<int, QCameraImageCapture::Error, const QString &>::of(&QCameraImageCapture::error),
                         this, [&](int id, const QCameraImageCapture::Error error, const QString &errorString)
                         {
                             Q_UNUSED(id);
                             Q_UNUSED(error);
+                            // FIXME: Remove
+                            QTextStream cout2(stdout, QIODevice::WriteOnly);
+                            cout2 << "ERR: Camera: " << errorString << Qt::endl;
                             qWarning() << "ERR: Capture: " << errorString;
                         });
 
             m_camera->setCaptureMode(QCamera::CaptureStillImage);
             m_camera->start();
 
-// HERE
             // Get the image
             cout << "Get the next image" << Qt::endl;
             m_imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
             cout << "Call capture" << Qt::endl;
             m_imageCapture->capture();
-
-//            m_camera->searchAndLock();
-//            cam->unlock();
-//            m_camera->unlock();
-
 //        }
 //        else
 //        {
@@ -480,7 +480,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         QTimer timer;
         QEventLoop loop;
         timer.setSingleShot(true);
-        connect(m_imageCapture, &QCameraImageCapture::imageCaptured, &loop, &QEventLoop::quit);
+        connect(m_imageCapture.data(), &QCameraImageCapture::imageCaptured, &loop, &QEventLoop::quit);
         connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
         timer.start(20);
         loop.exec();
@@ -489,7 +489,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         else
             cout << "timeout after " << timer.interval() << Qt::endl;
 
-        cout << "Done initializing capture" << Qt::endl;
+        cout << "Done capturing" << Qt::endl;
     }
 #endif // camera
     else
