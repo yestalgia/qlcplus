@@ -122,7 +122,7 @@ QStringList RGBGrabber::sourceList()
     const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
     for (const QCameraInfo &cameraInfo : cameras)
     {
-        QCamera cam = QCamera(cameraInfo);
+        QCamera cam(cameraInfo);
         if (cam.isCaptureModeSupported(QCamera::CaptureStillImage))
         {
             QString entry = cameraInfo.description(); // or deviceName()
