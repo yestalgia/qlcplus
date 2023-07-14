@@ -30,6 +30,8 @@
 #include <QImage>
 #include <QCamera>
 #include <QCameraImageCapture>
+#include <QMediaRecorder>
+#include <QScopedPointer>
 
 #include "rgbalgorithm.h"
 
@@ -70,6 +72,7 @@ private:
 
     QScopedPointer<QCamera> m_camera;
     QScopedPointer<QCameraImageCapture> m_imageCapture;
+    QScopedPointer<QMediaRecorder> m_mediaRecorder;
     QImage m_rawImage;
 
 

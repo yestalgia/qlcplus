@@ -31,6 +31,11 @@
 #include <QHash>
 #include <QDir>
 
+#include <QCamera>
+#include <QCameraInfo>
+#include <QMediaService>
+#include <QScopedPointer>
+
 #include "qlcconfig.h"
 #include "qlci18n.h"
 #include "qlcfile.h"
@@ -146,6 +151,24 @@ void printVersion()
     cout << "Apache 2.0 license." << endl;
     cout << "Copyright (c) Heikki Junnila (hjunnila@users.sf.net)" << endl;
     cout << "Copyright (c) Massimo Callegari (massimocallegari@yahoo.it)" << endl;
+    cout << endl;
+
+    const QList<QCameraInfo> availableCameras = QCameraInfo::availableCameras();
+    for (const QCameraInfo &cameraInfo : availableCameras) {
+        cout << cameraInfo.description() << " at " << cameraInfo.deviceName() << Qt::endl;
+    }
+    if (availableCameras.length() == 0) {
+        cout << "No cameras detected." << endl;
+    }
+
+    QScopedPointer<QCameraInfo> thisCameraInfo;
+    thisCameraInfo.reset(new QCameraInfo(QCamera(QCameraInfo::defaultCamera())));
+    cout << "DEFAULT: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
+
+    QScopedPointer<QCamera> camera;
+    camera.reset(new QCamera(QCameraInfo::defaultCamera()));
+    thisCameraInfo.reset(new QCameraInfo(*(camera.data())));
+    cout << "READBACK: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
     cout << endl;
 }
 

@@ -33,6 +33,7 @@
 #include <QScreen>
 #include <QDebug>
 #include <QtMultimedia>
+#include <QMediaService>
 #include <QObject>
 
 // FIXME: Remove
@@ -51,6 +52,7 @@
 #define KXMLQLCRGBGrabberOffsetY      QString("Y")
 
 #define CAMERA 1
+Q_DECLARE_METATYPE(QCameraInfo)
 
 RGBGrabber::RGBGrabber(Doc * doc)
     : RGBAlgorithm(doc)
@@ -392,25 +394,35 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     {
         QScopedPointer<QCameraInfo> thisCameraInfo;
         cout << "NEW ROUND =========================" << Qt::endl;
+
+        thisCameraInfo.reset(new QCameraInfo(QCamera(QCameraInfo::defaultCamera())));
+        cout << "DEFAULT: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
+
+//        m_camera.reset(new QCamera(QCameraInfo::defaultCamera()));
+//        thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
+//        cout << "READBACK: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
+//        m_camera.reset();
+//
+
         // Get the camera by name
-        if (m_camera != NULL && m_camera.data()->isAvailable())
+        if (! m_camera.isNull())
         {
             cout << "Get existing camera info" << Qt::endl;
-            cout << "Camera status: " << m_camera->status() << Qt::endl;
-            cout << "Camera state:  " << m_camera->state() << Qt::endl;
+//            cout << "Camera status: " << m_camera->status() << Qt::endl;
+//            cout << "Camera state:  " << m_camera->state() << Qt::endl;
             thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
             if (thisCameraInfo->isNull()) {
                 cout << "But failed to set the info for the existing camera" << Qt::endl;
-            } else {
-                cout << "and found: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
             }
+            cout << "Found: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
         }
-        else {
+        if (! m_camera.isNull() && ! m_camera.data()->isAvailable())
+        {
             cout << "m_camera not available" << Qt::endl;
         }
 
         // Set m_camera
-        if (m_camera == NULL ||
+        if (m_camera.isNull() ||
                 (thisCameraInfo != NULL && !thisCameraInfo->isNull() && thisCameraInfo->description() != m_source))
         {
             cout << "Searching for cameras" << Qt::endl;
@@ -425,6 +437,11 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                 {
                     cout << "Set Camera on " << cameraInfo.deviceName() << Qt::endl;
                     m_camera.reset(new QCamera(cameraInfo));
+                    m_mediaRecorder.reset(new QMediaRecorder(m_camera.data()));
+                    thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
+                    cout << "READBACK: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
+                    // FIXME
+                    m_camera.reset();
                    break;
                 }
             }
