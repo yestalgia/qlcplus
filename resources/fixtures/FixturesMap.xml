@@ -357,6 +357,7 @@
     <F n="Cameo-TS-60-RGBW" m="TS 60 RGBW"/>
     <F n="Cameo-Twinscan-20" m="Twinscan 20"/>
     <F n="Cameo-Wookie-series" m="Wookie series"/>
+    <F n="Cameo-Zenit-B200" m="Zenit B200"/>
     <F n="Cameo-Zenit-B60" m="Zenit B60"/>
     <F n="Cameo-Zenit-Z120-G2" m="Zenit Z120 G2"/>
   </M>
@@ -378,6 +379,7 @@
     <F n="Chauvet-ColorBand-Pix-IP" m="ColorBand Pix IP"/>
     <F n="Chauvet-ColorBand-Pix-M-USB" m="ColorBand Pix-M USB"/>
     <F n="Chauvet-ColorBand-Pix-M" m="ColorBand Pix-M"/>
+    <F n="Chauvet-COLORband-T3-BT" m="COLORband T3 BT"/>
     <F n="Chauvet-COLORband-T3-USB" m="COLORband T3 USB"/>
     <F n="Chauvet-COLORbar-SMD" m="COLORbar SMD"/>
     <F n="Chauvet-COLORdash-Accent-Quad" m="COLORdash Accent Quad"/>
@@ -403,6 +405,7 @@
     <F n="Chauvet-Double-Derby-X" m="Double Derby X"/>
     <F n="Chauvet-Eclipse-RGB" m="Eclipse RGB"/>
     <F n="Chauvet-EZPAR-64-RGBA" m="EZPar 64 RGBA"/>
+    <F n="Chauvet-Followspot-120ST" m="Followspot 120ST"/>
     <F n="Chauvet-Freedom-H1" m="Freedom H1"/>
     <F n="Chauvet-Freedom-Stick" m="Freedom Stick"/>
     <F n="Chauvet-FXpar9" m="FXpar 9"/>
@@ -937,6 +940,7 @@
   </M>
   <M n="Ibiza">
     <F n="Ibiza-400-RGB" m="400 RGB"/>
+    <F n="Ibiza-Mini-Moving-STAR-WASH" m="Mini-Moving - STAR-WASH"/>
     <F n="Ibiza-PAR-LED-710" m="PAR LED 710"/>
     <F n="Ibiza-PAR-LED-712IR" m="PAR LED 712IR"/>
     <F n="Ibiza-PAR-LED50-COB" m="PAR LED50-COB"/>
@@ -1510,6 +1514,7 @@
     <F n="Stairville-AFH-600" m="AFH-600"/>
     <F n="Stairville-All-FX-Bar" m="All FX Bar"/>
     <F n="Stairville-Beam-Moving-Head-B5R" m="Beam Moving Head B5R"/>
+    <F n="Stairville-BEL4-Battery-Event-Light-4x15W" m="BEL4 - Battery Event Light 4x15W"/>
     <F n="Stairville-Blade-Sting-8-RGBW-Beam-Mover" m="Blade Sting 8 RGBW Beam Mover"/>
     <F n="Stairville-BS-280-R10-BeamSpot" m="BS-280 R10 BeamSpot"/>
     <F n="Stairville-CLB2.4-CompactLED" m="CLB2.4 Compact LED PAR System"/>
@@ -1639,6 +1644,7 @@
     <F n="UKing-Mini-RGBW-Moving-Head" m="Mini RGBW Moving Head"/>
     <F n="UKing-Par-36" m="Par 36"/>
     <F n="UKing-Wall-Washer-24x3W" m="Wall Washer 24x3W"/>
+    <F n="UKing-ZQ-B117-Par-Can-4in1-RGBW" m="ZQ-B117 Par Can 4in1 RGBW"/>
     <F n="UKing-ZQ-B243" m="ZQ-B243"/>
     <F n="UKing-ZQ-B370-Laser" m="ZQ-B370"/>
     <F n="UKing-ZQ-B93-Pinspot-RGBW" m="ZQ-B93 Pinspot RGBW"/>

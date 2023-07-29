@@ -520,6 +520,12 @@ public:
      */
     void sendFeedback(int value, quint8 id = 0, SourceValueType type = ExactValue);
 
+    /**
+     * Send the feedback data again, e.g. after page change
+     * Pure virtual method. Must be implemented in every subclass
+     */
+    virtual void updateFeedback();
+
     /*********************************************************************
      * Key sequences
      *********************************************************************/
@@ -542,6 +548,10 @@ public:
 public slots:
     /** Virtual slot called when an input value changed */
     virtual void slotInputValueChanged(quint8 id, uchar value);
+
+    /** Slot connected directly to input sources with specific needs
+     *  (e.g. extra press) */
+    void slotInputSourceValueChanged(quint32 universe, quint32 channel, uchar value);
 
 signals:
     void inputSourcesListChanged();

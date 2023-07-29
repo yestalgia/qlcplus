@@ -1,7 +1,16 @@
+qlcplus (4.12.8) stable; urgency=low
+
+  * Plugins/ArtNet: add default standard transmission mode as per protocol specifications
+  * Plugins/DMX USB: add support for DMXKing MAX products
+  * New fixture: Ibiza Mini Moving Star Wash (thanks to Chris Shucksmith)
+
+ -- Massimo Callegari <massimocallegari@yahoo.it>  Sun, 17 Dec 2023 12:13:14 +0200
+
 qlcplus (4.12.7) stable; urgency=low
 
   * engine: improve audio fade in/out
   * engine: consider EFX fade in
+  * engine: handle LTP channels fade out
   * engine: make sure input/output device names are unique
   * engine: fix crash when no IO plugin is found
   * engine: fix blackout to leave LTP channels untouched
@@ -10,12 +19,18 @@ qlcplus (4.12.7) stable; urgency=low
   * UI/Audio Editor: do not stop audio function if not previewing
   * UI/Fixture Remap: add button to import fixture lists (.qxfl)
   * UI/Fixture Remap: fix wrong widgets remapping
+  * UI/Wizard: improved generated function names (thanks to netmindz)
+  * UI: remember state of Function selection dialog
   * Plugins/OSC: fix broadcast packets reception (thanks to Jannis Achstetter)
   * Plugins/E1.31: allow to set 2 digits of the IP address
   * Plugins/MIDI: fix consecutive notes not notified on macOS (thanks to Nils Tijtgat)
   * Virtual Console/Audio Triggers: stop sending DMX values on deactivation
+  * Virtual Console/Animation: include all available presets
   * Virtual Console: submaster now affects widgets on all pages but only on active frames
   * Web Access: add support for widget background images
+  * Web Access: improve button layout and text overflow (thanks to pomowunk)
+  * Application: fix qxf file association on Windows (if installed as admin)
+  * RGB scripts: added 'Marquee' script (thanks to Branson Matheson)
   * Input profiles: added ADJ MIDICON-2 (thanks to David Thomas)
   * Input profiles: added Akai APC Mini MK2 (thanks to Michael Mertens)
   * Fixture updated: Blizzard Lighting Pixellicious (thanks to Yestalgia)
@@ -57,8 +72,13 @@ qlcplus (4.12.7) stable; urgency=low
   * New fixture: Betopper LPC007 (thanks to Romil Barticulo)
   * New fixture: Betopper LM108 Wash Moving Head (thanks to Luca Giovannesi)
   * New fixture: Starway Servo Beam 10R (thanks to David Talet)
+  * New fixture: Cameo Zenit B200 (thanks to ikr)
+  * New fixture: Stairville BEL4 - Battery Event Light 4x15W (thanks to Pascal)
+  * New fixture: U'King B117 Par Can 4in1 RGBW (thanks to Turning Point)
+  * New fixture: Chauvet Followspot 120ST (thanks to Scott Yarbrough)
+  * New fixture: Chauvet COLORband T3 BT (thanks to William Todd)
 
- -- Massimo Callegari <massimocallegari@yahoo.it>  Sun, 12 Mar 2023 12:13:14 +0200
+ -- Massimo Callegari <massimocallegari@yahoo.it>  Fri, 19 May 2023 12:13:14 +0200
 
 qlcplus (4.12.6) stable; urgency=low
 
