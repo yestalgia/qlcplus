@@ -393,84 +393,66 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     else if (m_source.startsWith("input:"))
     {
         QScopedPointer<QCameraInfo> thisCameraInfo;
-        cout << "NEW ROUND =========================" << Qt::endl;
-
-        thisCameraInfo.reset(new QCameraInfo(QCamera(QCameraInfo::defaultCamera())));
-        cout << "DEFAULT: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
-
-//        m_camera.reset(new QCamera(QCameraInfo::defaultCamera()));
-//        thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
-//        cout << "READBACK: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
-//        m_camera.reset();
-//
+//        cout << "NEW ROUND =========================" << Qt::endl;
 
         // Get the camera by name
         if (! m_camera.isNull())
         {
-            cout << "Get existing camera info" << Qt::endl;
-//            cout << "Camera status: " << m_camera->status() << Qt::endl;
-//            cout << "Camera state:  " << m_camera->state() << Qt::endl;
             thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
-            if (thisCameraInfo->isNull()) {
-                cout << "But failed to set the info for the existing camera" << Qt::endl;
-            }
-            cout << "Found: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
         }
         if (! m_camera.isNull() && ! m_camera.data()->isAvailable())
         {
-            cout << "m_camera not available" << Qt::endl;
+            qDebug() << "Camera not available";
         }
 
         // Set m_camera
         if (m_camera.isNull() ||
-                (thisCameraInfo != NULL && !thisCameraInfo->isNull() && thisCameraInfo->description() != m_source))
+                (thisCameraInfo != NULL && !thisCameraInfo->isNull() && thisCameraInfo->description().prepend("input:") != m_source.data()))
         {
-            cout << "Searching for cameras" << Qt::endl;
             const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
 
             for (const QCameraInfo &cameraInfo : cameras)
             {
                 QString search = cameraInfo.description(); // or deviceName()
                 search.prepend("input:");
-                cout << "Compare " << search << " with " << m_source << Qt::endl;
                 if (search == m_source)
                 {
-                    cout << "Set Camera on " << cameraInfo.deviceName() << Qt::endl;
                     m_camera.reset(new QCamera(cameraInfo));
-                    m_mediaRecorder.reset(new QMediaRecorder(m_camera.data()));
                     thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
-                    cout << "READBACK: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
-                    // FIXME
-                    m_camera.reset();
+                    m_camera->setCaptureMode(QCamera::CaptureStillImage);
+                    m_camera->start();
+                    qDebug() << "Camera: '" << thisCameraInfo->description() << "' at '" << thisCameraInfo->deviceName() << "'";
+                    qDebug() << "Camera status: " << m_camera->status();
+                    qDebug() << "Camera state:  " << m_camera->state();
                    break;
                 }
             }
-            cout << "Done searching for cameras" << Qt::endl;
-        }
-        else
-        {
-            cout << "Camera OK." << Qt::endl;
         }
 
         // set thisCameraInfo
-        if (m_camera.isNull() || ! m_camera.data()->isAvailable())
+        if (m_camera.isNull())
         {
-            cout << "Failed to initialize camera" << Qt::endl;
+            qWarning() << "FAILED to initialize camera";
+            cout << "FAILED to initialize camera" << Qt::endl;
             return;
+        }
+        else if (m_camera.data()->isAvailable())
+        {
+            thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
+            cout << "Camera available" << Qt::endl;
         }
         else
         {
-            thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
-            cout << "READBACK: " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
+            // Try to (re-)start the camera
+            cout << "Restarting camera" << Qt::endl;
+            m_camera.data()->start();
         }
 
         // Get the next image
         if (m_camera.data()->isAvailable())
         {
             thisCameraInfo.reset(new QCameraInfo(*m_camera));
-            cout << "READBACK (available): " << thisCameraInfo->description() << " at " << thisCameraInfo->deviceName() << Qt::endl;
 
-            cout << "Configure the Camera" << Qt::endl;
             // Configure the camera
             m_imageCapture.reset(new QCameraImageCapture(m_camera.data()));
 
@@ -478,9 +460,6 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                     this, [&](int id, const QImage &preview)
                     {
                         Q_UNUSED(id);
-                        // FIXME: Remove
-                        QTextStream cout2(stdout, QIODevice::WriteOnly);
-                        cout2 << "Copying captured image" << Qt::endl;
                         // Get the image
                         m_rawImage = preview;
                     });
@@ -492,64 +471,66 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                         {
                             Q_UNUSED(id);
                             Q_UNUSED(error);
-                            // FIXME: Remove
-                            QTextStream cout2(stdout, QIODevice::WriteOnly);
-                            cout2 << "ERR: Camera: " << errorString << Qt::endl;
                             qWarning() << "ERR: Capture: " << errorString;
+                            cout << "ERR: Capture: " << errorString << Qt::endl;
                         });
 
-//            QCameraWidget *viewfinder = new QCameraWidget();
-//            m_camera->setViewfinder(viewfinder);
-            m_camera->setCaptureMode(QCamera::CaptureStillImage);
-            m_camera->start();
-            cout << "Camera status: " << m_camera->status() << Qt::endl;
-            cout << "Camera state:  " << m_camera->state() << Qt::endl;
-
             // Get the image
-            cout << "Get the next image" << Qt::endl;
             if (m_imageCapture->isCaptureDestinationSupported(QCameraImageCapture::CaptureToBuffer))
             {
                 m_imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
             }
             else
             {
-                cout << "QCameraImageCapture::CaptureToBuffer not supported." << Qt::endl;
+                qWarning() << "SINK ERROR: QCameraImageCapture::CaptureToBuffer not supported.";
+                cout << "SINK ERROR: QCameraImageCapture::CaptureToBuffer not supported." << Qt::endl;
                 return;
             }
-            cout << "Call capture" << Qt::endl;
             m_imageCapture->capture();
+
+            // Register the shutdown of the camera after a specific time
+            if (! m_shutdownTimer.isActive())
+            {
+                m_shutdownTimer.setSingleShot(true);
+                connect(&m_shutdownTimer, &QTimer::timeout, this, [&]()
+                    {
+                        // Stop the camera
+                        m_camera.data()->stop();
+                    });
+            }
+            // Use 2 seconds - or can we access the scriptRunner timong from here?
+            m_shutdownTimer.start(2000);
         }
         else
         {
-            cout << "Camera is not available" << Qt::endl;
+            qWarning() << "UNAVAILABLE: Camera is not available";
+            cout << "UNAVAILABLE: Camera is not available" << Qt::endl;
         }
 
-        cout << "Wait for capture" << Qt::endl;
+        // Wait a brief time for the capture to complete
         QTimer timer;
         QEventLoop loop;
         timer.setSingleShot(true);
         connect(m_imageCapture.data(), &QCameraImageCapture::imageCaptured, &loop, &QEventLoop::quit);
         connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-        timer.start(20);
+        timer.start(40);
         loop.exec();
         if(timer.isActive())
-            cout << "capture received with " << timer.remainingTime() << "ms left" << Qt::endl;
+            qDebug() << "OK: Capture received with " << timer.remainingTime() << "ms left" << Qt::endl;
         else
-            cout << "timeout after " << timer.interval() << Qt::endl;
-
-        cout << "Done capturing" << Qt::endl;
+            qDebug() << "Capture takes longer than " << timer.interval();
     }
 #endif // camera
     else
     {
-        cout << "Invalid source selected" << Qt::endl;
+        qDebug() << "Invalid source selected";
         return;
     }
 
     // Check if input image size is valid (width & height > 0)
     if (m_rawImage.isNull() || m_rawImage.width() == 0 || m_rawImage.height() == 0)
     {
-        cout << "No image. Terminating." << Qt::endl;
+        qDebug() << "No image. Terminating.";
         return;
     }
 
