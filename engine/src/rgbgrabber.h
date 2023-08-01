@@ -74,8 +74,9 @@ private:
     QScopedPointer<QCameraImageCapture> m_imageCapture;
 //    QScopedPointer<QMediaRecorder> m_mediaRecorder;
     QImage m_rawImage;
-    QTimer m_shutdownTimer;
 
+    QTimer m_timer;
+    QEventLoop m_loop;
 
     /************************************************************************
      * Image Processing
@@ -162,10 +163,16 @@ public:
     int acceptColors() const;
 
     /** @reimp */
+    void postRun();
+
+    /** @reimp */
     bool loadXML(QXmlStreamReader &root);
 
     /** @reimp */
     bool saveXML(QXmlStreamWriter *doc) const;
+
+protected slots:
+    void slotImageCaptured(int id, const QImage &preview);
 
 private:
     /**

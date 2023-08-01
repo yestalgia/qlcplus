@@ -340,6 +340,13 @@ int RGBGrabber::rgbMapStepCount(const QSize& size)
     return 1;
 }
 
+void RGBGrabber::slotImageCaptured(int id, const QImage &preview)
+{
+    Q_UNUSED(id);
+    // Get the image
+    m_rawImage = preview;
+}
+
 void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
 {
     Q_UNUSED(rgb);
@@ -456,13 +463,8 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             // Configure the camera
             m_imageCapture.reset(new QCameraImageCapture(m_camera.data()));
 
-            connect(m_imageCapture.data(), &QCameraImageCapture::imageCaptured,
-                    this, [&](int id, const QImage &preview)
-                    {
-                        Q_UNUSED(id);
-                        // Get the image
-                        m_rawImage = preview;
-                    });
+            connect(m_imageCapture.data(), SIGNAL(QCameraImageCapture::imageCaptured),
+                    this, SLOT(slotImageCaptured(int, const QImage &)));
             connect(m_imageCapture.data(),
                     QOverload<int, QCameraImageCapture::Error,
                     const QString &>::of(&QCameraImageCapture::error),
@@ -487,19 +489,6 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                 return;
             }
             m_imageCapture->capture();
-
-            // Register the shutdown of the camera after a specific time
-            if (! m_shutdownTimer.isActive())
-            {
-                m_shutdownTimer.setSingleShot(true);
-                connect(&m_shutdownTimer, &QTimer::timeout, this, [&]()
-                    {
-                        // Stop the camera
-                        m_camera.data()->stop();
-                    });
-            }
-            // Use 2 seconds - or can we access the scriptRunner timong from here?
-            m_shutdownTimer.start(2000);
         }
         else
         {
@@ -508,17 +497,21 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         }
 
         // Wait a brief time for the capture to complete
-        QTimer timer;
-        QEventLoop loop;
-        timer.setSingleShot(true);
-        connect(m_imageCapture.data(), &QCameraImageCapture::imageCaptured, &loop, &QEventLoop::quit);
-        connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-        timer.start(40);
-        loop.exec();
-        if(timer.isActive())
-            qDebug() << "OK: Capture received with " << timer.remainingTime() << "ms left" << Qt::endl;
+        m_timer.setSingleShot(true);
+        connect(m_imageCapture.data(),
+                SIGNAL(QCameraImageCapture::imageCaptured),
+                &m_loop,
+                SLOT(QEventLoop::quit));
+        connect(&m_timer,
+                SIGNAL(QTimer::timeout),
+                &m_loop,
+                SLOT(QEventLoop::quit));
+        m_timer.start(40);
+        m_loop.exec();
+        if(m_timer.isActive())
+            qDebug() << "OK: Capture received with " << m_timer.remainingTime() << "ms left" << Qt::endl;
         else
-            qDebug() << "Capture takes longer than " << timer.interval();
+            qDebug() << "Capture takes longer than " << m_timer.interval();
     }
 #endif // camera
     else
@@ -614,6 +607,23 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                 map[y][x] = 0;
         }
     }
+}
+
+void RGBGrabber::postRun()
+{
+    m_camera.data()->stop();
+
+    // Disconnect signals and slots
+    disconnect(m_imageCapture.data(), SIGNAL(QCameraImageCapture::imageCaptured),
+            this, SLOT(slotImageCaptured(int, const QImage &)));
+    disconnect(m_imageCapture.data(),
+            SIGNAL(QCameraImageCapture::imageCaptured),
+            &m_loop,
+            SLOT(QEventLoop::quit));
+    disconnect(&m_timer,
+            SIGNAL(QTimer::timeout),
+            &m_loop,
+            SLOT(QEventLoop::quit));
 }
 
 QString RGBGrabber::name() const
