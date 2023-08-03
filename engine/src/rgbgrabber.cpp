@@ -85,6 +85,7 @@ RGBGrabber::RGBGrabber(const RGBGrabber& i, QObject *parent)
 
 RGBGrabber::~RGBGrabber()
 {
+    postRun();
 }
 
 RGBAlgorithm* RGBGrabber::clone() const
@@ -340,12 +341,13 @@ int RGBGrabber::rgbMapStepCount(const QSize& size)
     return 1;
 }
 
-void RGBGrabber::slotImageCaptured(int id, const QImage &preview)
-{
-    Q_UNUSED(id);
-    // Get the image
-    m_rawImage = preview;
-}
+//void RGBGrabber::slotImageCaptured(int id, const QImage &preview)
+//{
+//    Q_UNUSED(id);
+//    // FIXME: do we need to pull a mutex here?
+//    // Update the image
+//    m_rawImage = preview;
+//}
 
 void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
 {
@@ -463,8 +465,23 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             // Configure the camera
             m_imageCapture.reset(new QCameraImageCapture(m_camera.data()));
 
-            connect(m_imageCapture.data(), SIGNAL(QCameraImageCapture::imageCaptured),
-                    this, SLOT(slotImageCaptured(int, const QImage &)));
+            connect(m_imageCapture.data(),
+                    &QCameraImageCapture::imageCaptured,
+                    this,
+                    [&](int id, const QImage &preview)
+                    {
+                        Q_UNUSED(id);
+                        // Get the image
+                        m_rawImage = preview;
+                    });
+//            connect(m_imageCapture.data(),
+//                    &QCameraImageCapture::imageCaptured,
+//                    this,
+//                    &slotImageCaptured(int id, const QImage &preview));
+//            connect(m_imageCapture.data(),
+//                    SIGNAL(&QCameraImageCapture::imageCaptured),
+//                    this,
+//                    SLOT(slotImageCaptured(int, const QImage &)));
             connect(m_imageCapture.data(),
                     QOverload<int, QCameraImageCapture::Error,
                     const QString &>::of(&QCameraImageCapture::error),
@@ -499,13 +516,21 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         // Wait a brief time for the capture to complete
         m_timer.setSingleShot(true);
         connect(m_imageCapture.data(),
-                SIGNAL(QCameraImageCapture::imageCaptured),
+                &QCameraImageCapture::imageCaptured,
                 &m_loop,
-                SLOT(QEventLoop::quit));
+                &QEventLoop::quit);
         connect(&m_timer,
-                SIGNAL(QTimer::timeout),
+                &QTimer::timeout,
                 &m_loop,
-                SLOT(QEventLoop::quit));
+                &QEventLoop::quit);
+//        connect(m_imageCapture.data(),
+//                SIGNAL(QCameraImageCapture::imageCaptured),
+//                &m_loop,
+//                SLOT(QEventLoop::quit));
+//        connect(&m_timer,
+//                SIGNAL(QTimer::timeout),
+//                &m_loop,
+//                SLOT(QEventLoop::quit));
         m_timer.start(40);
         m_loop.exec();
         if(m_timer.isActive())
@@ -611,15 +636,21 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
 
 void RGBGrabber::postRun()
 {
-    m_camera.data()->stop();
+    if (!m_camera.isNull())
+        m_camera.data()->stop();
 
     // Disconnect signals and slots
-    disconnect(m_imageCapture.data(), SIGNAL(QCameraImageCapture::imageCaptured),
-            this, SLOT(slotImageCaptured(int, const QImage &)));
-    disconnect(m_imageCapture.data(),
-            SIGNAL(QCameraImageCapture::imageCaptured),
-            &m_loop,
-            SLOT(QEventLoop::quit));
+    if (!m_imageCapture.isNull())
+    {
+//        disconnect(m_imageCapture.data(),
+//                SIGNAL(QCameraImageCapture::imageCaptured),
+//                this,
+//                SLOT(slotImageCaptured(int, const QImage &)));
+        disconnect(m_imageCapture.data(),
+                SIGNAL(QCameraImageCapture::imageCaptured),
+                &m_loop,
+                SLOT(QEventLoop::quit));
+    }
     disconnect(&m_timer,
             SIGNAL(QTimer::timeout),
             &m_loop,
