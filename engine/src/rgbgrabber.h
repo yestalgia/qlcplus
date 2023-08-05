@@ -171,8 +171,8 @@ public:
     /** @reimp */
     bool saveXML(QXmlStreamWriter *doc) const;
 
-protected slots:
-    void slotImageCaptured(int id, const QImage &preview);
+//protected slots:
+//    void slotImageCaptured(int id, const QImage &preview);
 
 private:
     /**
