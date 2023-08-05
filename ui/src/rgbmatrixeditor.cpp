@@ -98,8 +98,9 @@ RGBMatrixEditor::~RGBMatrixEditor()
 
     if (m_testButton->isChecked() == true)
         m_matrix->stopAndWait();
+    if (m_matrix->algorithm() != NULL)
+        m_matrix->algorithm()->postRun();
 
-//    delete m_matrix;
     delete m_previewHandler;
 }
 
