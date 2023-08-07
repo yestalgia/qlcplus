@@ -72,7 +72,7 @@ RGBGrabber::RGBGrabber(const RGBGrabber& i, QObject *parent)
     : QObject(parent)
     , RGBAlgorithm(i.doc())
     , m_source(i.source())
-    , m_camera(i.m_camera.data())
+    , m_camera(0)
     , m_imageCapture(i.m_imageCapture.data())
     , m_rawImage(0)
     , m_imageTurning(i.imageTurning())
@@ -411,12 +411,13 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         }
         if (! m_camera.isNull() && ! m_camera.data()->isAvailable())
         {
-            qDebug() << "Camera not available";
+            qDebug() << "Camera not initialized or available";
         }
 
         // Set m_camera
         if (m_camera.isNull() ||
-                (thisCameraInfo != NULL && !thisCameraInfo->isNull() && thisCameraInfo->description().prepend("input:") != m_source.data()))
+                (!thisCameraInfo->isNull() &&
+                        thisCameraInfo.data()->description().prepend("input:") != m_source.data()))
         {
             const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
 
@@ -430,7 +431,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                     thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
                     m_camera->setCaptureMode(QCamera::CaptureStillImage);
                     m_camera->start();
-                    qDebug() << "Camera: '" << thisCameraInfo->description() << "' at '" << thisCameraInfo->deviceName() << "'";
+                    qDebug() << "Camera: '" << thisCameraInfo.data()->description() << "' at '" << thisCameraInfo->deviceName() << "'";
                     qDebug() << "Camera status: " << m_camera->status();
                     qDebug() << "Camera state:  " << m_camera->state();
                    break;
@@ -445,10 +446,12 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             cout << "FAILED to initialize camera" << Qt::endl;
             return;
         }
-        else if (m_camera.data()->isAvailable())
+        else if (m_camera.data()->isAvailable() &&
+                m_camera.data()->status() == QCamera::ActiveStatus)
         {
+            // FIXME: Why again? Is it not set before?
             thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
-            cout << "Camera available" << Qt::endl;
+            cout << "Camera available: " << thisCameraInfo.data()->deviceName() << Qt::endl;
         }
         else
         {
@@ -458,9 +461,15 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         }
 
         // Get the next image
-        if (m_camera.data()->isAvailable())
+        if (! m_camera.data()->isAvailable())
         {
-            thisCameraInfo.reset(new QCameraInfo(*m_camera));
+            qWarning() << "UNAVAILABLE: Camera is not available";
+            cout << "UNAVAILABLE: Camera is not available" << Qt::endl;
+        }
+        else
+        {
+            // FIXME: Why again? Is it not set before?
+            thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
 
             // Configure the camera
             m_imageCapture.reset(new QCameraImageCapture(m_camera.data()));
@@ -486,7 +495,9 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                     QOverload<int, QCameraImageCapture::Error,
                     const QString &>::of(&QCameraImageCapture::error),
                     this,
-                    [&](int id, const QCameraImageCapture::Error error, const QString &errorString)
+                    [&](int id,
+                            const QCameraImageCapture::Error error,
+                            const QString &errorString)
                         {
                             Q_UNUSED(id);
                             Q_UNUSED(error);
@@ -506,11 +517,6 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                 return;
             }
             m_imageCapture->capture();
-        }
-        else
-        {
-            qWarning() << "UNAVAILABLE: Camera is not available";
-            cout << "UNAVAILABLE: Camera is not available" << Qt::endl;
         }
 
         // Wait a brief time for the capture to complete
@@ -532,16 +538,19 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
 //                &m_loop,
 //                SLOT(QEventLoop::quit));
         m_timer.start(40);
-        m_loop.exec();
+//        m_loop.exec();
         if(m_timer.isActive())
-            qDebug() << "OK: Capture received with " << m_timer.remainingTime() << "ms left" << Qt::endl;
+            cout << "OK: Capture received with " << m_timer.remainingTime() << "ms left" << Qt::endl;
+//            qDebug() << "OK: Capture received with " << m_timer.remainingTime() << "ms left";
         else
-            qDebug() << "Capture takes longer than " << m_timer.interval();
+            cout << "Capture takes longer than " << m_timer.interval() << Qt::endl;
+//            qDebug() << "Capture takes longer than " << m_timer.interval();
     }
 #endif // camera
     else
     {
         qDebug() << "Invalid source selected";
+        cout << "Invalid source selected" << Qt::endl;
         return;
     }
 
@@ -549,6 +558,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
     if (m_rawImage.isNull() || m_rawImage.width() == 0 || m_rawImage.height() == 0)
     {
         qDebug() << "No image. Terminating.";
+        cout << "No image. Terminating." << Qt::endl;
         return;
     }
 
@@ -638,18 +648,22 @@ void RGBGrabber::postRun()
 {
     if (!m_camera.isNull())
         m_camera.data()->stop();
+    if (m_loop.isRunning())
+        m_loop.quit();
 
     // Disconnect signals and slots
     if (!m_imageCapture.isNull())
     {
+// FIXME: See slotImageCaptured comment
 //        disconnect(m_imageCapture.data(),
 //                SIGNAL(QCameraImageCapture::imageCaptured),
 //                this,
 //                SLOT(slotImageCaptured(int, const QImage &)));
-        disconnect(m_imageCapture.data(),
-                SIGNAL(QCameraImageCapture::imageCaptured),
-                &m_loop,
-                SLOT(QEventLoop::quit));
+// FIXME: Causes SEGFAULT on cloning the algorithm
+//        disconnect(m_imageCapture.data(),
+//                SIGNAL(QCameraImageCapture::imageCaptured),
+//                &m_loop,
+//                SLOT(QEventLoop::quit));
     }
     disconnect(&m_timer,
             SIGNAL(QTimer::timeout),
