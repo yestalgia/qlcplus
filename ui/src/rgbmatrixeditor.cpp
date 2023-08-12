@@ -417,9 +417,9 @@ void RGBMatrixEditor::updateExtraOptions()
     else if (m_matrix->algorithm()->type() == RGBAlgorithm::Text)
     {
         m_textGroup->show();
+        m_offsetGroup->show();
         m_imageGroup->hide();
         m_grabberGroup->hide();
-        m_offsetGroup->show();
 
         RGBText* text = static_cast<RGBText*> (m_matrix->algorithm());
         Q_ASSERT(text != NULL);
