@@ -3,7 +3,7 @@ include(../variables.pri)
 TEMPLATE = app
 TARGET = qlcplus-launcher
 
-QT += core gui widgets multimedia
+QT += core gui widgets
 
 RESOURCES += launcher.qrc
 
