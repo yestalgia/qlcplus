@@ -46,7 +46,7 @@
     <widget class="QGraphicsView" name="m_preview"/>
    </item>
    <item row="2" column="3" rowspan="3">
-    <layout class="QVBoxLayout" name="verticalLayout_6">
+    <layout class="QVBoxLayout" name="verticalLayout_5">
      <item>
       <widget class="QGroupBox" name="m_patternGroup">
        <property name="sizePolicy">
