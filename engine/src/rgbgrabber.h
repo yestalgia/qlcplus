@@ -72,7 +72,6 @@ private:
 
     QScopedPointer<QCamera> m_camera;
     QScopedPointer<QCameraImageCapture> m_imageCapture;
-//    QScopedPointer<QMediaRecorder> m_mediaRecorder;
     QImage m_rawImage;
 
     QTimer m_timer;
