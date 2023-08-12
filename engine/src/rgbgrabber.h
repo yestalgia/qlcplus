@@ -170,6 +170,7 @@ public:
     /** @reimp */
     bool saveXML(QXmlStreamWriter *doc) const;
 
+// TODO: Use a dedicated slot function to copy captured image
 //protected slots:
 //    void slotImageCaptured(int id, const QImage &preview);
 

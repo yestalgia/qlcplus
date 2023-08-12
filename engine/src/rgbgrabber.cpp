@@ -51,7 +51,7 @@
 #define KXMLQLCRGBGrabberOffsetX      QString("X")
 #define KXMLQLCRGBGrabberOffsetY      QString("Y")
 
-#define CAMERA 1
+#define ENABLE_CAMERA 1
 Q_DECLARE_METATYPE(QCameraInfo)
 
 RGBGrabber::RGBGrabber(Doc * doc)
@@ -120,7 +120,7 @@ QStringList RGBGrabber::sourceList()
         list.append(entry);
     }
 
-#if CAMERA // camera
+#if ENABLE_CAMERA // camera
     // Get the list of available cameras
     const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
     for (const QCameraInfo &cameraInfo : cameras)
@@ -398,7 +398,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             m_rawImage = image;
         }
     }
-#if CAMERA // camera
+#if ENABLE_CAMERA // camera
     else if (m_source.startsWith("input:"))
     {
         QScopedPointer<QCameraInfo> thisCameraInfo;
@@ -483,10 +483,12 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                         // Get the image
                         m_rawImage = preview;
                     });
+// TODO: implement this as a dedicated slot function
 //            connect(m_imageCapture.data(),
 //                    &QCameraImageCapture::imageCaptured,
 //                    this,
 //                    &slotImageCaptured(int id, const QImage &preview));
+// TODO: ... and then use the SIGNAL & SLOT semantics
 //            connect(m_imageCapture.data(),
 //                    SIGNAL(&QCameraImageCapture::imageCaptured),
 //                    this,
@@ -529,6 +531,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                 &QTimer::timeout,
                 &m_loop,
                 &QEventLoop::quit);
+// TODO: Use SIGNAL and SLOT semantics
 //        connect(m_imageCapture.data(),
 //                SIGNAL(QCameraImageCapture::imageCaptured),
 //                &m_loop,
@@ -538,6 +541,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
 //                &m_loop,
 //                SLOT(QEventLoop::quit));
         m_timer.start(40);
+// TODO: Stay a few ms here to wait for the image to become available.
 //        m_loop.exec();
         if(m_timer.isActive())
             cout << "OK: Capture received with " << m_timer.remainingTime() << "ms left" << Qt::endl;
@@ -546,7 +550,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
             cout << "Capture takes longer than " << m_timer.interval() << Qt::endl;
 //            qDebug() << "Capture takes longer than " << m_timer.interval();
     }
-#endif // camera
+#endif // ENABLE_CAMERA
     else
     {
         qDebug() << "Invalid source selected";
