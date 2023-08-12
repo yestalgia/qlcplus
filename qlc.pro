@@ -5,8 +5,6 @@ TEMPLATE = subdirs
 SUBDIRS        += hotplugmonitor
 SUBDIRS        += engine
 
-QT += multimedia
-
 qmlui: {
   message("Building QLC+ 5 QML UI")
   SUBDIRS      += qmlui
