@@ -503,6 +503,8 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                         {
                             Q_UNUSED(id);
                             Q_UNUSED(error);
+                            // FIXME: Remove cout
+                            QTextStream cout(stdout, QIODevice::WriteOnly);
                             qWarning() << "ERR: Capture: " << errorString;
                             cout << "ERR: Capture: " << errorString << Qt::endl;
                         });
