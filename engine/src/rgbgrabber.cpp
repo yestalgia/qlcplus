@@ -455,8 +455,12 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         }
         else
         {
+            if (!m_camera.data()->isAvailable())
+                cout << "Camera not available." << Qt::endl;
+            if (m_camera.data()->status() != QCamera::ActiveStatus)
+                cout << "Camera not in active status." << Qt::endl;
             // Try to (re-)start the camera
-            cout << "Restarting camera" << Qt::endl;
+            cout << "Restarting camera from status " << m_camera.data()->status() << Qt::endl;
             m_camera.data()->start();
         }
 
@@ -545,11 +549,11 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
         m_timer.start(40);
 // TODO: Stay a few ms here to wait for the image to become available.
 //        m_loop.exec();
-        if(m_timer.isActive())
-            cout << "OK: Capture received with " << m_timer.remainingTime() << "ms left" << Qt::endl;
+//        if(m_timer.isActive())
+//            cout << "OK: Capture received with " << m_timer.remainingTime() << "ms left" << Qt::endl;
 //            qDebug() << "OK: Capture received with " << m_timer.remainingTime() << "ms left";
-        else
-            cout << "Capture takes longer than " << m_timer.interval() << Qt::endl;
+//        else
+//            cout << "Capture takes longer than " << m_timer.interval() << Qt::endl;
 //            qDebug() << "Capture takes longer than " << m_timer.interval();
     }
 #endif // ENABLE_CAMERA
