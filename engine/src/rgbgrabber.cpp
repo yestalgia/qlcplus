@@ -450,7 +450,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                 m_camera.data()->status() == QCamera::ActiveStatus)
         {
             // FIXME: Why again? Is it not set before?
-            thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
+//            thisCameraInfo.reset(new QCameraInfo(*(m_camera.data())));
             cout << "Camera available: " << thisCameraInfo.data()->deviceName() << Qt::endl;
         }
         else
@@ -484,8 +484,11 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                     [&](int id, const QImage &preview)
                     {
                         Q_UNUSED(id);
+                        // FIXME: Remove cout
+                        QTextStream cout(stdout, QIODevice::WriteOnly);
+                        cout << "OK: Capture available, copying image" << Qt::endl;
                         // Get the image
-                        m_rawImage = preview;
+                        m_rawImage = QImage(preview);
                     });
 // TODO: implement this as a dedicated slot function
 //            connect(m_imageCapture.data(),
@@ -514,9 +517,9 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                         });
 
             // Get the image
-            if (m_imageCapture->isCaptureDestinationSupported(QCameraImageCapture::CaptureToBuffer))
+            if (m_imageCapture.data()->isCaptureDestinationSupported(QCameraImageCapture::CaptureToBuffer))
             {
-                m_imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
+                m_imageCapture.data()->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
             }
             else
             {
@@ -524,7 +527,7 @@ void RGBGrabber::rgbMap(const QSize& size, uint rgb, int step, RGBMap &map)
                 cout << "SINK ERROR: QCameraImageCapture::CaptureToBuffer not supported." << Qt::endl;
                 return;
             }
-            m_imageCapture->capture();
+            m_imageCapture.data()->capture();
         }
 
         // Wait a brief time for the capture to complete
