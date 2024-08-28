@@ -28,12 +28,10 @@
 #include "functionmanager.h"
 #include "fixturemanager.h"
 #include "qlcfixturemode.h"
-#include "qlccapability.h"
 #include "fixtureutils.h"
 #include "mainviewdmx.h"
 #include "mainview2d.h"
 #include "mainview3d.h"
-#include "qlcchannel.h"
 #include "tardis.h"
 #include "app.h"
 #include "doc.h"
@@ -224,16 +222,6 @@ QString ContextManager::currentContext() const
     return m_view->rootObject()->property("currentContext").toString();
 }
 
-MainView2D *ContextManager::get2DView()
-{
-    return m_2DView;
-}
-
-MainView3D *ContextManager::get3DView()
-{
-    return m_3DView;
-}
-
 QVector3D ContextManager::environmentSize() const
 {
     return m_monProps->gridSize();
@@ -356,7 +344,7 @@ void ContextManager::setPositionPickPoint(QVector3D point)
                 panDeg = 90.0 + (90.0 - panDeg);
             else if (!xLeft && !zBack)
                 panDeg = 180.0 + panDeg;
-            else if (!xLeft && zBack)
+            else if(!xLeft && zBack)
                 panDeg = 270.0 + (90.0 - panDeg);
 
             if (itemFlags & MonitorProperties::InvertedPanFlag)
@@ -545,7 +533,6 @@ void ContextManager::setItemSelection(quint32 itemID, bool enable, int keyModifi
     {
         setFixtureSelection(itemID, -1, enable);
     }
-    m_fixtureManager->setItemRoleData(itemID, enable ? 2 : 0, TreeModel::IsSelectedRole);
 }
 
 void ContextManager::setFixtureSelection(quint32 itemID, int headIndex, bool enable)
@@ -582,8 +569,6 @@ void ContextManager::setFixtureSelection(quint32 itemID, int headIndex, bool ena
     Fixture *fixture = m_doc->fixture(fixtureID);
     if (fixture == nullptr)
         return;
-
-    m_fixtureManager->setItemRoleData(itemID, enable ? 2 : 0, TreeModel::IsSelectedRole);
 
     if (m_DMXView->isEnabled())
         m_DMXView->updateFixtureSelection(fixtureID, enable);
@@ -1267,20 +1252,16 @@ void ContextManager::setFixturesRotation(QVector3D degrees)
 {
     if (m_selectedFixtures.count() == 1)
     {
-        quint32 itemID = m_selectedFixtures.first();
-        quint32 fxID = FixtureUtils::itemFixtureID(itemID);
-        quint16 headIndex = FixtureUtils::itemHeadIndex(itemID);
-        quint16 linkedIndex = FixtureUtils::itemLinkedIndex(itemID);
-        QVector3D rotation = m_monProps->fixtureRotation(fxID, headIndex, linkedIndex);
-
-        Tardis::instance()->enqueueAction(Tardis::FixtureSetRotation, itemID, QVariant(rotation), QVariant(degrees));
+        quint32 fxID = FixtureUtils::itemFixtureID(m_selectedFixtures.first());
+        quint16 headIndex = FixtureUtils::itemHeadIndex(m_selectedFixtures.first());
+        quint16 linkedIndex = FixtureUtils::itemLinkedIndex(m_selectedFixtures.first());
 
         // absolute rotation change
         m_monProps->setFixtureRotation(fxID, headIndex, linkedIndex, degrees);
         if (m_2DView->isEnabled())
-            m_2DView->updateFixtureRotation(itemID, degrees);
+            m_2DView->updateFixtureRotation(m_selectedFixtures.first(), degrees);
         if (m_3DView->isEnabled())
-            m_3DView->updateFixtureRotation(itemID, degrees);
+            m_3DView->updateFixtureRotation(m_selectedFixtures.first(), degrees);
     }
     else
     {
@@ -1290,8 +1271,7 @@ void ContextManager::setFixturesRotation(QVector3D degrees)
             quint32 fxID = FixtureUtils::itemFixtureID(itemID);
             quint16 headIndex = FixtureUtils::itemHeadIndex(itemID);
             quint16 linkedIndex = FixtureUtils::itemLinkedIndex(itemID);
-            QVector3D rotation = m_monProps->fixtureRotation(fxID, headIndex, linkedIndex);
-            QVector3D newRot = rotation + degrees;
+            QVector3D newRot = m_monProps->fixtureRotation(fxID, headIndex, linkedIndex) + degrees;
 
             // normalize back to a 0-359 range
             if (newRot.x() < 0) newRot.setX(newRot.x() + 360);
@@ -1303,8 +1283,6 @@ void ContextManager::setFixturesRotation(QVector3D degrees)
             if (newRot.z() < 0) newRot.setZ(newRot.z() + 360);
             else if (newRot.z() >= 360) newRot.setZ(newRot.z() - 360);
 
-            Tardis::instance()->enqueueAction(Tardis::FixtureSetRotation, itemID, QVariant(rotation), QVariant(newRot));
-
             m_monProps->setFixtureRotation(fxID, headIndex, linkedIndex, newRot);
             if (m_2DView->isEnabled())
                 m_2DView->updateFixtureRotation(itemID, newRot);
@@ -1314,23 +1292,6 @@ void ContextManager::setFixturesRotation(QVector3D degrees)
     }
 
     emit fixturesRotationChanged();
-}
-
-void ContextManager::setFixtureRotation(quint32 itemID, QVector3D degrees)
-{
-    quint32 fxID = FixtureUtils::itemFixtureID(itemID);
-    quint16 headIndex = FixtureUtils::itemHeadIndex(itemID);
-    quint16 linkedIndex = FixtureUtils::itemLinkedIndex(itemID);
-    QVector3D rotation = m_monProps->fixtureRotation(fxID, headIndex, linkedIndex);
-
-    Tardis::instance()->enqueueAction(Tardis::FixtureSetRotation, itemID, QVariant(rotation), QVariant(degrees));
-
-    // absolute rotation change
-    m_monProps->setFixtureRotation(fxID, headIndex, linkedIndex, degrees);
-    if (m_2DView->isEnabled())
-        m_2DView->updateFixtureRotation(itemID, degrees);
-    if (m_3DView->isEnabled())
-        m_3DView->updateFixtureRotation(itemID, degrees);
 }
 
 void ContextManager::setFixtureGroupSelection(quint32 id, bool enable, bool isUniverse)
@@ -1381,8 +1342,6 @@ void ContextManager::slotNewFixtureCreated(quint32 fxID, qreal x, qreal y, qreal
 
     qDebug() << "[ContextManager] New fixture created" << fxID;
 
-    if (m_uniGridView->isEnabled())
-        m_monProps->setFixturePosition(fxID, 0, 0, QVector3D(0, 0, 0));
     if (m_DMXView->isEnabled())
         m_DMXView->createFixtureItem(fxID);
     if (m_2DView->isEnabled())
@@ -1499,12 +1458,6 @@ void ContextManager::setPositionValue(int type, int degrees, bool isRelative)
     }
 }
 
-void ContextManager::setPositionCenter()
-{
-    setChannelValueByType((int)QLCChannel::Pan, 127);
-    setChannelValueByType((int)QLCChannel::Tilt, 127);
-}
-
 void ContextManager::setBeamDegrees(float degrees, bool isRelative)
 {
     // list to keep track of the already processed Fixture IDs
@@ -1529,42 +1482,6 @@ void ContextManager::setBeamDegrees(float degrees, bool isRelative)
                 setDumpValue(zSv.fxi, zSv.channel, zSv.value);
             else
                 m_functionManager->setChannelValue(zSv.fxi, zSv.channel, zSv.value);
-        }
-    }
-}
-
-void ContextManager::highlightFixtureSelection()
-{
-    setChannelValueByType((int)QLCChannel::Red, UCHAR_MAX);
-    setChannelValueByType((int)QLCChannel::Green, UCHAR_MAX);
-    setChannelValueByType((int)QLCChannel::Blue, UCHAR_MAX);
-    setChannelValueByType((int)QLCChannel::White, UCHAR_MAX);
-
-    setChannelValueByType((int)QLCChannel::Intensity, UCHAR_MAX);
-
-    // search for shutter open and lamp on
-    for (quint32 &itemID : m_selectedFixtures)
-    {
-        quint32 fxID = FixtureUtils::itemFixtureID(itemID);
-        Fixture *fixture = m_doc->fixture(fxID);
-        if (fixture == nullptr)
-            continue;
-
-        for (quint32 i = 0; i < fixture->channels(); i++)
-        {
-            const QLCChannel *channel = fixture->channel(i);
-            for (QLCCapability *cap : channel->capabilities())
-            {
-                if (cap->preset() == QLCCapability::ShutterOpen ||
-                    cap->preset() == QLCCapability::LampOn)
-                {
-                    if (m_editingEnabled == false)
-                        setDumpValue(fxID, i, cap->middle());
-                    else
-                        m_functionManager->setChannelValue(fxID, i, cap->middle());
-                    break;
-                }
-            }
         }
     }
 }
@@ -1628,9 +1545,6 @@ void ContextManager::slotUniverseWritten(quint32 idx, const QByteArray &ua)
 
 void ContextManager::slotFunctionEditingChanged(bool status)
 {
-    if (status == m_editingEnabled)
-        return;
-
     resetFixtureSelection();
     m_editingEnabled = status;
 }
@@ -1648,7 +1562,7 @@ void ContextManager::setDumpValue(quint32 fxID, quint32 channel, uchar value, bo
     currentVal.setValue(SceneValue(fxID, channel, currDmxValue));
     newVal.setValue(sValue);
 
-    //if (currentVal != newVal || value != currDmxValue)
+    if (currentVal != newVal || value != currDmxValue)
     {
         if (output)
         {

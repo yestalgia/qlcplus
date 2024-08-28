@@ -1,8 +1,9 @@
-html { height: 100%; background-color: #222; }
+html { height: 100%; background-color: #111; }
 
 body {
  margin: 0px;
- background: #222;
+ background-image: linear-gradient(to bottom, #45484d 0%, #111 100%);
+ background-image: -webkit-linear-gradient(top, #45484d 0%, #111 100%);
 }
 
 .styled-select select {

@@ -39,6 +39,7 @@ FixtureBrowser::FixtureBrowser(QQuickView *view, Doc *doc, QObject *parent)
     , m_fixtureName(QString())
     , m_selectedMode(QString())
     , m_modeChannelsCount(1)
+    , m_definition(nullptr)
     , m_mode(nullptr)
     , m_searchFilter(QString())
 {
@@ -149,12 +150,12 @@ QStringList FixtureBrowser::modesList()
 
     QStringList modesList;
 
-    QLCFixtureDef *definition = fixtureDefinition();
+    m_definition = m_doc->fixtureDefCache()->fixtureDef(m_selectedManufacturer, m_selectedModel);
 
-    if (definition != nullptr)
+    if (m_definition != nullptr)
     {
-        QList<QLCFixtureMode *> fxModesList = definition->modes();
-        foreach (QLCFixtureMode *mode, fxModesList)
+        QList<QLCFixtureMode *> fxModesList = m_definition->modes();
+        foreach(QLCFixtureMode *mode, fxModesList)
         {
             modesList.append(mode->name());
             if (m_selectedMode.isEmpty())
@@ -180,11 +181,10 @@ void FixtureBrowser::setSelectedMode(QString selectedMode)
         return;
 
     m_selectedMode = selectedMode;
-    QLCFixtureDef *definition = fixtureDefinition();
 
-    if (definition != nullptr)
+    if (m_definition != nullptr)
     {
-        m_mode = definition->mode(m_selectedMode);
+        m_mode = m_definition->mode(m_selectedMode);
         if (m_mode)
             m_modeChannelsCount = m_mode->channels().count();
     }
@@ -195,11 +195,9 @@ void FixtureBrowser::setSelectedMode(QString selectedMode)
 
 int FixtureBrowser::modeChannelsCount()
 {
-    QLCFixtureDef *definition = fixtureDefinition();
-
-    if (definition != nullptr)
+    if (m_definition != nullptr)
     {
-        m_mode = definition->mode(m_selectedMode);
+        m_mode = m_definition->mode(m_selectedMode);
 
         if (m_mode != nullptr)
             return m_mode->channels().count();
@@ -280,7 +278,7 @@ int FixtureBrowser::availableChannel(quint32 uniIdx, int channels, int quantity,
         absAddress = uniFilter << 9;
         for (int i = 0; i < 512; i++)
         {
-            if (m_doc->fixtureForAddress(absAddress + i) != Fixture::invalidId())
+            if(m_doc->fixtureForAddress(absAddress + i) != Fixture::invalidId())
             {
                 freeCounter = 0;
                 validAddr = i + 1;
@@ -314,7 +312,7 @@ int FixtureBrowser::availableChannel(quint32 fixtureID, int requested)
     for (quint32 i = 0; i < channels; i++)
     {
         quint32 fxIDOnAddr = m_doc->fixtureForAddress(absAddress + i);
-        if (fxIDOnAddr != Fixture::invalidId() && fxIDOnAddr != fixtureID)
+        if(fxIDOnAddr != Fixture::invalidId() && fxIDOnAddr != fixtureID)
         {
             isAvailable = false;
             break;
@@ -370,17 +368,16 @@ void FixtureBrowser::updateSearchTree()
 
     QStringList mfList = m_doc->fixtureDefCache()->manufacturers();
     mfList.sort();
-    QString searchFilter = m_searchFilter.toLower();
 
-    for (QString &manufacturer : mfList) // C++11
+    for(QString manufacturer : mfList) // C++11
     {
         QStringList modelsList = m_doc->fixtureDefCache()->models(manufacturer);
         modelsList.sort();
 
-        for (QString &model : modelsList)
+        for(QString model : modelsList)
         {
-            if (manufacturer.toLower().contains(searchFilter) ||
-                model.toLower().contains(searchFilter))
+            if (manufacturer.toLower().contains(m_searchFilter) ||
+                model.toLower().contains(m_searchFilter))
             {
                 QVariantList params;
                 TreeModelItem *item = m_searchTree->addItem(model, params, manufacturer);
@@ -389,10 +386,5 @@ void FixtureBrowser::updateSearchTree()
         }
     }
     emit searchListChanged();
-}
-
-QLCFixtureDef *FixtureBrowser::fixtureDefinition()
-{
-    return m_doc->fixtureDefCache()->fixtureDef(m_selectedManufacturer, m_selectedModel);
 }
 

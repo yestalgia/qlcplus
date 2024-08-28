@@ -20,8 +20,6 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 
-import "TimeUtils.js" as TimeUtils
-
 import "."
 
 Rectangle
@@ -34,15 +32,9 @@ Rectangle
 
     property bool showDMXcontrol: true
     property bool showTapButton: false
-
+    property double tapTimeValue: 0
     property alias commandString: commandBox.text
     property real itemHeight: Math.max(UISettings.iconSizeDefault, keyPadRoot.height / keyPadGrid.rows) - 3
-
-    //needed for bpm tapping
-    property double tapTimeValue: 0
-    property int tapCount: 0
-    property double lastTap: 0
-    property var tapHistory: []
 
     onVisibleChanged: if (visible) commandBox.selectAndFocus()
 
@@ -103,31 +95,18 @@ Rectangle
                 {
                     tapTimer.stop()
                     tapButton.border.color = UISettings.bgMedium
-                    lastTap = 0
-                    tapHistory = []
+                    tapTimeValue = 0
                 }
                 else
                 {
                     var currTime = new Date().getTime()
-
-                    if (lastTap != 0 && currTime - lastTap < 1500)
+                    if (tapTimeValue != 0)
                     {
-                        var newTime = currTime - lastTap
-
-                        tapHistory.push(newTime)
-
-                        tapTimeValue = TimeUtils.calculateBPMByTapIntervals(tapHistory)
-
-                        keyPadRoot.tapTimeChanged(tapTimeValue)
-                        tapTimer.interval = tapTimeValue
+                        keyPadRoot.tapTimeChanged(currTime - tapTimeValue)
+                        tapTimer.interval = currTime - tapTimeValue
                         tapTimer.restart()
                     }
-                    else
-                    {
-                        lastTap = 0
-                        tapHistory = []
-                    }
-                    lastTap = currTime
+                    tapTimeValue = currTime
                 }
             }
         }

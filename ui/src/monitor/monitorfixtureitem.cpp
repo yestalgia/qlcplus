@@ -28,6 +28,7 @@
 #include "monitorfixtureitem.h"
 #include "qlcfixturehead.h"
 #include "qlcfixturemode.h"
+#include "qlcfixturedef.h"
 #include "qlccapability.h"
 #include "fixture.h"
 #include "doc.h"
@@ -248,7 +249,7 @@ MonitorFixtureItem::~MonitorFixtureItem()
             disconnect(fxi, SIGNAL(valuesChanged()), this, SLOT(slotUpdateValues()));
     }
 
-    foreach (FixtureHead *head, m_heads)
+    foreach(FixtureHead *head, m_heads)
     {
         if (head->m_strobeTimer != 0)
         {
@@ -439,7 +440,7 @@ void MonitorFixtureItem::slotUpdateValues()
 
     bool needUpdate = false;
 
-    foreach (FixtureHead *head, m_heads)
+    foreach(FixtureHead *head, m_heads)
     {
         head->m_color = computeColor(head, fxValues);
         head->m_dimmerValue = computeAlpha(head, fxValues);

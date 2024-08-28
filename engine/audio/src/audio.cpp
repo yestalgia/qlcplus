@@ -175,7 +175,6 @@ bool Audio::setSourceFileName(QString filename)
     if (m_decoder == NULL)
         return false;
 
-    setDuration(m_decoder->totalTime());
     setTotalDuration(m_decoder->totalTime());
 
     emit changed(id());
@@ -405,15 +404,12 @@ void Audio::write(MasterTimer* timer, QList<Universe *> universes)
 
     incrementElapsed();
 
-    if (m_audio_out && !m_audio_out->isLooped())
-    {
-        uint fadeout = overrideFadeOutSpeed() == defaultSpeed() ? fadeOutSpeed() : overrideFadeOutSpeed();
+    uint fadeout = overrideFadeOutSpeed() == defaultSpeed() ? fadeOutSpeed() : overrideFadeOutSpeed();
 
-        if (fadeout)
-        {
-            if (m_audio_out != NULL && totalDuration() - elapsed() <= fadeOutSpeed())
-                m_audio_out->setFadeOut(fadeOutSpeed());
-        }
+    if (fadeout)
+    {
+        if (m_audio_out != NULL && totalDuration() - elapsed() <= fadeOutSpeed())
+            m_audio_out->setFadeOut(fadeOutSpeed());
     }
 }
 

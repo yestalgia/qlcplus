@@ -90,34 +90,33 @@ void printUsage()
  *
  * @return true to continue with application launch; otherwise false
  */
-bool parseArgs()
+bool parseArgs(int argc, char **argv)
 {
-    QStringListIterator it(QCoreApplication::arguments());
-    while (it.hasNext() == true)
+    for (int i = 1; i < argc; i++)
     {
-        QString arg(it.next());
-
-        if (arg == "-v" || arg == "--version")
+        if (::strcmp(argv[i], "-v") == 0 ||
+                ::strcmp(argv[i], "--version") == 0)
         {
             /* Don't print anything, since version is always
                printed before anything else. Just make the app
                exit by returning false. */
             return false;
         }
-        else if (arg == "-h" || arg == "--help")
+        else if (::strcmp(argv[i], "-h") == 0 ||
+                 ::strcmp(argv[i], "--help") == 0)
         {
             printUsage();
             return false;
         }
-        else if (arg == "-o" || arg == "--open")
+        else if (::strcmp(argv[i], "-o") == 0 ||
+                 ::strcmp(argv[i], "--open") == 0)
         {
-            if (it.hasNext() == true)
-                FXEDArgs::fixture = it.next();
+            FXEDArgs::fixture = QString(argv[++i]);
         }
-        else if (arg == "-l" || arg == "--locale")
+        else if (::strcmp(argv[i], "-l") == 0 ||
+                 ::strcmp(argv[i], "--locale") == 0)
         {
-            if (it.hasNext() == true)
-                FXEDArgs::locale = it.next();
+            FXEDArgs::locale = QString(argv[++i]);
         }
     }
 
@@ -169,7 +168,7 @@ int main(int argc, char** argv)
     printVersion();
 
     /* Parse command-line arguments */
-    if (parseArgs() == false)
+    if (parseArgs(argc, argv) == false)
         return 0;
 
     /* Load translation for current locale */

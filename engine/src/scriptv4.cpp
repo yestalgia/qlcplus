@@ -34,8 +34,6 @@
 #define KXMLQLCScriptCommand QString("Command")
 #define KXMLQLCScriptVersion QString("Version")
 
-const QString Script::stopOnExitLegacy = QString("stoponexit");
-const QString Script::stopOnExitCmd = QString("Engine.stopOnExit");
 const QString Script::startFunctionLegacy = QString("startfunction");
 const QString Script::startFunctionCmd = QString("Engine.startFunction");
 const QString Script::stopFunctionLegacy = QString("stopfunction");
@@ -44,10 +42,6 @@ const QString Script::blackoutLegacy = QString("blackout");
 const QString Script::blackoutCmd = QString("Engine.setBlackout");
 const QString Script::waitLegacy = QString("wait");
 const QString Script::waitCmd = QString("Engine.waitTime");
-const QString Script::waitFunctionStartLegacy = QString("waitfunctionstart");
-const QString Script::waitFunctionStartCmd = QString("Engine.waitFunctionStart");
-const QString Script::waitFunctionStopLegacy = QString("waitfunctionstop");
-const QString Script::waitFunctionStopCmd = QString("Engine.waitFunctionStop");
 const QString Script::setFixtureLegacy = QString("setfixture");
 const QString Script::setFixtureCmd = QString("Engine.setFixture");
 const QString Script::systemLegacy = QString("systemcommand");
@@ -312,7 +306,7 @@ bool Script::saveXML(QXmlStreamWriter *doc)
     saveXMLRunOrder(doc);
 
     /* Contents */
-    foreach (QString cmd, dataLines())
+    foreach(QString cmd, dataLines())
     {
         doc->writeTextElement(KXMLQLCScriptCommand, QUrl::toPercentEncoding(cmd));
     }
@@ -557,13 +551,10 @@ QString Script::convertLine(const QString& str, bool *ok)
 
 QString Script::convertLegacyMethod(QString method)
 {
-    if (method == stopOnExitLegacy) return stopOnExitCmd;
-    else if (method == startFunctionLegacy) return startFunctionCmd;
+    if (method == startFunctionLegacy) return startFunctionCmd;
     else if (method == stopFunctionLegacy) return stopFunctionCmd;
     else if (method == blackoutLegacy) return blackoutCmd;
     else if (method == waitLegacy) return waitCmd;
-    else if (method == waitFunctionStartLegacy) return waitFunctionStartCmd;
-    else if (method == waitFunctionStopLegacy) return waitFunctionStopCmd;
     else if (method == setFixtureLegacy) return setFixtureCmd;
     else if (method == systemLegacy) return systemCmd;
     else return "";

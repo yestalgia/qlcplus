@@ -119,16 +119,13 @@ devtool.addPropertyTableEntry = function(property)
         input.max = values[1];
         input.setAttribute("onChange", "devtool.writeFunction('" + writeFunction + "', '" + name + "', this.value); devtool.setStep(0); devtool.writeCurrentStep()");
         formCell.appendChild(input);
-    } else if (typeProperty === "float") {
+    } else if (typeProperty === "integer") {
         input = document.createElement("input");
         input.type = "number";
         input.required = "required";
         input.name = name;
         input.setAttribute("value", currentValue);
         input.id = name;
-        input.min = -1000000;
-        input.max = 1000000;
-        input.step = 0.001;
         input.setAttribute("onChange", "devtool.writeFunction('" + writeFunction + "', '" + name + "', this.value); devtool.setStep(0); devtool.writeCurrentStep()");
         formCell.appendChild(input);
     } else { // string
@@ -214,17 +211,12 @@ devtool.initColorValues = function()
     if (primary === null || Number.isNaN(parseInt("0x" + primary, 16))) {
       primary = "ff0000";
     }
-    primary = primary.padStart(6,"0");
-    document.getElementById("primaryColorText").value = primary;
-    document.getElementById("primaryColorPicker").value = "#" + primary;
+    document.getElementById("primaryColor").value = primary;
     var secondary = localStorage.getItem("devtool.secondaryColor");
     if (secondary === null || secondary === "" || Number.isNaN(parseInt("0x" + secondary, 16))) {
-      document.getElementById("secondaryColorText").value = "";
-      document.getElementById("secondaryColorPicker").value = "#000000";
+      document.getElementById("secondaryColor").value = "";
     } else {
-      secondary = secondary.padStart(6,"0");
-      document.getElementById("secondaryColorText").value = secondary;
-      document.getElementById("secondaryColorPicker").value =  "#" + secondary;
+      document.getElementById("secondaryColor").value = secondary;
     }
 }
 
@@ -257,9 +249,9 @@ devtool.getRgbFromColorInt = function(color)
 
 devtool.getCurrentColorInt = function()
 {
-    var primaryColorInput = document.getElementById("primaryColorText");
+    var primaryColorInput = document.getElementById("primaryColor");
     var primaryColor = parseInt(primaryColorInput.value, 16);
-    var secondaryColorInput = document.getElementById("secondaryColorText");
+    var secondaryColorInput = document.getElementById("secondaryColor");
     var secondaryColor = parseInt(secondaryColorInput.value, 16);
 
     if (testAlgo.acceptColors === 0 || Number.isNaN(primaryColor)) {
@@ -349,37 +341,17 @@ devtool.onGridSizeUpdated = function()
     devtool.writeCurrentStep();
 }
 
-devtool.onColorTextChange = function()
+devtool.onColorChange = function()
 {
-    var primary = parseInt("0x" + document.getElementById("primaryColorText").value).toString(16);
+    var primary = parseInt("0x" + document.getElementById("primaryColor").value).toString(16);
     localStorage.setItem("devtool.primaryColor", primary);
-    var secondary = parseInt("0x" + document.getElementById("secondaryColorText").value).toString(16);
-    if(primary === "NaN"){
-      document.getElementById("primaryColorPicker").value = "#000000";
-    } else {
-      document.getElementById("primaryColorPicker").value = "#" + primary.padStart(6,"0");;
-    }
+    var secondary = parseInt("0x" + document.getElementById("secondaryColor").value).toString(16);
     if (secondary === "NaN") { // Evaluation of the string.
-      document.getElementById("secondaryColorPicker").value = "#000000";
       localStorage.setItem("devtool.secondaryColor", "");
     } else {
-      document.getElementById("secondaryColorPicker").value = "#" + secondary.padStart(6,"0");;
       localStorage.setItem("devtool.secondaryColor", secondary);
     }
-    
     devtool.writeCurrentStep();
-}
-
-devtool.onPrimaryColorPickerChange = function()
-{
-    document.getElementById("primaryColorText").value = document.getElementById("primaryColorPicker").value.substring(1);
-    devtool.onColorTextChange();
-}
-
-devtool.onSecondaryColorPickerChange = function()
-{
-    document.getElementById("secondaryColorText").value = document.getElementById("secondaryColorPicker").value.substring(1);
-    devtool.onColorTextChange();
 }
 
 devtool.startTest = function(inc)
@@ -391,7 +363,7 @@ devtool.startTest = function(inc)
     } else {
       devtool.testTimer = window.setInterval("devtool.previousStep()", speed);
     }
-    localStorage.setItem("devtool.timerRunning", inc);
+    localStorage.setItem("devtool.timerRunning", 1);
 }
 
 devtool.stopTest = function()
@@ -403,8 +375,8 @@ devtool.stopTest = function()
 devtool.initTestStatus = function()
 {
     let timerStatus = localStorage.getItem("devtool.timerRunning");
-    if (timerStatus === null || parseInt(timerStatus) !== 0) {
-        devtool.startTest(parseInt(timerStatus));
+    if (timerStatus === null || parseInt(timerStatus) === 1) {
+        devtool.startTest();
     }
 }
 
@@ -506,7 +478,7 @@ devtool.previousStep = function()
     } else {
         let timerStatus = localStorage.getItem("devtool.timerRunning");
         let alternate = document.getElementById("alternate").checked;
-        if (timerStatus == "-1" && alternate) {
+        if (timerStatus == "1" && alternate) {
             devtool.startTest(1);
         } else {
             devtool.setStep(devtool.stepCount() - 1); // last step

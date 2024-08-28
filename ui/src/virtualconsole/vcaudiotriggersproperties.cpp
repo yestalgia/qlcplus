@@ -30,6 +30,7 @@
 #include "vcaudiotriggers.h"
 #include "qlcmacros.h"
 #include "audiobar.h"
+#include "chaser.h"
 
 #define KColumnName             0
 #define KColumnType             1

@@ -17,16 +17,19 @@
   limitations under the License.
 */
 
-#include <QSettings>
-#include <QDebug>
-
 #include "artnetplugin.h"
 #include "configureartnet.h"
+
+#include <QDebug>
+
+#define MAX_INIT_RETRY  10
+
 
 bool addressCompare(const ArtNetIO &v1, const ArtNetIO &v2)
 {
     return v1.address.ip().toString() < v2.address.ip().toString();
 }
+
 
 ArtNetPlugin::~ArtNetPlugin()
 {
@@ -34,14 +37,7 @@ ArtNetPlugin::~ArtNetPlugin()
 
 void ArtNetPlugin::init()
 {
-    QSettings settings;
-    QVariant value = settings.value(SETTINGS_IFACE_WAIT_TIME);
-    if (value.isValid() == true)
-        m_ifaceWaitTime = value.toInt();
-    else
-        m_ifaceWaitTime = 0;
-
-    foreach (QNetworkInterface iface, QNetworkInterface::allInterfaces())
+    foreach(QNetworkInterface iface, QNetworkInterface::allInterfaces())
     {
         foreach (QNetworkAddressEntry entry, iface.addressEntries())
         {
@@ -54,7 +50,7 @@ void ArtNetPlugin::init()
                 tmpIO.controller = NULL;
 
                 bool alreadyInList = false;
-                for (int j = 0; j < m_IOmapping.count(); j++)
+                for(int j = 0; j < m_IOmapping.count(); j++)
                 {
                     if (m_IOmapping.at(j).address == tmpIO.address)
                     {
@@ -100,19 +96,16 @@ QString ArtNetPlugin::pluginInfo()
     return str;
 }
 
-bool ArtNetPlugin::requestLine(quint32 line)
+bool ArtNetPlugin::requestLine(quint32 line, int retries)
 {
     int retryCount = 0;
 
     while (line >= (quint32)m_IOmapping.length())
     {
         qDebug() << "[ArtNet] cannot open line" << line << "(available:" << m_IOmapping.length() << ")";
-        if (m_ifaceWaitTime)
-        {
-            Sleep(1000);
-            init();
-        }
-        if (retryCount++ >= m_ifaceWaitTime)
+        Sleep(1000);
+        init();
+        if (retryCount++ == retries)
             return false;
     }
 
@@ -174,7 +167,7 @@ QString ArtNetPlugin::outputInfo(quint32 output)
 
 bool ArtNetPlugin::openOutput(quint32 output, quint32 universe)
 {
-    if (requestLine(output) == false)
+    if (requestLine(output, MAX_INIT_RETRY) == false)
         return false;
 
     qDebug() << "[ArtNet] Open output on address :" << m_IOmapping.at(output).address.ip().toString();
@@ -244,7 +237,7 @@ QStringList ArtNetPlugin::inputs()
 
 bool ArtNetPlugin::openInput(quint32 input, quint32 universe)
 {
-    if (requestLine(input) == false)
+    if (requestLine(input, MAX_INIT_RETRY) == false)
         return false;
 
     // if the controller doesn't exist, create it.
@@ -441,9 +434,9 @@ void ArtNetPlugin::slotReadyRead()
 
 void ArtNetPlugin::handlePacket(QByteArray const& datagram, QHostAddress const& senderAddress)
 {
-    // A first filter: look for a controller on the same subnet as the sender.
+    // A firts filter: look for a controller on the same subnet as the sender.
     // This allows having the same ArtNet Universe on 2 different network interfaces.
-    foreach (ArtNetIO io, m_IOmapping)
+    foreach(ArtNetIO io, m_IOmapping)
     {
         if (senderAddress.isInSubnet(io.address.ip(), io.address.prefixLength()))
         {
@@ -454,7 +447,7 @@ void ArtNetPlugin::handlePacket(QByteArray const& datagram, QHostAddress const& 
     }
     // Packet comming from another subnet. This is an unusual case.
     // We stop at the first controller that handles this packet.
-    foreach (ArtNetIO io, m_IOmapping)
+    foreach(ArtNetIO io, m_IOmapping)
     {
         if (io.controller != NULL)
         {

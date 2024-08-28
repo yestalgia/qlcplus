@@ -132,7 +132,6 @@ Column
                 id: nodeLabel
                 Layout.fillWidth: true
                 text: textLabel
-                originalText: text
 
                 onTextConfirmed:
                 {

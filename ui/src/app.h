@@ -31,7 +31,6 @@
 #include "doc.h"
 
 class QProgressDialog;
-class VideoProvider;
 class QMessageBox;
 class QToolButton;
 class QFileDialog;
@@ -42,6 +41,10 @@ class QPixmap;
 class QAction;
 class QLabel;
 class App;
+
+#if QT_VERSION >= 0x050000
+class VideoProvider;
+#endif
 
 /** @addtogroup ui UI
  * @{
@@ -209,7 +212,9 @@ private:
      *********************************************************************/
 private:
     DmxDumpFactoryProperties *m_dumpProperties;
+#if QT_VERSION >= 0x050000
     VideoProvider *m_videoProvider;
+#endif
 
     /*********************************************************************
      * Load & Save

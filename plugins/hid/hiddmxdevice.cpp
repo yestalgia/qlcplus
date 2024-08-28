@@ -75,20 +75,6 @@ void HIDDMXDevice::init()
  * File operations
  *****************************************************************************/
 
-bool HIDDMXDevice::isMergerModeEnabled()
-{
-    return (m_mode & DMX_MODE_MERGER);
-}
-
-void HIDDMXDevice::enableMergerMode(bool mergerModeEnabled)
-{
-    if (mergerModeEnabled)
-        m_mode |= DMX_MODE_MERGER;
-    else
-        m_mode &= ~DMX_MODE_MERGER;
-    updateMode();
-}
-
 bool HIDDMXDevice::openInput()
 {
     m_mode |= DMX_MODE_INPUT;
@@ -148,7 +134,7 @@ void HIDDMXDevice::feedBack(quint32 channel, uchar value)
 
 void HIDDMXDevice::run()
 {
-    while (m_running == true)
+    while(m_running == true)
     {
         unsigned char buffer[35];
         int size;
@@ -161,9 +147,9 @@ void HIDDMXDevice::run()
         *            from, the nth chunk starts at address n * 32
         * [1]-[32] = channel values, where the nth value is the offset + n
         */
-        while (size > 0)
+        while(size > 0)
         {
-            if (size == 33)
+            if(size == 33)
             {
                 unsigned short startOff = buffer[0] * 32;
                 if (buffer[0] < 16)
@@ -230,8 +216,6 @@ void HIDDMXDevice::updateMode()
         driver_mode += 2;
     if (m_mode & DMX_MODE_INPUT)
         driver_mode += 4;
-    if (m_mode & DMX_MODE_MERGER)
-        driver_mode += 1;
 
     unsigned char buffer[34];
 

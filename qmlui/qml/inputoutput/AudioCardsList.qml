@@ -71,6 +71,7 @@ Rectangle
                         {
                             // return the dragged item to its original position
                             parent = root
+                            acDelegate.color = "transparent"
                         }
                         acDelegate.x = 3
                         acDelegate.y = 0
@@ -82,7 +83,7 @@ Rectangle
                         x: 3
                         width: aclContainer.width
                         height: UISettings.listItemHeight * 1.7
-                        color: delegateRoot.pressed ? UISettings.highlightPressed : "transparent"
+                        color: delegateRoot.pressed ? "#444" : "transparent"
 
                         // this key must match the one in AudioIOItem, to avoid dragging
                         // an audio input on output and vice-versa
@@ -119,7 +120,7 @@ Rectangle
                             width: acDelegate.width
                             height: 1
                             y: acDelegate.height - 1
-                            color: UISettings.bgLight
+                            color: "#555"
                         }
                     }
                 }// MouseArea

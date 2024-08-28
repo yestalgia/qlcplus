@@ -42,18 +42,16 @@ class InputProfileEditor : public QDialog, public Ui_InputProfileEditor
      * Initialization
      ************************************************************************/
 public:
-    InputProfileEditor(QWidget *parent, QLCInputProfile *profile, InputOutputMap *ioMap);
+    InputProfileEditor(QWidget* parent, QLCInputProfile* profile, InputOutputMap* ioMap);
     virtual ~InputProfileEditor();
 
 protected:
     void fillTree();
-    void updateColorsTree();
-    void updateMidiChannelTree();
-    void updateChannelItem(QTreeWidgetItem *item, QLCInputChannel *ch);
+    void updateChannelItem(QTreeWidgetItem* item, QLCInputChannel* ch);
     void setOptionsVisibility(QLCInputChannel::Type type);
 
 protected slots:
-    void slotTypeComboChanged(int);
+    void slotTypeComboChanged(int );
 
 private:
     InputOutputMap* m_ioMap;
@@ -82,13 +80,6 @@ protected slots:
     void slotExtraPressChecked(bool checked);
     void slotLowerValueSpinChanged(int value);
     void slotUpperValueSpinChanged(int value);
-    void slotMidiChannelComboChanged(int index);
-
-    void slotAddColor();
-    void slotRemoveColor();
-
-    void slotAddMidiChannel();
-    void slotRemoveMidiChannel();
 
     void slotInputValueChanged(quint32 universe, quint32 channel, uchar value, const QString& key = 0);
     void slotTimerTimeout();
@@ -102,7 +93,7 @@ protected:
      * Profile
      ************************************************************************/
 public:
-    QLCInputProfile *profile();
+    const QLCInputProfile* profile() const;
 
 private:
     QLCInputProfile::Type currentProfileType() const;

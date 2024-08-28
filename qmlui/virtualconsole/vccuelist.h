@@ -188,7 +188,6 @@ private slots:
     void slotFunctionRemoved(quint32 fid);
     void slotFunctionNameChanged(quint32 fid);
     void slotStepChanged(int index);
-    void slotStepsListChanged(quint32 fid);
 
 private:
     FunctionParent functionParent() const;

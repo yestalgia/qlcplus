@@ -26,6 +26,7 @@
 #include "chaserstep.h"
 #include "showeditor.h"
 #include "chaser.h"
+#include "audio.h"
 #include "track.h"
 #include "scene.h"
 #include "show.h"
@@ -107,7 +108,7 @@ void ShowEditor::updateFunctionList()
     masterItem->setData(NAME_COL, PROP_ID, m_show->id());
     masterItem->setIcon(NAME_COL, QIcon(":/show.png"));
 
-    foreach (Track *track, m_show->tracks())
+    foreach(Track *track, m_show->tracks())
     {
         QTreeWidgetItem* sceneItem = NULL;
         Scene *scene = qobject_cast<Scene*>(m_doc->function(track->getSceneID()));
@@ -123,7 +124,7 @@ void ShowEditor::updateFunctionList()
             }
         }
 
-        foreach (ShowFunction *sf, track->showFunctions())
+        foreach(ShowFunction *sf, track->showFunctions())
         {
             Function *func = m_doc->function(sf->functionID());
             if (func == NULL)

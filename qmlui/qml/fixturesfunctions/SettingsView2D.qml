@@ -19,7 +19,6 @@
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
-import QtQuick.Dialogs 1.3
 
 import org.qlcplus.classes 1.0
 import "."
@@ -204,189 +203,140 @@ Rectangle
                         }
                     }
                 } // GridLayout
-        } // SectionBox
+            } // SectionBox
 
-        SectionBox
-        {
-            width: parent.width
-            sectionLabel: qsTr("Custom Background")
-            sectionContents:
-                GridLayout
-                {
-                    IconButton
+            SectionBox
+            {
+                visible: fxPropsVisible
+                width: parent.width
+                isExpanded: fxPropsVisible
+                sectionLabel: qsTr("Selected fixtures")
+
+                sectionContents:
+                    GridLayout
                     {
-                        id: imgButton
-                        width: UISettings.iconSizeMedium
-                        height: width
-                        imgSource: "qrc:/background.svg"
+                        width: parent.width
+                        columns: 2
+                        columnSpacing: 5
+                        rowSpacing: 2
 
-                        onClicked: fileDialog.open()
-
-                        FileDialog
+                        // row 1
+                        RobotoText
                         {
-                            id: fileDialog
-                            visible: false
-                            title: qsTr("Select an image")
-                            nameFilters: [ "Image files (*.png *.bmp *.jpg *.jpeg *.gif *.svg)", "All files (*)" ]
+                            height: UISettings.listItemHeight
+                            label: qsTr("Gel color")
+                        }
+                        Rectangle
+                        {
+                            Layout.fillWidth: true
+                            height: UISettings.listItemHeight
+                            color: gelColorTool.currentRGB
 
-                            onAccepted:
+                            MouseArea
                             {
-                                View2D.backgroundImage = fileDialog.fileUrl
+                                anchors.fill: parent
+                                onClicked: gelColorTool.visible = !gelColorTool.visible
                             }
                         }
-                    }
 
-                    CustomTextEdit
-                    {
-                        Layout.fillWidth: true
-                        height: UISettings.iconSizeMedium
-                        text: View2D.backgroundImage
-                    }
-
-                    IconButton
-                    {
-                        z: 2
-                        width: UISettings.iconSizeMedium
-                        height: width
-                        faSource: FontAwesome.fa_times
-                        tooltip: qsTr("Reset background")
-                        onClicked: View2D.backgroundImage = ""
-                    }
-                }
-        }
-
-        SectionBox
-        {
-            visible: fxPropsVisible
-            width: parent.width
-            isExpanded: fxPropsVisible
-            sectionLabel: qsTr("Selected fixtures")
-
-            sectionContents:
-                GridLayout
-                {
-                    width: parent.width
-                    columns: 2
-                    columnSpacing: 5
-                    rowSpacing: 2
-
-                    // row 1
-                    RobotoText
-                    {
-                        height: UISettings.listItemHeight
-                        label: qsTr("Gel color")
-                    }
-                    Rectangle
-                    {
-                        Layout.fillWidth: true
-                        height: UISettings.listItemHeight
-                        color: gelColorTool.currentRGB
-
-                        MouseArea
+                        // row 2
+                        RobotoText
                         {
-                            anchors.fill: parent
-                            onClicked: gelColorTool.visible = !gelColorTool.visible
+                            height: UISettings.listItemHeight
+                            label: qsTr("Rotation")
                         }
-                    }
-
-                    // row 2
-                    RobotoText
-                    {
-                        height: UISettings.listItemHeight
-                        label: qsTr("Rotation")
-                    }
-                    CustomSpinBox
-                    {
-                        id: fxRotSpin
-                        Layout.fillWidth: true
-                        height: UISettings.listItemHeight
-                        from: -359
-                        to: 359
-                        suffix: "°"
-                        value:
+                        CustomSpinBox
                         {
-                            switch (View2D.pointOfView)
+                            id: fxRotSpin
+                            Layout.fillWidth: true
+                            height: UISettings.listItemHeight
+                            from: -359
+                            to: 359
+                            suffix: "°"
+                            value:
                             {
-                                case MonitorProperties.LeftSideView:
-                                case MonitorProperties.RightSideView:
-                                    return fxRotation.x
+                                switch (View2D.pointOfView)
+                                {
+                                    case MonitorProperties.LeftSideView:
+                                    case MonitorProperties.RightSideView:
+                                        return fxRotation.x
 
-                                case MonitorProperties.FrontView:
-                                    return fxRotation.z
+                                    case MonitorProperties.FrontView:
+                                        return fxRotation.z
 
-                                default:
-                                    return fxRotation.y
+                                    default:
+                                        return fxRotation.y
+                                }
+                            }
+                            onValueModified: updateRotation(value)
+                        }
+
+                        // row 3
+                        RobotoText
+                        {
+                            height: UISettings.listItemHeight;
+                            label: qsTr("Alignment")
+                        }
+
+                        Row
+                        {
+                            Layout.fillWidth: true
+
+                            IconButton
+                            {
+                                id: alignLeftBtn
+                                width: UISettings.iconSizeDefault
+                                height: width
+                                bgColor: UISettings.bgLighter
+                                imgSource: "qrc:/align-left.svg"
+                                tooltip: qsTr("Align the selected items to the left")
+                                onClicked: contextManager.setFixturesAlignment(Qt.AlignLeft)
+                            }
+                            IconButton
+                            {
+                                id: alignTopBtn
+                                width: UISettings.iconSizeDefault
+                                height: width
+                                bgColor: UISettings.bgLighter
+                                imgSource: "qrc:/align-top.svg"
+                                tooltip: qsTr("Align the selected items to the top")
+                                onClicked: contextManager.setFixturesAlignment(Qt.AlignTop)
                             }
                         }
-                        onValueModified: updateRotation(value)
-                    }
 
-                    // row 3
-                    RobotoText
-                    {
-                        height: UISettings.listItemHeight;
-                        label: qsTr("Alignment")
-                    }
-
-                    Row
-                    {
-                        Layout.fillWidth: true
-
-                        IconButton
+                        // row 3
+                        RobotoText
                         {
-                            id: alignLeftBtn
-                            width: UISettings.iconSizeDefault
-                            height: width
-                            bgColor: UISettings.bgLighter
-                            imgSource: "qrc:/align-left.svg"
-                            tooltip: qsTr("Align the selected items to the left")
-                            onClicked: contextManager.setFixturesAlignment(Qt.AlignLeft)
+                            height: UISettings.listItemHeight;
+                            label: qsTr("Distribution")
                         }
-                        IconButton
-                        {
-                            id: alignTopBtn
-                            width: UISettings.iconSizeDefault
-                            height: width
-                            bgColor: UISettings.bgLighter
-                            imgSource: "qrc:/align-top.svg"
-                            tooltip: qsTr("Align the selected items to the top")
-                            onClicked: contextManager.setFixturesAlignment(Qt.AlignTop)
-                        }
-                    }
 
-                    // row 3
-                    RobotoText
-                    {
-                        height: UISettings.listItemHeight;
-                        label: qsTr("Distribution")
-                    }
-
-                    Row
-                    {
-                        Layout.fillWidth: true
-
-                        IconButton
+                        Row
                         {
-                            id: distributeXBtn
-                            width: UISettings.iconSizeDefault
-                            height: width
-                            bgColor: UISettings.bgLighter
-                            imgSource: "qrc:/distribute-x.svg"
-                            tooltip: qsTr("Equally distribute horizontally the selected items")
-                            onClicked: contextManager.setFixturesDistribution(Qt.Horizontal)
+                            Layout.fillWidth: true
+
+                            IconButton
+                            {
+                                id: distributeXBtn
+                                width: UISettings.iconSizeDefault
+                                height: width
+                                bgColor: UISettings.bgLighter
+                                imgSource: "qrc:/distribute-x.svg"
+                                tooltip: qsTr("Equally distribute horizontally the selected items")
+                                onClicked: contextManager.setFixturesDistribution(Qt.Horizontal)
+                            }
+                            IconButton
+                            {
+                                id: distributeYBtn
+                                width: UISettings.iconSizeDefault
+                                height: width
+                                bgColor: UISettings.bgLighter
+                                imgSource: "qrc:/distribute-y.svg"
+                                tooltip: qsTr("Equally distribute vertically the selected items")
+                                onClicked: contextManager.setFixturesDistribution(Qt.Vertical)
+                            }
                         }
-                        IconButton
-                        {
-                            id: distributeYBtn
-                            width: UISettings.iconSizeDefault
-                            height: width
-                            bgColor: UISettings.bgLighter
-                            imgSource: "qrc:/distribute-y.svg"
-                            tooltip: qsTr("Equally distribute vertically the selected items")
-                            onClicked: contextManager.setFixturesDistribution(Qt.Vertical)
-                        }
-                    }
-                } // GridLayout
-        } // SectionBox
+                    } // GridLayout
+            } // SectionBox
     } // Column
 }

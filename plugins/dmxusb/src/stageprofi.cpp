@@ -43,7 +43,7 @@ bool Stageprofi::checkReply()
     bool ok = false;
     uchar res;
 
-    res = iface()->readByte(&ok);
+    res = interface()->readByte(&ok);
     if (ok == false || res != 0x47)
         return false;
 
@@ -72,7 +72,7 @@ bool Stageprofi::sendChannelValue(int channel, uchar value)
     QByteArray chanMsg;
     QString msg;
     chanMsg.append(msg.asprintf("C%03dL%03d", channel, value).toUtf8());
-    return iface()->write(chanMsg);
+    return interface()->write(chanMsg);
 }
 
 /****************************************************************************
@@ -91,7 +91,7 @@ bool Stageprofi::open(quint32 line, bool input)
 
     /* Check connection */
     initSequence.append("C?");
-    if (iface()->write(initSequence) == true)
+    if (interface()->write(initSequence) == true)
     {
         if (checkReply() == false)
             qWarning() << Q_FUNC_INFO << name() << "Initialization failed";
@@ -102,7 +102,7 @@ bool Stageprofi::open(quint32 line, bool input)
     /* set the DMX OUT channels number */
     initSequence.clear();
     initSequence.append("N511");
-    if (iface()->write(initSequence) == true)
+    if (interface()->write(initSequence) == true)
     {
         if (checkReply() == false)
             qWarning() << Q_FUNC_INFO << name() << "Channels initialization failed";
@@ -205,7 +205,7 @@ void Stageprofi::run()
 
         for (int i = 0; i < m_outputLines[0].m_universeData.length(); i++)
         {
-            char val = m_outputLines[0].m_universeData[i];
+            uchar val = uchar(m_outputLines[0].m_universeData[i]);
 
             if (val == m_outputLines[0].m_compareData[i])
                 continue;
@@ -223,17 +223,17 @@ void Stageprofi::run()
             }
             fastTrans.append(val);
 
-            if (iface()->write(fastTrans) == false)
+            if (interface()->write(fastTrans) == false)
             {
                 qWarning() << Q_FUNC_INFO << name() << "will not accept DMX data";
-                iface()->purgeBuffers();
+                interface()->purgeBuffers();
                 continue;
             }
             else
             {
                 m_outputLines[0].m_compareData[i] = val;
                 if (checkReply() == false)
-                    iface()->purgeBuffers();
+                    interface()->purgeBuffers();
             }
         }
 

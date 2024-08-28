@@ -42,10 +42,6 @@ GridLayout
 
     /* The TAP time counter */
     property double tapTimeValue: 0
-    //needed for bpm tapping
-    property int tapCount: 0
-    property double lastTap: 0
-    property var tapHistory: []
 
     /* If needed, this property can be used to recognize which type
        of speed value is being edited */
@@ -181,36 +177,23 @@ GridLayout
         onClicked:
         {
             /* right click resets the current TAP time */
-                if (mouseButton === Qt.RightButton)
+            if (mouseButton === Qt.RightButton)
+            {
+                tapTimer.stop()
+                tapButton.border.color = UISettings.bgMedium
+                tapTimeValue = 0
+            }
+            else
+            {
+                var currTime = new Date().getTime()
+                if (tapTimeValue != 0)
                 {
-                    tapTimer.stop()
-                    tapButton.border.color = UISettings.bgMedium
-                    lastTap = 0
-                    tapHistory = []
+                    updateTime(currTime - tapTimeValue, "")
+                    tapTimer.interval = timeValue
+                    tapTimer.restart()
                 }
-                else
-                {
-                    var currTime = new Date().getTime()
-                    
-                    if (lastTap != 0 && currTime - lastTap < 1500)
-                    {
-                        var newTime = currTime - lastTap
-                        
-                        tapHistory.push(newTime)
-
-                        tapTimeValue = TimeUtils.calculateBPMByTapIntervals(tapHistory)
-                        
-                        updateTime(tapTimeValue, "")
-                        tapTimer.interval = timeValue
-                        tapTimer.restart()
-                    }
-                    else
-                    {
-                        lastTap = 0
-                        tapHistory = []
-                    }
-                    lastTap = currTime
-                }
+                tapTimeValue = currTime
+            }
         }
     }
 

@@ -18,7 +18,8 @@
 */
 
 #include "qlcclipboard.h"
-#include "doc.h"
+#include "chaser.h"
+#include "scene.h"
 
 QLCClipboard::QLCClipboard(Doc *doc)
     : m_doc(doc)

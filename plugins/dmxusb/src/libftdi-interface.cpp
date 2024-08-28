@@ -37,9 +37,6 @@ LibFTDIInterface::LibFTDIInterface(const QString& serial, const QString& name, c
 {
     bzero(&m_handle, sizeof(struct ftdi_context));
     ftdi_init(&m_handle);
-#ifdef LIBFTDI1_5
-    m_handle.module_detach_mode = AUTO_DETACH_REATACH_SIO_MODULE;
-#endif
 }
 
 LibFTDIInterface::~LibFTDIInterface()
@@ -49,24 +46,24 @@ LibFTDIInterface::~LibFTDIInterface()
     ftdi_deinit(&m_handle);
 }
 
-bool LibFTDIInterface::readLabel(uchar label, int &intParam, QString &strParam)
+QString LibFTDIInterface::readLabel(uchar label, int *ESTA_code)
 {
     if (ftdi_usb_open_desc(&m_handle, DMXInterface::FTDIVID, DMXInterface::FTDIPID,
                            name().toLatin1().data(), serial().toLatin1().data()) < 0)
 
-        return false;
+        return QString();
 
     if (ftdi_usb_reset(&m_handle) < 0)
-        return false;
+        return QString();
 
     if (ftdi_set_baudrate(&m_handle, 250000) < 0)
-        return false;
+        return QString();
 
     if (ftdi_set_line_property(&m_handle, BITS_8, STOP_BIT_2, NONE) < 0)
-        return false;
+        return QString();
 
     if (ftdi_setflowctrl(&m_handle, SIO_DISABLE_FLOW_CTRL) < 0)
-        return false;
+        return QString();
 
     QByteArray request;
     request.append(ENTTEC_PRO_START_OF_MSG);
@@ -78,50 +75,33 @@ bool LibFTDIInterface::readLabel(uchar label, int &intParam, QString &strParam)
     if (ftdi_write_data(&m_handle, (uchar*) request.data(), request.size()) < 0)
     {
         qDebug() << Q_FUNC_INFO << "Cannot write data to device";
-        return false;
+        return QString();
     }
 
-    uchar buffer[40];
+    uchar *buffer = (uchar*) malloc(sizeof(uchar) * 40);
+    Q_ASSERT(buffer != NULL);
 
     for (int i = 0; i < 3; i++)
     {
         QByteArray array = read(40, buffer);
-        if (array.size() == 0)
-            return false;
-
-        if (array[0] != ENTTEC_PRO_START_OF_MSG)
+        if (array.size() >= 7)
         {
-            qDebug() << Q_FUNC_INFO << "Reply message wrong start code: " << QString::number(array[0], 16);
-            return false;
+            if (array[0] != ENTTEC_PRO_START_OF_MSG)
+                qDebug() << Q_FUNC_INFO << "Reply message wrong start code: " << QString::number(array[0], 16);
+            *ESTA_code = (array[5] << 8) | array[4];
+            array.remove(0, 6); // 4 bytes of Enttec protocol + 2 of ESTA ID
+            array.replace(ENTTEC_PRO_END_OF_MSG, '\0'); // replace Enttec termination with string termination
+
+            ftdi_usb_close(&m_handle);
+
+            return QString(array);
         }
-
-        // start | label | data length
-        if (array.size() < 4)
-            return false;
-
-        int dataLen = (array[3] << 8) | array[2];
-        if (dataLen == 1)
-        {
-            intParam = array[4];
-            return true;
-        }
-
-        intParam = (array[5] << 8) | array[4];
-        array.remove(0, 6); // 4 bytes of Enttec protocol + 2 of ESTA ID
-        array.replace(ENTTEC_PRO_END_OF_MSG, '\0'); // replace Enttec termination with string termination
-        strParam = QString(array);
-
-        ftdi_usb_close(&m_handle);
-
-        return true;
-
-        // retry in case no data is read immediately
         usleep(100000);
     }
 
     ftdi_usb_close(&m_handle);
 
-    return false;
+    return QString();
 }
 
 void LibFTDIInterface::setBusLocation(quint8 location)

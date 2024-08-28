@@ -23,11 +23,9 @@
 #include <QLineEdit>
 #include <QKeyEvent>
 #include <QDebug>
-#include <QSettings>
 
 #include "assignhotkey.h"
 
-#define SETTINGS_GEOMETRY "assignhotkey/geometry"
 #define SETTINGS_AUTOCLOSE "assignhotkey/autoclose"
 
 /*****************************************************************************
@@ -67,16 +65,11 @@ AssignHotKey::AssignHotKey(QWidget* parent, const QKeySequence& keySequence)
 
     QSettings settings;
     m_autoCloseCheckBox->setChecked(settings.value(SETTINGS_AUTOCLOSE).toBool());
-
-    QVariant geometrySettings = settings.value(SETTINGS_GEOMETRY);
-    if (geometrySettings.isValid() == true)
-        restoreGeometry(geometrySettings.toByteArray());
 }
 
 AssignHotKey::~AssignHotKey()
 {
     QSettings settings;
-    settings.setValue(SETTINGS_GEOMETRY, saveGeometry());
     settings.setValue(SETTINGS_AUTOCLOSE, m_autoCloseCheckBox->isChecked());
 }
 

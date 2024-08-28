@@ -71,6 +71,7 @@ protected slots:
     void slotRemoveChannelClicked();
     void slotRaiseChannelClicked();
     void slotLowerChannelClicked();
+    void slotActsOnChannelChanged(QLCChannel *);
 
 protected:
     void refreshChannelList();

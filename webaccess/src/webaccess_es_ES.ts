@@ -4,99 +4,99 @@
 <context>
     <name>WebAccess</name>
     <message>
-        <location filename="webaccess.cpp" line="171"/>
+        <location filename="webaccess.cpp" line="169"/>
         <source>Loading project...</source>
         <translation>Cargando proyecto...</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="207"/>
+        <location filename="webaccess.cpp" line="205"/>
         <source>Fixture stored and loaded</source>
         <translation>Fixture guardado y cargado</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="407"/>
+        <location filename="webaccess.cpp" line="396"/>
         <source>Username and password are required fields.</source>
         <translation>Nombre de usuario y contraseña son campos obligatorios.</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="413"/>
-        <location filename="webaccess.cpp" line="438"/>
+        <location filename="webaccess.cpp" line="402"/>
+        <location filename="webaccess.cpp" line="427"/>
         <source>User level has to be a positive integer.</source>
         <translation>El nivel de usuario tiene que ser un entero positivo.</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="432"/>
+        <location filename="webaccess.cpp" line="421"/>
         <source>Username is required.</source>
         <translation>Nombre de usuario es obligatorio.</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="450"/>
+        <location filename="webaccess.cpp" line="439"/>
         <source>Error while saving passwords file.</source>
         <translation>Error al guardar el archivo de contraseña.</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="465"/>
+        <location filename="webaccess.cpp" line="454"/>
         <source>Network configuration changed. Reboot to apply the changes.</source>
         <translation>La configuración de red ha cambiado. Reiniciar para aplicar los cambios.</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="484"/>
+        <location filename="webaccess.cpp" line="473"/>
         <source>Autostart configuration changed</source>
         <translation>La configuración de inicio automático ha cambiado</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="860"/>
+        <location filename="webaccess.cpp" line="822"/>
         <source>Widget not supported (yet) for web access</source>
         <translation>Widget no soportado (todavía) para acceso web</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="912"/>
-        <location filename="webaccess.cpp" line="965"/>
+        <location filename="webaccess.cpp" line="873"/>
+        <location filename="webaccess.cpp" line="925"/>
         <source>Page</source>
         <translation>Página</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="1131"/>
+        <location filename="webaccess.cpp" line="1088"/>
         <source>Enable</source>
         <translation>Activar</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="1163"/>
+        <location filename="webaccess.cpp" line="1120"/>
         <source>Name</source>
         <translation>Nombre</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="1164"/>
+        <location filename="webaccess.cpp" line="1121"/>
         <source>Fade In</source>
         <translation>Fade In</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="1165"/>
+        <location filename="webaccess.cpp" line="1122"/>
         <source>Fade Out</source>
         <translation>Fade Out</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="1166"/>
+        <location filename="webaccess.cpp" line="1123"/>
         <source>Duration</source>
         <translation>Duración</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="1167"/>
+        <location filename="webaccess.cpp" line="1124"/>
         <source>Notes</source>
         <translation>Notas</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="1463"/>
+        <location filename="webaccess.cpp" line="1360"/>
         <source>Load project</source>
         <translation>Cargar proyecto</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="1465"/>
+        <location filename="webaccess.cpp" line="1362"/>
         <source>Simple Desk</source>
         <translation>Mesa Simple</translation>
     </message>
     <message>
-        <location filename="webaccess.cpp" line="1467"/>
+        <location filename="webaccess.cpp" line="1364"/>
         <source>Configuration</source>
         <translation>Configuración</translation>
     </message>

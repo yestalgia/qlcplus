@@ -17,19 +17,17 @@
   limitations under the License.
 */
 
-#include <QVersionNumber>
+#include "videoprovider.h"
+#include "qlcfile.h"
+#include "doc.h"
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
  #include <QMediaMetaData>
- #include <QAudioOutput>
 #endif
 #include <QApplication>
 #include <QMediaPlayer>
 #include <QVideoWidget>
 #include <QScreen>
-
-#include "videoprovider.h"
-#include "qlcfile.h"
-#include "doc.h"
 
 VideoProvider::VideoProvider(Doc *doc, QObject *parent)
     : QObject(parent)
@@ -53,7 +51,7 @@ void VideoProvider::slotFunctionAdded(quint32 id)
     if (func == NULL)
         return;
 
-    if (func->type() == Function::VideoType)
+    if(func->type() == Function::VideoType)
     {
         VideoWidget *vWidget = new VideoWidget(qobject_cast<Video *>(func));
         m_videoMap[id] = vWidget;
@@ -85,8 +83,6 @@ VideoWidget::VideoWidget(Video *video, QObject *parent)
     m_videoPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
 #else
     m_videoPlayer = new QMediaPlayer(this);
-    m_audioOutput = new QAudioOutput(this);
-    m_videoPlayer->setAudioOutput(m_audioOutput);
 #endif
     m_videoPlayer->moveToThread(QCoreApplication::instance()->thread());
 
@@ -220,7 +216,7 @@ void VideoWidget::slotMetaDataChanged()
         return;
 
     QMediaMetaData md = m_videoPlayer->metaData();
-    foreach (QMediaMetaData::Key k, md.keys())
+    foreach(QMediaMetaData::Key k, md.keys())
     {
         qDebug() << "[Metadata]" << md.metaDataKeyToString(k) << ":" << md.stringValue(k);
         switch (k)

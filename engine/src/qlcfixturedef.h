@@ -149,7 +149,6 @@ public:
 
     /** Check if the full definition has been loaded */
     void checkLoaded(QString mapPath);
-    void setLoaded(bool loaded);
 
     /** Get/Set if the definition is user-made */
     bool isUser() const;

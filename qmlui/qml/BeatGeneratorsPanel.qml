@@ -20,8 +20,6 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.1
-
-import "GenericHelpers.js" as Helpers
 import "."
 
 Rectangle
@@ -91,7 +89,6 @@ Rectangle
 
             width: parent.width
             height: UISettings.bigItemHeight * 2
-            clip: true
             boundsBehavior: Flickable.StopAtBounds
 
             delegate:
@@ -102,11 +99,11 @@ Rectangle
 
                     Component.onCompleted:
                     {
-                        if (modelData.type === "PLUGIN")
+                        if (modelData.type === "MIDI")
                         {
                             iconBox.color = "white"
                             iconBox.visible = true
-                            genIcon.source = Helpers.pluginIconFromName(modelData.privateName)
+                            genIcon.source = "qrc:/midiplugin.svg"
                         }
                         else if (modelData.type === "AUDIO")
                         {
@@ -154,7 +151,6 @@ Rectangle
         {
             id: keyPadBox
             width: parent.width
-            height: UISettings.iconSizeDefault * 6
             showDMXcontrol: false
             showTapButton: true
             visible: ioManager.beatType === "INTERNAL"

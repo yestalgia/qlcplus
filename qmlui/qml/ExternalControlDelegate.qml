@@ -155,7 +155,7 @@ Column
             Layout.fillWidth: true
             height: UISettings.listItemHeight
             visible: customFeedback
-            label: qsTr("Custom feedback")
+            label: qsTr("Custom feedbacks")
             color: UISettings.bgMedium
         }
 

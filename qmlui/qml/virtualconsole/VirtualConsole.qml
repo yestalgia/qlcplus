@@ -198,8 +198,8 @@ Rectangle
                     onZoomInClicked: { virtualConsole.setPageScale(0.1) }
                 }
             }
-
         }
+
         Loader
         {
             id: pageLoader
@@ -216,7 +216,6 @@ Rectangle
             }
         }
     }
-
 
     CustomPopupDialog
     {

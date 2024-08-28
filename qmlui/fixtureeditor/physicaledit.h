@@ -53,8 +53,6 @@ public:
     PhysicalEdit(QLCPhysical phy, QObject *parent = nullptr);
     ~PhysicalEdit();
 
-    QLCPhysical physical();
-
 public:
     QString bulbType() const;
     void setBulbType(const QString type);

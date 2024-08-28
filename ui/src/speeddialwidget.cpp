@@ -24,6 +24,7 @@
 #include <QDebug>
 
 #include "speeddialwidget.h"
+#include "mastertimer.h"
 #include "speeddial.h"
 #include "apputil.h"
 

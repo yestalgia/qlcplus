@@ -35,6 +35,8 @@
 #include "vcsoloframe.h"
 #include "vcsoloframeproperties.h"
 #include "vcbutton.h"
+#include "function.h"
+#include "qlcfile.h"
 #include "doc.h"
 
 VCSoloFrame::VCSoloFrame(QWidget* parent, Doc* doc, bool canCollapse)
@@ -47,7 +49,7 @@ VCSoloFrame::VCSoloFrame(QWidget* parent, Doc* doc, bool canCollapse)
 
     m_frameStyle = KVCFrameStyleSunken;
 
-    if (canCollapse == true)
+    if(canCollapse == true)
     {
         QString txtColor = "white";
         if (m_hasCustomForegroundColor)

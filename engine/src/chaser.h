@@ -157,7 +157,6 @@ public slots:
 
 signals:
     void stepChanged(int index);
-    void stepsListChanged(quint32 fid);
 
 protected:
     QList <ChaserStep> m_steps;

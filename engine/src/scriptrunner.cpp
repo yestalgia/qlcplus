@@ -38,9 +38,7 @@ ScriptRunner::ScriptRunner(Doc *doc, QString &content, QObject *parent)
     , m_content(content)
     , m_running(false)
     , m_engine(NULL)
-    , m_stopOnExit(true)
     , m_waitCount(0)
-    , m_waitFunctionId(Function::invalidId())
 {
 }
 
@@ -172,14 +170,13 @@ bool ScriptRunner::write(MasterTimer *timer, QList<Universe *> universes)
             fc->setReady(false);
         }
     }
-    // if we don't have to wait and there are some funtions in the queue
-    if (m_waitFunctionId == Function::invalidId() && m_functionQueue.count())
+    if (m_functionQueue.count())
     {
         while (!m_functionQueue.isEmpty())
         {
-            QPair<quint32, FunctionOperation> &pair = m_functionQueue.head();
+            QPair<quint32,bool> pair = m_functionQueue.dequeue();
             quint32 fID = pair.first;
-            FunctionOperation operation = pair.second;
+            bool start = pair.second;
 
             Function *function = m_doc->function(fID);
             if (function == NULL)
@@ -188,39 +185,16 @@ bool ScriptRunner::write(MasterTimer *timer, QList<Universe *> universes)
                 continue;
             }
 
-            if (operation == FunctionOperation::START || operation == FunctionOperation::START_DONT_STOP)
+            if (start)
             {
                 function->start(timer, FunctionParent::master());
-                if (operation == FunctionOperation::START)
-                    m_startedFunctions << fID;
+                m_startedFunctions << fID;
             }
-            else if (operation == FunctionOperation::STOP)
+            else
             {
                 function->stop(FunctionParent::master());
                 m_startedFunctions.removeAll(fID);
             }
-            else if (operation == FunctionOperation::WAIT_START)
-            {
-                if (!function->isRunning())
-                {
-                    // the function is not running, so we we wait and we stop dequeuing
-                    m_waitFunctionId = fID;
-                    connect(m_doc->masterTimer(), SIGNAL(functionStarted(quint32)), SLOT(slotWaitFunctionStarted(quint32)));
-                    break;
-                }
-            }
-            else if (operation == FunctionOperation::WAIT_STOP)
-            {
-                if (!function->stopped())
-                {
-                    // the function has to start or is still running, so we wait and we stop dequeuing
-                    m_waitFunctionId = fID;
-                    connect(m_doc->masterTimer(), SIGNAL(functionStopped(quint32)), SLOT(slotWaitFunctionStopped(quint32)));
-                    break;
-                }
-            }
-            // we can continue with the next function in the queue
-            m_functionQueue.removeFirst();
         }
     }
 
@@ -230,25 +204,6 @@ bool ScriptRunner::write(MasterTimer *timer, QList<Universe *> universes)
         return false;
 
     return true;
-}
-
-void ScriptRunner::slotWaitFunctionStarted(quint32 fid)
-{
-    if (m_waitFunctionId == fid)
-    {
-        disconnect(m_doc->masterTimer(), SIGNAL(functionStarted(quint32)), this, SLOT(slotWaitFunctionStarted(quint32)));
-        m_waitFunctionId = Function::invalidId();
-    }
-}
-
-void ScriptRunner::slotWaitFunctionStopped(quint32 fid)
-{
-    if (m_waitFunctionId == fid)
-    {
-        disconnect(m_doc->masterTimer(), SIGNAL(functionStopped(quint32)), this, SLOT(slotWaitFunctionStopped(quint32)));
-        m_startedFunctions.removeAll(fid);
-        m_waitFunctionId = Function::invalidId();
-    }
 }
 
 void ScriptRunner::run()
@@ -346,70 +301,89 @@ bool ScriptRunner::setFixture(quint32 fxID, quint32 channel, uchar value, uint t
     return true;
 }
 
-bool ScriptRunner::stopOnExit(bool value)
-{
-    m_stopOnExit = value;
-
-    return true;
-}
-
-Function* ScriptRunner::getFunctionIfRunning(quint32 fID)
+bool ScriptRunner::startFunction(quint32 fID)
 {
     if (m_running == false)
-        return NULL;
+        return false;
 
     Function *function = m_doc->function(fID);
     if (function == NULL)
     {
         qWarning() << QString("No such function (ID %1)").arg(fID);
-        return NULL;
+        return false;
     }
 
-    return function;
-}
-
-bool ScriptRunner::enqueueFunction(quint32 fID, FunctionOperation operation)
-{
-    Function *function = getFunctionIfRunning(fID);
-    if (function == NULL)
-        return false;
-
-    QPair<quint32, FunctionOperation> pair;
+    QPair<quint32,bool> pair;
     pair.first = fID;
-    pair.second = operation;
+    pair.second = true;
 
     m_functionQueue.enqueue(pair);
 
     return true;
 }
 
-bool ScriptRunner::startFunction(quint32 fID)
-{
-    return enqueueFunction(fID, m_stopOnExit ? FunctionOperation::START : FunctionOperation::START_DONT_STOP);
-}
-
 bool ScriptRunner::stopFunction(quint32 fID)
 {
-    return enqueueFunction(fID, FunctionOperation::STOP);
+    if (m_running == false)
+        return false;
+
+    Function *function = m_doc->function(fID);
+    if (function == NULL)
+    {
+        qWarning() << QString("No such function (ID %1)").arg(fID);
+        return false;
+    }
+
+    QPair<quint32,bool> pair;
+    pair.first = fID;
+    pair.second = false;
+
+    m_functionQueue.enqueue(pair);
+
+    return true;
 }
 
 bool ScriptRunner::isFunctionRunning(quint32 fID)
 {
-    Function *function = getFunctionIfRunning(fID);
-    return function == NULL ? false : function->isRunning();
+    if (m_running == false)
+        return false;
+
+    Function *function = m_doc->function(fID);
+    if (function == NULL)
+    {
+        qWarning() << QString("No such function (ID %1)").arg(fID);
+        return false;
+    }
+
+    return function->isRunning();
 }
 
 float ScriptRunner::getFunctionAttribute(quint32 fID, int attributeIndex)
 {
-    Function *function = getFunctionIfRunning(fID);
-    return function == NULL ? 0 : function->getAttributeValue(attributeIndex);
+    if (m_running == false)
+        return false;
+
+    Function *function = m_doc->function(fID);
+    if (function == NULL)
+    {
+        qWarning() << QString("No such function (ID %1)").arg(fID);
+        return 0;
+    }
+
+    return function->getAttributeValue(attributeIndex);
 }
 
 bool ScriptRunner::setFunctionAttribute(quint32 fID, int attributeIndex, float value)
 {
-    Function *function = getFunctionIfRunning(fID);
-    if (function == NULL)
+    if (m_running == false)
         return false;
+
+    Function *function = m_doc->function(fID);
+    if (function == NULL)
+    {
+        qWarning() << QString("No such function (ID %1)").arg(fID);
+        return false;
+    }
 
     function->adjustAttribute(value, attributeIndex);
 
@@ -418,9 +392,15 @@ bool ScriptRunner::setFunctionAttribute(quint32 fID, int attributeIndex, float v
 
 bool ScriptRunner::setFunctionAttribute(quint32 fID, QString attributeName, float value)
 {
-    Function *function = getFunctionIfRunning(fID);
-    if (function == NULL)
+    if (m_running == false)
         return false;
+
+    Function *function = m_doc->function(fID);
+    if (function == NULL)
+    {
+        qWarning() << QString("No such function (ID %1)").arg(fID);
+        return false;
+    }
 
     int attrIndex = function->getAttributeIndex(attributeName);
     function->adjustAttribute(value, attrIndex);
@@ -524,16 +504,6 @@ bool ScriptRunner::waitTime(QString time)
     return true;
 }
 
-bool ScriptRunner::waitFunctionStart(quint32 fID)
-{
-    return enqueueFunction(fID, FunctionOperation::WAIT_START);
-}
-
-bool ScriptRunner::waitFunctionStop(quint32 fID)
-{
-    return enqueueFunction(fID, FunctionOperation::WAIT_STOP);
-}
-
 bool ScriptRunner::setBlackout(bool enable)
 {
     if (m_running == false)
@@ -543,18 +513,6 @@ bool ScriptRunner::setBlackout(bool enable)
 
     m_doc->inputOutputMap()->requestBlackout(enable ? InputOutputMap::BlackoutRequestOn :
                                                       InputOutputMap::BlackoutRequestOff);
-
-    return true;
-}
-
-bool ScriptRunner::setBPM(int bpm)
-{
-    if (m_running == false)
-        return false;
-
-    qDebug() << Q_FUNC_INFO;
-
-    m_doc->inputOutputMap()->setBpmNumber(bpm);
 
     return true;
 }

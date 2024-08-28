@@ -17,7 +17,7 @@
   limitations under the License.
 */
 
-import QtQuick 2.14
+import QtQuick 2.0
 import QtQuick.Layouts 1.1
 
 import org.qlcplus.classes 1.0
@@ -149,7 +149,7 @@ VCWidgetItem
             to: sliderObj ? sliderObj.rangeHighLimit : 255
             value: sliderValue
 
-            onValueChanged: if (sliderObj) sliderObj.value = value
+            onMoved: if (sliderObj) sliderObj.value = value // position * 255
         }
 
         // widget name text box
@@ -194,24 +194,6 @@ VCWidgetItem
             onClicked: if (sliderObj) sliderObj.isOverriding = false
         }
 
-        IconButton
-        {
-            visible: sliderObj ? sliderObj.adjustFlashEnabled : false
-            Layout.alignment: Qt.AlignHCenter
-            imgSource: "qrc:/flash.svg"
-            tooltip: qsTr("Flash the controlled Function")
-            onPressed:
-            {
-                if (sliderObj)
-                    sliderObj.flashFunction(true)
-            }
-            onReleased:
-            {
-                if (sliderObj)
-                    sliderObj.flashFunction(false)
-            }
-        }
-
         // Click & Go button
         IconButton
         {
@@ -248,7 +230,7 @@ VCWidgetItem
                 if (Qt.platform.os === "android")
                     presetImageBox.source = cngResource
                 else
-                    presetImageBox.source = "file:" + cngResource
+                    presetImageBox.source = "file:/" + cngResource
             }
 
             onClicked: colorToolLoader.toggleVisibility()
@@ -303,11 +285,6 @@ VCWidgetItem
                 {
                     item.visible = false
                     item.closeOnSelect = true
-                    if (sliderObj && clickAndGoButton.cngType == VCSlider.CnGPreset)
-                    {
-                        item.rangeLowLimit = sliderObj.rangeLowLimit
-                        item.rangeHighLimit = sliderObj.rangeHighLimit
-                    }
                 }
 
                 Connections

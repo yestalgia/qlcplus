@@ -42,6 +42,7 @@
 #include "capabilitywizard.h"
 #include "editchannel.h"
 #include "util.h"
+#include "app.h"
 
 #define SETTINGS_GEOMETRY "editchannel/geometry"
 #define PROP_PTR Qt::UserRole
@@ -240,7 +241,7 @@ void EditChannel::slotPresetActivated(int index)
         }
     }
 
-    foreach (QLCCapability *cap, m_channel->capabilities())
+    foreach(QLCCapability *cap, m_channel->capabilities())
         m_channel->removeCapability(cap);
 
     m_channel->addPresetCapability();

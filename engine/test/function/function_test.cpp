@@ -146,10 +146,10 @@ void Function_Test::flashUnflash()
     QSignalSpy spy(stub, SIGNAL(flashing(quint32,bool)));
 
     QVERIFY(stub->flashing() == false);
-    stub->flash(NULL, false, false);
+    stub->flash(NULL);
     QCOMPARE(spy.size(), 1);
     QVERIFY(stub->flashing() == true);
-    stub->flash(NULL, false, false);
+    stub->flash(NULL);
     QCOMPARE(spy.size(), 1);
     QVERIFY(stub->flashing() == true);
     stub->unFlash(NULL);

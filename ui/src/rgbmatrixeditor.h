@@ -77,7 +77,7 @@ private slots:
     void slotPreviewTimeout();
     void slotNameEdited(const QString& text);
     void slotSpeedDialToggle(bool state);
-    void slotPatternActivated(int patternIndex);
+    void slotPatternActivated(const QString& text);
     void slotFixtureGroupActivated(int index);
     void slotBlendModeChanged(int index);
     void slotControlModeChanged(int index);
@@ -87,12 +87,12 @@ private slots:
 
     void slotTextEdited(const QString& text);
     void slotFontButtonClicked();
-    void slotAnimationActivated(int index);
+    void slotAnimationActivated(const QString& text);
     void slotOffsetSpinChanged();
 
     void slotImageEdited();
     void slotImageButtonClicked();
-    void slotImageAnimationActivated(int index);
+    void slotImageAnimationActivated(const QString& text);
 
     void slotGrabberSourceActivated(const QString& text);
     void slotGrabberTurningActivated(const QString& text);
@@ -126,8 +126,6 @@ private slots:
 
     void slotPropertyComboChanged(QString value);
     void slotPropertySpinChanged(int value);
-    void slotPropertyDoubleSpinChanged(double value);
-    void slotPropertyEditChanged(QString text);
 
 private:
     FunctionParent functionParent() const;

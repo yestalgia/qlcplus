@@ -4,75 +4,75 @@
 <context>
     <name>ArtNetPlugin</name>
     <message>
-        <location filename="artnetplugin.cpp" line="97"/>
+        <location filename="artnetplugin.cpp" line="93"/>
         <source>This plugin provides DMX output for devices supporting the ArtNet communication protocol.</source>
         <oldsource>This plugin provides output for devices supporting the ArtNet communication protocol.</oldsource>
         <translation>Ce plugin offre le support des périphériques supportant le protocole ArtNet.</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="144"/>
+        <location filename="artnetplugin.cpp" line="140"/>
         <source>Output</source>
         <translation>Sortie</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="148"/>
-        <location filename="artnetplugin.cpp" line="298"/>
+        <location filename="artnetplugin.cpp" line="144"/>
+        <location filename="artnetplugin.cpp" line="295"/>
         <source>Status: Not open</source>
         <translation>État : fermé</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="151"/>
+        <location filename="artnetplugin.cpp" line="147"/>
         <source>Status: Open</source>
         <translation>État : ouvert</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="156"/>
+        <location filename="artnetplugin.cpp" line="152"/>
         <source>No</source>
         <translation>Non</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="158"/>
+        <location filename="artnetplugin.cpp" line="154"/>
         <source>Yes</source>
         <translation>Oui</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="159"/>
+        <location filename="artnetplugin.cpp" line="155"/>
         <source>Can receive nodes information</source>
         <oldsource>Can receive node information</oldsource>
         <translation>Peut recevoir les informations des nœuds</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="162"/>
+        <location filename="artnetplugin.cpp" line="158"/>
         <source>Nodes discovered: </source>
         <translation>Nœuds découverts : </translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="165"/>
+        <location filename="artnetplugin.cpp" line="161"/>
         <source>Packets sent: </source>
         <translation>Paquets envoyés : </translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="294"/>
+        <location filename="artnetplugin.cpp" line="291"/>
         <source>Input</source>
         <translation>Entrée</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="303"/>
+        <location filename="artnetplugin.cpp" line="300"/>
         <source>Bind failed</source>
         <translation>Échec du lien</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="305"/>
+        <location filename="artnetplugin.cpp" line="302"/>
         <source>Open</source>
         <translation>Ouvert</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="306"/>
+        <location filename="artnetplugin.cpp" line="303"/>
         <source>Status</source>
         <translation>État</translation>
     </message>
     <message>
-        <location filename="artnetplugin.cpp" line="309"/>
+        <location filename="artnetplugin.cpp" line="306"/>
         <source>Packets received: </source>
         <translation>Paquets reçus : </translation>
     </message>
@@ -120,67 +120,57 @@
         <translation>Mode de transmission</translation>
     </message>
     <message>
-        <location filename="configureartnet.ui" line="87"/>
-        <source>Seconds to wait for an interface to be ready</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="configureartnet.ui" line="120"/>
+        <location filename="configureartnet.ui" line="86"/>
         <source>Nodes Tree</source>
         <translation>Arbre des nœuds</translation>
     </message>
     <message>
-        <location filename="configureartnet.ui" line="130"/>
+        <location filename="configureartnet.ui" line="96"/>
         <source>IP</source>
         <translation>IP</translation>
     </message>
     <message>
-        <location filename="configureartnet.ui" line="135"/>
+        <location filename="configureartnet.ui" line="101"/>
         <source>Short Name</source>
         <translation>Nom abrégé</translation>
     </message>
     <message>
-        <location filename="configureartnet.ui" line="140"/>
+        <location filename="configureartnet.ui" line="106"/>
         <source>Long Name</source>
         <translation>Nom long</translation>
     </message>
     <message>
-        <location filename="configureartnet.cpp" line="86"/>
+        <location filename="configureartnet.cpp" line="80"/>
         <source>%1 nodes</source>
         <translation>Nœuds de %1</translation>
     </message>
     <message>
-        <location filename="configureartnet.cpp" line="124"/>
+        <location filename="configureartnet.cpp" line="118"/>
         <source>Inputs</source>
         <translation>Entrées</translation>
     </message>
     <message>
-        <location filename="configureartnet.cpp" line="130"/>
+        <location filename="configureartnet.cpp" line="124"/>
         <source>Outputs</source>
         <translation>Sorties</translation>
     </message>
     <message>
-        <location filename="configureartnet.cpp" line="181"/>
-        <source>Standard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="configureartnet.cpp" line="182"/>
+        <location filename="configureartnet.cpp" line="175"/>
         <source>Full</source>
         <translation>Entière</translation>
     </message>
     <message>
-        <location filename="configureartnet.cpp" line="183"/>
+        <location filename="configureartnet.cpp" line="176"/>
         <source>Partial</source>
         <translation>Partielle</translation>
     </message>
     <message>
-        <location filename="configureartnet.cpp" line="198"/>
+        <location filename="configureartnet.cpp" line="189"/>
         <source>Invalid IP</source>
         <translation>IP invalide</translation>
     </message>
     <message>
-        <location filename="configureartnet.cpp" line="198"/>
+        <location filename="configureartnet.cpp" line="189"/>
         <source>%1 is not a valid IP.
 Please fix it before confirming.</source>
         <translation>%1 n&apos;est pas une IP valide.

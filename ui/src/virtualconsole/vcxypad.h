@@ -210,7 +210,6 @@ public:
     void addPreset(VCXYPadPreset const& preset);
     void resetPresets();
     QList<VCXYPadPreset *> presets() const;
-    QMap<quint32,QString> presetsMap() const;
 
 protected:
     void updateSceneChannel(FadeChannel *fc, uchar value);

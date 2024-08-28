@@ -25,6 +25,8 @@
 
 #include "rgbmatrixitem.h"
 #include "trackitem.h"
+#include "headeritems.h"
+#include "audiodecoder.h"
 
 RGBMatrixItem::RGBMatrixItem(RGBMatrix *rgbm, ShowFunction *func)
     : ShowItem(func)
@@ -137,7 +139,7 @@ void RGBMatrixItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *)
     menuFont.setPixelSize(14);
     menu.setFont(menuFont);
 
-    foreach (QAction *action, getDefaultActions())
+    foreach(QAction *action, getDefaultActions())
         menu.addAction(action);
 
     menu.exec(QCursor::pos());

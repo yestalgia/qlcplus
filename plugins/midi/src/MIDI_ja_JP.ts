@@ -52,55 +52,55 @@
 <context>
     <name>MidiPlugin</name>
     <message>
-        <location filename="common/midiplugin.cpp" line="138"/>
+        <location filename="common/midiplugin.cpp" line="139"/>
         <source>This plugin provides input/output support for MIDI devices.</source>
         <translation type="unfinished">このプラグインは、MIDIデバイスとの間でMIDI信号の送受信を行います。</translation>
     </message>
     <message>
-        <location filename="common/midiplugin.cpp" line="152"/>
+        <location filename="common/midiplugin.cpp" line="153"/>
         <source>No output support available.</source>
         <translation type="unfinished">No output support available.</translation>
     </message>
     <message>
-        <location filename="common/midiplugin.cpp" line="160"/>
+        <location filename="common/midiplugin.cpp" line="161"/>
         <source>Output</source>
         <translation type="unfinished">出力</translation>
     </message>
     <message>
-        <location filename="common/midiplugin.cpp" line="163"/>
-        <location filename="common/midiplugin.cpp" line="270"/>
+        <location filename="common/midiplugin.cpp" line="164"/>
+        <location filename="common/midiplugin.cpp" line="272"/>
         <source>Open</source>
         <translation type="unfinished">Open</translation>
     </message>
     <message>
-        <location filename="common/midiplugin.cpp" line="165"/>
-        <location filename="common/midiplugin.cpp" line="272"/>
+        <location filename="common/midiplugin.cpp" line="166"/>
+        <location filename="common/midiplugin.cpp" line="274"/>
         <source>Not Open</source>
         <translation type="unfinished">Not Open</translation>
     </message>
     <message>
-        <location filename="common/midiplugin.cpp" line="166"/>
-        <location filename="common/midiplugin.cpp" line="273"/>
+        <location filename="common/midiplugin.cpp" line="167"/>
+        <location filename="common/midiplugin.cpp" line="275"/>
         <source>Status</source>
         <translation type="unfinished">状態</translation>
     </message>
     <message>
-        <location filename="common/midiplugin.cpp" line="172"/>
+        <location filename="common/midiplugin.cpp" line="173"/>
         <source>Invalid Output</source>
         <translation type="unfinished">無効な出力</translation>
     </message>
     <message>
-        <location filename="common/midiplugin.cpp" line="259"/>
+        <location filename="common/midiplugin.cpp" line="261"/>
         <source>No input support available.</source>
         <translation type="unfinished">No input support available.</translation>
     </message>
     <message>
-        <location filename="common/midiplugin.cpp" line="267"/>
+        <location filename="common/midiplugin.cpp" line="269"/>
         <source>Input</source>
         <translation type="unfinished">入力</translation>
     </message>
     <message>
-        <location filename="common/midiplugin.cpp" line="279"/>
+        <location filename="common/midiplugin.cpp" line="281"/>
         <source>Invalid Input</source>
         <translation type="unfinished">無効な入力</translation>
     </message>

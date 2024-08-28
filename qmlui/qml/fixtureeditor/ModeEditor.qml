@@ -294,15 +294,10 @@ Rectangle
                                                 iSrc: mcDelegate.cRef ? mcDelegate.cRef.getIconNameFromGroup(mcDelegate.cRef.group, true) : ""
                                             }
                                             Rectangle { width: 1; height: UISettings.listItemHeight }
-
                                             CustomComboBox
                                             {
                                                 implicitWidth: UISettings.bigItemHeight * 2
                                                 height: UISettings.listItemHeight
-                                                model: mode ? mode.actsOnChannels : null
-                                                textRole: ""
-                                                currentIndex: mode ? mode.actsOnChannel(index) : -1
-                                                onCurrentIndexChanged: if (mode) mode.setActsOnChannel(index, currentIndex)
                                             }
                                         }
 
@@ -369,18 +364,9 @@ Rectangle
                             }
                             onPositionChanged:
                             {
-                                var yInList = drag.y - chEditToolbar.height - UISettings.listItemHeight
-                                var idx = channelList.indexAt(drag.x, yInList)
-                                var item = channelList.itemAt(drag.x, yInList)
-                                if (item === null)
-                                    return
-                                var itemY = item.mapToItem(channelList, 0, 0).y
-
+                                var idx = channelList.indexAt(drag.x, drag.y)
                                 //console.log("Item index:" + idx)
-                                if (drag.y < (itemY + item.height) / 2)
-                                    channelList.dragInsertIndex = idx
-                                else
-                                    channelList.dragInsertIndex = idx + 1
+                                channelList.dragInsertIndex = idx
                             }
                         }
                     }

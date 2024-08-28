@@ -57,9 +57,6 @@ void QLCFixtureDefCache_Test::duplicates()
 
 void QLCFixtureDefCache_Test::add()
 {
-    QVERIFY(cache.fixtureCache().isEmpty() == false);
-    QVERIFY(cache.fixtureCache()["Martin"]["MAC250"] == false);
-
     QVERIFY(cache.addFixtureDef(NULL) == false);
 
     QVERIFY(cache.manufacturers().count() != 0);
@@ -133,19 +130,6 @@ void QLCFixtureDefCache_Test::add()
     QVERIFY(cache.models("Yoyodyne").contains("MAC250") == true);
 }
 
-void QLCFixtureDefCache_Test::reload()
-{
-    QLCFixtureDef *def = cache.fixtureDef("Botex", "SP-1500");
-    QLCChannel *channel = def->channel("Control");
-
-    QVERIFY(def->channels().count() == 5);
-    def->removeChannel(channel);
-    QVERIFY(def->channels().count() == 4);
-
-    cache.reloadFixtureDef(def);
-    QVERIFY(def->channels().count() == 5);
-}
-
 void QLCFixtureDefCache_Test::fixtureDef()
 {
     // check the content of a cached fixture relative path
@@ -157,10 +141,8 @@ void QLCFixtureDefCache_Test::fixtureDef()
 
     // request a fixture cached but not yet loaded
     QLCFixtureDef *def = cache.fixtureDef("Futurelight", "CY-200");
-
-    // check that once loaded, the relative path becomes absolute
-    QDir absDir(def->definitionSourceFile());
-    QVERIFY(absDir.isAbsolute() == true);
+    // check that once loaded, the relative path is reset
+    QVERIFY(def->definitionSourceFile().isEmpty());
 
     cache.clear();
 
@@ -231,20 +213,6 @@ void QLCFixtureDefCache_Test::defDirectories()
     QVERIFY(dir.nameFilters().contains(QString("*%1").arg(KExtFixture)));
     QVERIFY(dir.absolutePath().contains(USERFIXTUREDIR));
 
-}
-
-void QLCFixtureDefCache_Test::storeDef()
-{
-    QLCFixtureDef *def = cache.fixtureDef("Futurelight", "CY-200");
-    QFile defFile(def->definitionSourceFile());
-    defFile.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString defBuffer = defFile.readAll();
-    defFile.close();
-    QVERIFY(cache.storeFixtureDef("storeTest.qxf", defBuffer) == true);
-
-    QDir dir = QLCFixtureDefCache::userDefinitionDirectory();
-    QFile file (dir.absoluteFilePath("storeTest.qxf"));
-    file.remove();
 }
 
 QTEST_APPLESS_MAIN(QLCFixtureDefCache_Test)

@@ -47,9 +47,7 @@ win32:coverage.commands = @echo Get a better OS.
 
 # Translations
 translations.target = translate
-!android: {
-  QMAKE_EXTRA_TARGETS += translations
-}
+QMAKE_EXTRA_TARGETS += translations
 qmlui: {
   translations.commands += ./translate.sh "qmlui"
 } else {
@@ -61,9 +59,7 @@ appimage: {
 } else {
   translations.path   = $$INSTALLROOT/$$TRANSLATIONDIR
 }
-!android: {
-  INSTALLS           += translations
-}
+INSTALLS           += translations
 QMAKE_DISTCLEAN += $$translations.files
 
 # run

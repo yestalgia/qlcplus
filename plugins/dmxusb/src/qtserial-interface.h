@@ -39,7 +39,7 @@ public:
     void setInfo(QSerialPortInfo info);
 
     /** @reimpl */
-    bool readLabel(uchar label, int &intParam, QString &strParam);
+    QString readLabel(uchar label, int *ESTA_code);
 
     /************************************************************************
      * DMX/Serial Interface Methods

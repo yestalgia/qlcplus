@@ -32,7 +32,6 @@ Dialog
     parent: mainView
 
     modal: true
-    closePolicy: Popup.CloseOnEscape
     title: ""
     standardButtons: Dialog.Ok | Dialog.Cancel
     onVisibleChanged: mainView.setDimScreen(visible)
@@ -83,7 +82,6 @@ Dialog
             font.family: UISettings.robotoFontName
             font.pixelSize: UISettings.textSizeDefault
             color: UISettings.fgMain
-            wrapMode: Text.Wrap
             text: message
         }
 

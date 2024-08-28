@@ -1,6 +1,6 @@
 /*
   Q Light Controller Plus
-  GenericMultiDragItem.qml
+  FunctionDragItem.qml
 
   Copyright (c) Massimo Callegari
 

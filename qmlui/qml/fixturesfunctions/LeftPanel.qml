@@ -99,10 +99,7 @@ SidePanel
                 onToggled:
                 {
                     if (checked == true)
-                    {
                         loaderSource = "qrc:/FixtureGroupManager.qml"
-                        fixtureManager.searchFilter = ""
-                    }
                     animatePanel(checked)
                 }
             }
@@ -136,16 +133,7 @@ SidePanel
                 tooltip: qsTr("Intensity")
                 counter: 0
                 ButtonGroup.group: capabilitiesGroup
-                onCheckedChanged:
-                {
-                    if (checked)
-                    {
-                        var val = contextManager.getCurrentValue(QLCChannel.Intensity, false)
-                        intTool.show(val)
-                    }
-                    else
-                        intTool.visible = false
-                }
+                onCheckedChanged: intTool.visible = !intTool.visible
                 onCounterChanged: if (counter == 0) intTool.visible = false
 
                 IntensityTool
@@ -331,16 +319,6 @@ SidePanel
                 Layout.fillHeight: true
                 width: iconSize
                 color: "transparent"
-            }
-
-            IconButton
-            {
-                width: iconSize
-                height: iconSize
-                faSource: FontAwesome.fa_bolt
-                tooltip: qsTr("Highlight")
-                counter: contextManager.selectedFixturesCount
-                onClicked: contextManager.highlightFixtureSelection()
             }
 
             IconButton

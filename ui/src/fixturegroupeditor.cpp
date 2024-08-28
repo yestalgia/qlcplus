@@ -27,7 +27,9 @@
 #include "fixturegroupeditor.h"
 #include "fixtureselection.h"
 #include "fixturegroup.h"
+#include "qlcmacros.h"
 #include "fixture.h"
+#include "apputil.h"
 #include "doc.h"
 
 #define SETTINGS_GEOMETRY "fixturegroupeditor/geometry"

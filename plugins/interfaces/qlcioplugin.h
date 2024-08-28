@@ -129,8 +129,7 @@ public:
         Input       = 1 << 1,
         Feedback    = 1 << 2,
         Infinite    = 1 << 3,
-        RDM         = 1 << 4,
-        Beats       = 1 << 5
+        RDM         = 1 << 4
     };
 
     /**
@@ -264,7 +263,7 @@ public:
      * @param key a string to identify a channel by name (ATM used only by OSC)
      */
     virtual void sendFeedBack(quint32 universe, quint32 inputLine,
-                              quint32 channel, uchar value, const QVariant &params);
+                              quint32 channel, uchar value, const QString& key = 0);
 
 signals:
     /**

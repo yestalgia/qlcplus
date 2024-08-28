@@ -127,7 +127,7 @@ void SimpleDesk::updateChannelList()
     {
         quint32 chIndex = 0;
         quint32 chValue = currUni.at(i);
-        bool isOverriding = false;
+        bool override = false;
 
         Fixture *fixture = m_doc->fixture(m_doc->fixtureForAddress(start + i));
         if (fixture != nullptr)
@@ -141,7 +141,7 @@ void SimpleDesk::updateChannelList()
             if (hasChannel(i))
             {
                 chValue = value(i);
-                isOverriding = true;
+                override = true;
             }
             else
             {
@@ -152,7 +152,7 @@ void SimpleDesk::updateChannelList()
         {
             if (hasChannel(i))
             {
-                isOverriding = true;
+                override = true;
                 chValue = value(i);
             }
         }
@@ -162,7 +162,7 @@ void SimpleDesk::updateChannelList()
         chMap.insert("chIndex", chIndex);
         chMap.insert("chValue", chValue);
         chMap.insert("chDisplay", status);
-        chMap.insert("isOverride", isOverriding);
+        chMap.insert("isOverride", override);
 
         m_channelList->addDataMap(chMap);
     }

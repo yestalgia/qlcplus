@@ -130,7 +130,6 @@ protected slots:
     /** Callback for tree item expanded/collapsed */
     void slotItemExpanded();
 
-    /** Callback for monitoring enable */
     void slotMonitorCheckClicked(bool checked);
 
 protected:
@@ -146,9 +145,6 @@ public slots:
     /** Callback for playback function detach clicks */
     void slotDetachPlaybackFunctionClicked();
 
-    /** Callback for flah button enable */
-    void slotFlashCheckClicked(bool checked);
-
 protected:
     /** Update the name of the playback function, based on m_playbackFunctionId */
     void updatePlaybackFunctionName();
@@ -156,8 +152,6 @@ protected:
 protected:
     /** The currently selected playback function */
     quint32 m_playbackFunctionId;
-
-    InputSelectionWidget *m_flashInputWidget;
 
     /*************************************************************************
      * Submaster page

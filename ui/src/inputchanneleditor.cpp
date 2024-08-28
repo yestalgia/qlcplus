@@ -22,12 +22,11 @@
 #include <QSpinBox>
 #include <QIcon>
 #include <QAction>
-#include <QSettings>
 
-#include "inputchanneleditor.h"
+#include "qlcchannel.h"
 #include "qlcinputprofile.h"
 #include "qlcinputchannel.h"
-#include "qlcchannel.h"
+#include "inputchanneleditor.h"
 
 #define KMidiMessageCC                  0
 #define KMidiMessageNoteOnOff           1
@@ -42,8 +41,6 @@
 #define KMidiChannelOffset 4096
 
 #include "../../plugins/midi/src/common/midiprotocol.h"
-
-#define SETTINGS_GEOMETRY "inputchanneleditor/geometry"
 
 /****************************************************************************
  * Initialization
@@ -65,19 +62,14 @@ InputChannelEditor::InputChannelEditor(QWidget* parent,
     connect(action, SIGNAL(triggered(bool)), this, SLOT(reject()));
     addAction(action);
 
-    QSettings settings;
-    QVariant geometrySettings = settings.value(SETTINGS_GEOMETRY);
-    if (geometrySettings.isValid() == true)
-        restoreGeometry(geometrySettings.toByteArray());
-
     /* Connect to these already now so that the handlers get called
        during initialization. */
     connect(m_numberSpin, SIGNAL(valueChanged(int)),
             this, SLOT(slotNumberChanged(int)));
     connect(m_nameEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(slotNameEdited(const QString&)));
-    connect(m_typeCombo, SIGNAL(activated(int)),
-            this, SLOT(slotTypeActivated(int)));
+    connect(m_typeCombo, SIGNAL(activated(const QString&)),
+            this, SLOT(slotTypeActivated(const QString &)));
 
     /* Fill type combo with type icons and names */
     QStringListIterator it(QLCInputChannel::types());
@@ -136,8 +128,6 @@ InputChannelEditor::InputChannelEditor(QWidget* parent,
 
 InputChannelEditor::~InputChannelEditor()
 {
-    QSettings settings;
-    settings.setValue(SETTINGS_GEOMETRY, saveGeometry());
 }
 
 /****************************************************************************
@@ -182,9 +172,9 @@ void InputChannelEditor::slotNameEdited(const QString& text)
     m_name = text;
 }
 
-void InputChannelEditor::slotTypeActivated(int index)
+void InputChannelEditor::slotTypeActivated(const QString& text)
 {
-    m_type = QLCInputChannel::stringToType(m_typeCombo->itemText(index));
+    m_type = QLCInputChannel::stringToType(text);
 }
 
 /****************************************************************************

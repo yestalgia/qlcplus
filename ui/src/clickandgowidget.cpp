@@ -18,7 +18,6 @@
 */
 
 #include <QApplication>
-#include <QMouseEvent>
 #include <QPainter>
 #include <QScreen>
 #include <qmath.h>
@@ -28,6 +27,7 @@
 #include "clickandgowidget.h"
 #include "qlccapability.h"
 #include "qlcmacros.h"
+#include "vcslider.h"
 #include "gradient.h"
 
 #define CELL_W  150
@@ -55,8 +55,6 @@ ClickAndGoWidget::ClickAndGoWidget(QWidget *parent) :
     m_cellBarXpos = 1;
     m_cellBarYpos = 1;
     m_cellBarWidth = 0;
-    m_levelLowLimit = 0;
-    m_levelHighLimit = 255;
 }
 
 void ClickAndGoWidget::setupGradient(QColor begin, QColor end)
@@ -148,16 +146,6 @@ void ClickAndGoWidget::setType(int type, const QLCChannel *chan)
     m_type = type;
 }
 
-void ClickAndGoWidget::setLevelLowLimit(int min)
-{
-    this->m_levelLowLimit = min;
-}
-
-void ClickAndGoWidget::setLevelHighLimit(int max)
-{
-    this->m_levelHighLimit = max;
-}
-
 int ClickAndGoWidget::getType()
 {
     return m_type;
@@ -222,9 +210,9 @@ QImage ClickAndGoWidget::getImageFromValue(uchar value)
      *  the pre-loaded resource */
     if (m_type == Preset)
     {
-        foreach (PresetResource res, m_resources)
+        foreach(PresetResource res, m_resources)
         {
-            if (value >= res.m_resLowLimit && value <= res.m_resHighLimit)
+            if (value >= res.m_min && value <= res.m_max)
                 return res.m_thumbnail;
         }
     }
@@ -254,7 +242,7 @@ void ClickAndGoWidget::createPresetList(const QLCChannel *chan)
 
     //qDebug() << Q_FUNC_INFO << "cap #" << chan->capabilities().size();
 
-    foreach (QLCCapability* cap, chan->capabilities())
+    foreach(QLCCapability* cap, chan->capabilities())
     {
         if (cap->presetType() == QLCCapability::Picture)
         {
@@ -327,8 +315,6 @@ void ClickAndGoWidget::setupPresetPicker()
     for (int i = 0; i < m_resources.size(); i++)
     {
         PresetResource res = m_resources.at(i);
-        if (res.m_resLowLimit > m_levelHighLimit || res.m_resHighLimit < m_levelLowLimit)
-            continue;
         painter.setPen(Qt::black);
         painter.drawRect(x, y, m_cellWidth, CELL_H);
         painter.drawImage(x + 1, y + 4, res.m_thumbnail);
@@ -369,13 +355,13 @@ void ClickAndGoWidget::mousePressEvent(QMouseEvent *event)
         if (m_hoverCellIdx >= 0 && m_hoverCellIdx < m_resources.length())
         {
             PresetResource res = m_resources.at(m_hoverCellIdx);
-            qDebug() << "Mouse press. cellW: " << m_cellBarWidth << "min: " << res.m_resLowLimit << "max:" << res.m_resHighLimit;
+            qDebug() << "Mouse press. cellW: " << m_cellBarWidth << "min: " << res.m_min << "max:" << res.m_max;
 
             float f = SCALE(float(m_cellBarWidth),
                         float(0),
                         float(m_cellWidth),
-                        float(0), float(res.m_resHighLimit - res.m_resLowLimit));
-            emit levelAndPresetChanged((uchar)f + res.m_resLowLimit, res.m_thumbnail);
+                        float(0), float(res.m_max - res.m_min));
+            emit levelAndPresetChanged((uchar)f + res.m_min, res.m_thumbnail);
         }
     }
     QWidget::mousePressEvent(event);
@@ -435,8 +421,8 @@ void ClickAndGoWidget::paintEvent(QPaintEvent *event)
 ClickAndGoWidget::PresetResource::PresetResource(QString path, QString text, uchar min, uchar max)
 {
     m_descr = text;
-    m_resLowLimit = min;
-    m_resHighLimit = max;
+    m_min = min;
+    m_max = max;
     QImage px(path);
     m_thumbnail = QImage(40, 40, QImage::Format_RGB32);
     m_thumbnail.fill(Qt::white);
@@ -450,8 +436,8 @@ ClickAndGoWidget::PresetResource::PresetResource(QColor color1, QColor color2,
                                                  QString text, uchar min, uchar max)
 {
     m_descr = text;
-    m_resLowLimit = min;
-    m_resHighLimit = max;
+    m_min = min;
+    m_max = max;
     m_thumbnail = QImage(40, 40, QImage::Format_RGB32);
     if (color2.isValid() == false)
         m_thumbnail.fill(color1.rgb());
@@ -467,8 +453,8 @@ ClickAndGoWidget::PresetResource::PresetResource(QColor color1, QColor color2,
 ClickAndGoWidget::PresetResource::PresetResource(int index, QString text, uchar min, uchar max)
 {
     m_descr = text;
-    m_resLowLimit = min;
-    m_resHighLimit = max;
+    m_min = min;
+    m_max = max;
     m_thumbnail = QImage(40, 40, QImage::Format_RGB32);
     m_thumbnail.fill(Qt::white);
     QFont tfont = QApplication::font();

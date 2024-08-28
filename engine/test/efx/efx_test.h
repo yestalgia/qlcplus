@@ -55,7 +55,6 @@ private slots:
     void previewDiamond();
     void previewSquare();
     void previewSquareChoppy();
-    void previewSquareTrue();
     void previewLeaf();
     void previewLissajous();
 

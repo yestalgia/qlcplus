@@ -30,8 +30,6 @@
 #include "qlcioplugin.h"
 #include "artnetcontroller.h"
 
-#define SETTINGS_IFACE_WAIT_TIME "ArtNetPlugin/ifacewait"
-
 typedef struct _aio
 {
     QNetworkInterface iface;
@@ -70,7 +68,7 @@ public:
     QString pluginInfo();
 
 private:
-    bool requestLine(quint32 line);
+    bool requestLine(quint32 line, int retries);
 
     /*********************************************************************
      * Outputs
@@ -126,9 +124,6 @@ public:
 private:
     /** Map of the ArtNet plugin Input/Output lines */
     QList<ArtNetIO> m_IOmapping;
-
-    /** Time to wait (in seconds) for interfaces to be ready */
-    int m_ifaceWaitTime;
 
     /********************************************************************
      * RDM

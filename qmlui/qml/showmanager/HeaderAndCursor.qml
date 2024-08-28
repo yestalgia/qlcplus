@@ -19,8 +19,6 @@
 
 import QtQuick 2.0
 
-import org.qlcplus.classes 1.0
-
 import "TimeUtils.js" as TimeUtils
 import "."
 
@@ -39,9 +37,6 @@ Rectangle
     property real timeScale: showManager.timeScale
     property real tickSize: showManager.tickSize
     property int currentTime: showManager.currentTime
-    property int timeDivision: showManager.timeDivision
-    property int bpmNumber: ioManager.bpmNumber
-    property int beatsDivision: showManager.beatsDivision
     property bool showTimeMarkers: true
 
     signal clicked(int mouseX, int mouseY)
@@ -74,17 +69,10 @@ Rectangle
         }
     }
 
-    onTimeDivisionChanged: timeHeader.requestPaint()
-
     onCurrentTimeChanged:
     {
         if (cursorHeight)
-        {
-            if (timeDivision === Show.Time)
-                cursor.x = TimeUtils.timeToSize(currentTime, timeScale, tickSize)
-            else
-                cursor.x = TimeUtils.timeToBeatPosition(currentTime, tickSize, bpmNumber, beatsDivision)
-        }
+            cursor.x = TimeUtils.timeToSize(currentTime, timeScale, tickSize)
     }
 
     onDurationChanged:
@@ -141,7 +129,6 @@ Rectangle
         onPaint:
         {
             var fontSize = headerHeight * 0.55
-            var subDividers = showManager.beatsDivision
             context.globalAlpha = 1.0
             context.lineWidth = 1
 
@@ -161,7 +148,6 @@ Rectangle
             var divNum = width / tickSize
             var xPos = parseInt((x + width) / tickSize) * tickSize
             var msTime = TimeUtils.posToMs(xPos, timeScale, tickSize)
-            var barNumber = parseInt(xPos / tickSize)
             xPos -= x
 
             //console.log("xPos: " + xPos + ", msTime: " + msTime)
@@ -169,37 +155,19 @@ Rectangle
             context.beginPath()
             context.fillStyle = "white"
 
-            // paint bars and text markers from the end to the beginning
             for (var i = 0; i < divNum; i++)
             {
                 // don't even bother to paint if we're outside the timeline
                 if (msTime >= 0)
                 {
-                    if (subDividers > 1)
-                    {
-                        var subX = xPos - (tickSize / subDividers)
-                        for (var s = 0; s < subDividers - 1; s++)
-                        {
-                            context.moveTo(subX, height / 2)
-                            context.lineTo(subX, height)
-                            subX -= (tickSize / subDividers)
-                        }
-                    }
-
                     context.moveTo(xPos, 0)
                     context.lineTo(xPos, height)
 
                     if (showTimeMarkers)
-                    {
-                        if (timeDivision === Show.Time)
-                            context.fillText(TimeUtils.msToString(msTime), xPos + 3, height - fontSize)
-                        else
-                            context.fillText(barNumber, xPos + 3, height - fontSize)
-                    }
+                        context.fillText(TimeUtils.msToString(msTime), xPos + 3, height - fontSize)
                 }
                 xPos -= tickSize
                 msTime -= timeScale * 1000
-                barNumber--
 
                 //console.log("xPos: " + xPos + ", msTime: " + msTime)
             }

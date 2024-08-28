@@ -22,6 +22,11 @@ SOURCES += ../../interfaces/qlcioplugin.cpp
 SOURCES += udmxdevice.cpp \
            udmx.cpp
 
+win32 {
+    HEADERS += libusb_dyn.h
+    SOURCES += libusb_dyn.c
+}
+
 TRANSLATIONS += uDMX_fi_FI.ts
 TRANSLATIONS += uDMX_de_DE.ts
 TRANSLATIONS += uDMX_es_ES.ts

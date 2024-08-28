@@ -18,13 +18,10 @@
 */
 
 #include <QTreeWidgetItem>
-#include <QColorDialog>
-#include <QInputDialog>
 #include <QTextBrowser>
 #include <QTreeWidget>
 #include <QToolButton>
 #include <QMessageBox>
-#include <QPushButton>
 #include <QTabWidget>
 #include <QSettings>
 #include <QCheckBox>
@@ -66,7 +63,6 @@ InputProfileEditor::InputProfileEditor(QWidget* parent, QLCInputProfile* profile
     setupUi(this);
 
     m_midiGroupSettings->setVisible(false);
-
     connect(m_typeCombo, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotTypeComboChanged(int)));
 
@@ -93,18 +89,6 @@ InputProfileEditor::InputProfileEditor(QWidget* parent, QLCInputProfile* profile
             this, SLOT(slotLowerValueSpinChanged(int)));
     connect(m_upperSpin, SIGNAL(valueChanged(int)),
             this, SLOT(slotUpperValueSpinChanged(int)));
-    connect(m_midiChannelCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotMidiChannelComboChanged(int)));
-
-    connect(m_addColorButton, SIGNAL(clicked()),
-            this, SLOT(slotAddColor()));
-    connect(m_removeColorButton, SIGNAL(clicked()),
-            this, SLOT(slotRemoveColor()));
-
-    connect(m_addMidiChannelButton, SIGNAL(clicked()),
-            this, SLOT(slotAddMidiChannel()));
-    connect(m_removeMidiChannelButton, SIGNAL(clicked()),
-            this, SLOT(slotRemoveMidiChannel()));
 
     /* Listen to input data */
     connect(m_ioMap, SIGNAL(inputValueChanged(quint32, quint32, uchar, const QString&)),
@@ -116,7 +100,7 @@ InputProfileEditor::InputProfileEditor(QWidget* parent, QLCInputProfile* profile
     }
     else
     {
-        m_profile = profile->createCopy();
+        m_profile = new QLCInputProfile(*profile);
         if ((QFile::permissions(m_profile->path()) &
                 QFile::WriteUser) == 0)
         {
@@ -151,15 +135,8 @@ InputProfileEditor::InputProfileEditor(QWidget* parent, QLCInputProfile* profile
 
     m_behaviourBox->hide();
     m_feedbackGroup->hide();
-
     /* Fill up the tree with profile's channels */
     fillTree();
-
-    /* Fill up the tree with color table */
-    updateColorsTree();
-
-    /* Fill up the tree with MIDI channel table */
-    updateMidiChannelTree();
 
     /* Timer that clears the input data icon after a while */
     m_timer = new QTimer(this);
@@ -194,57 +171,8 @@ void InputProfileEditor::fillTree()
     m_tree->header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
-void InputProfileEditor::updateColorsTree()
-{
-    m_colorTableTree->clear();
-
-    QMapIterator <uchar, QPair<QString, QColor>> it(m_profile->colorTable());
-    while (it.hasNext() == true)
-    {
-        it.next();
-        QPair<QString, QColor> lc = it.value();
-        QTreeWidgetItem *item = new QTreeWidgetItem(m_colorTableTree);
-        item->setText(0, QString::number(it.key()));
-        item->setText(1, lc.first);
-
-        QLabel *colLabel = new QLabel();
-        colLabel->setStyleSheet(QString("background-color: %1").arg(lc.second.name()));
-
-        m_colorTableTree->setItemWidget(item, 2, colLabel);
-    }
-}
-
-void InputProfileEditor::updateMidiChannelTree()
-{
-    m_midiChannelsTree->clear();
-    m_midiChannelCombo->clear();
-
-    if (m_profile->hasMidiChannelTable())
-    {
-        m_midiChannelCombo->show();
-        m_midiChannelLabel->show();
-        m_midiChannelCombo->addItem(tr("From plugin settings"));
-    }
-    else
-    {
-        m_midiChannelCombo->hide();
-        m_midiChannelLabel->hide();
-    }
-
-    QMapIterator <uchar, QString> it(m_profile->midiChannelTable());
-    while (it.hasNext() == true)
-    {
-        it.next();
-        QTreeWidgetItem *item = new QTreeWidgetItem(m_midiChannelsTree);
-        item->setText(0, QString::number(it.key() + 1));
-        item->setText(1, it.value());
-
-        m_midiChannelCombo->addItem(it.value());
-    }
-}
-
-void InputProfileEditor::updateChannelItem(QTreeWidgetItem *item,
-                                           QLCInputChannel *ch)
+void InputProfileEditor::updateChannelItem(QTreeWidgetItem* item,
+                                           QLCInputChannel* ch)
 {
     quint32 num;
 
@@ -294,15 +222,10 @@ void InputProfileEditor::setOptionsVisibility(QLCInputChannel::Type type)
 
 void InputProfileEditor::slotTypeComboChanged(int)
 {
-    bool showMidiSettings = false;
-
     if (currentProfileType() == QLCInputProfile::MIDI)
-    {
-        showMidiSettings = true;
-        updateMidiChannelTree();
-    }
-
-    m_midiGroupSettings->setVisible(showMidiSettings);
+        m_midiGroupSettings->setVisible(true);
+    else
+        m_midiGroupSettings->setVisible(false);
 }
 
 /****************************************************************************
@@ -333,7 +256,7 @@ void InputProfileEditor::accept()
 
     /* Check that we have at least the bare necessities to save the profile */
     if (m_profile->manufacturer().isEmpty() == true ||
-        m_profile->model().isEmpty() == true)
+            m_profile->model().isEmpty() == true)
     {
         QMessageBox::warning(this, tr("Missing information"),
                              tr("Manufacturer and/or model name is missing."));
@@ -578,13 +501,10 @@ void InputProfileEditor::slotItemClicked(QTreeWidgetItem *item, int col)
             m_extraPressCheck->setChecked(ich->sendExtraPress());
             m_lowerSpin->blockSignals(true);
             m_upperSpin->blockSignals(true);
-            m_midiChannelCombo->blockSignals(true);
             m_lowerSpin->setValue(ich->lowerValue());
             m_upperSpin->setValue(ich->upperValue());
-            m_midiChannelCombo->setCurrentIndex(ich->lowerChannel() + 1);
             m_lowerSpin->blockSignals(false);
             m_upperSpin->blockSignals(false);
-            m_midiChannelCombo->blockSignals(false);
         }
     }
     else
@@ -598,7 +518,7 @@ void InputProfileEditor::slotMovementComboChanged(int index)
     else
         m_sensitivitySpin->setEnabled(false);
 
-    foreach (QLCInputChannel *channel, selectedChannels())
+    foreach(QLCInputChannel *channel, selectedChannels())
     {
         if (channel->type() == QLCInputChannel::Slider ||
             channel->type() == QLCInputChannel::Knob)
@@ -613,7 +533,7 @@ void InputProfileEditor::slotMovementComboChanged(int index)
 
 void InputProfileEditor::slotSensitivitySpinChanged(int value)
 {
-    foreach (QLCInputChannel *channel, selectedChannels())
+    foreach(QLCInputChannel *channel, selectedChannels())
     {
         if ((channel->type() == QLCInputChannel::Slider ||
              channel->type() == QLCInputChannel::Knob) &&
@@ -626,16 +546,16 @@ void InputProfileEditor::slotSensitivitySpinChanged(int value)
 
 void InputProfileEditor::slotExtraPressChecked(bool checked)
 {
-    foreach (QLCInputChannel *channel, selectedChannels())
+    foreach(QLCInputChannel *channel, selectedChannels())
     {
-        if (channel->type() == QLCInputChannel::Button)
+        if(channel->type() == QLCInputChannel::Button)
             channel->setSendExtraPress(checked);
     }
 }
 
 void InputProfileEditor::slotLowerValueSpinChanged(int value)
 {
-    foreach (QLCInputChannel *channel, selectedChannels())
+    foreach(QLCInputChannel *channel, selectedChannels())
     {
         if (channel->type() == QLCInputChannel::Button)
             channel->setRange(uchar(value), uchar(m_upperSpin->value()));
@@ -644,69 +564,11 @@ void InputProfileEditor::slotLowerValueSpinChanged(int value)
 
 void InputProfileEditor::slotUpperValueSpinChanged(int value)
 {
-    foreach (QLCInputChannel *channel, selectedChannels())
+    foreach(QLCInputChannel *channel, selectedChannels())
     {
         if (channel->type() == QLCInputChannel::Button)
             channel->setRange(uchar(m_lowerSpin->value()), uchar(value));
     }
-}
-
-void InputProfileEditor::slotMidiChannelComboChanged(int index)
-{
-    foreach (QLCInputChannel *channel, selectedChannels())
-    {
-        if (channel->type() == QLCInputChannel::Button)
-            channel->setLowerChannel(index - 1);
-    }
-}
-
-void InputProfileEditor::slotAddColor()
-{
-    bool ok;
-    int val = QInputDialog::getInt(this, tr("Enter value"), tr("Feedback value"), 0, 0, 255, 1, &ok);
-
-    if (ok)
-    {
-        QColor color = QColorDialog::getColor();
-
-        QString label = QInputDialog::getText(this, tr("Enter label"), tr("Color label"));
-        m_profile->addColor(val, label, color);
-        updateColorsTree();
-        m_colorTableTree->scrollToBottom();
-    }
-}
-
-void InputProfileEditor::slotRemoveColor()
-{
-    foreach (QTreeWidgetItem *item, m_colorTableTree->selectedItems())
-    {
-        uchar value = uchar(item->text(0).toInt());
-        m_profile->removeColor(value);
-    }
-    updateColorsTree();
-}
-
-void InputProfileEditor::slotAddMidiChannel()
-{
-    bool ok;
-    int val = QInputDialog::getInt(this, tr("Enter value"), tr("MIDI channel"), 1, 1, 16, 1, &ok);
-
-    if (ok)
-    {
-        QString label = QInputDialog::getText(this, tr("Enter label"), tr("MIDI channel label"));
-        m_profile->addMidiChannel(val - 1, label);
-        updateMidiChannelTree();
-    }
-}
-
-void InputProfileEditor::slotRemoveMidiChannel()
-{
-    foreach (QTreeWidgetItem *item, m_midiChannelsTree->selectedItems())
-    {
-        uchar value = uchar(item->text(0).toInt());
-        m_profile->removeMidiChannel(value);
-    }
-    updateMidiChannelTree();
 }
 
 void InputProfileEditor::slotInputValueChanged(quint32 universe,
@@ -734,7 +596,7 @@ void InputProfileEditor::slotInputValueChanged(quint32 universe,
         /* No channel items found. Create a new channel to the
            profile and display it also in the tree widget */
         QLCInputChannel* ch = new QLCInputChannel();
-        if (key.isEmpty())
+        if(key.isEmpty())
             ch->setName(tr("Button %1").arg(channel + 1));
         else
             ch->setName(key);
@@ -774,7 +636,7 @@ void InputProfileEditor::slotInputValueChanged(quint32 universe,
             if (ch->type() == QLCInputChannel::Button)
             {
                 ch->setType(QLCInputChannel::Slider);
-                if (key.isEmpty())
+                if(key.isEmpty())
                     ch->setName(tr("Slider %1").arg(channel + 1));
                 else
                     ch->setName(key);
@@ -805,7 +667,7 @@ void InputProfileEditor::slotTimerTimeout()
  * Profile
  ****************************************************************************/
 
-QLCInputProfile* InputProfileEditor::profile()
+const QLCInputProfile* InputProfileEditor::profile() const
 {
     return m_profile;
 }

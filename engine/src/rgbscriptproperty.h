@@ -44,7 +44,7 @@ public:
         None,
         List,
         Range,
-        Float,
+        Integer,
         String
     };
 

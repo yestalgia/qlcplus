@@ -20,6 +20,7 @@
 
 #include <QSettings>
 #include <QDebug>
+#include <math.h>
 #include <QTime>
 
 #include "enttecdmxusbopen.h"
@@ -34,10 +35,10 @@
  * Initialization
  ****************************************************************************/
 
-EnttecDMXUSBOpen::EnttecDMXUSBOpen(DMXInterface *iface,
+EnttecDMXUSBOpen::EnttecDMXUSBOpen(DMXInterface *interface,
                                    quint32 outputLine, QObject* parent)
     : QThread(parent)
-    , DMXUSBWidget(iface, outputLine, DEFAULT_OPEN_DMX_FREQUENCY)
+    , DMXUSBWidget(interface, outputLine, DEFAULT_OPEN_DMX_FREQUENCY)
     , m_running(false)
     , m_granularity(Unknown)
 {
@@ -59,8 +60,8 @@ EnttecDMXUSBOpen::EnttecDMXUSBOpen(DMXInterface *iface,
 
 // on macOS, QtSerialPort cannot handle an OpenDMX device
 // so, unfortunately, we need to switch back to libftdi
-#if defined(Q_OS_MACOS) && defined(QTSERIAL) && (defined(LIBFTDI1) || defined(LIBFTDI))
-    if (iface->type() == DMXInterface::QtSerial)
+#if defined(Q_OS_OSX) && defined(QTSERIAL) && (defined(LIBFTDI1) || defined(LIBFTDI))
+    if (interface->type() == DMXInterface::QtSerial)
         forceInterfaceDriver(DMXInterface::libFTDI);
 #endif
 }
@@ -83,12 +84,12 @@ bool EnttecDMXUSBOpen::open(quint32 line, bool input)
 {
     Q_UNUSED(input)
 
-    if (iface()->type() != DMXInterface::QtSerial)
+    if (interface()->type() != DMXInterface::QtSerial)
     {
         if (DMXUSBWidget::open(line) == false)
             return close(line);
 
-        if (iface()->clearRts() == false)
+        if (interface()->clearRts() == false)
             return close(line);
     }
     start(QThread::TimeCriticalPriority);
@@ -172,7 +173,7 @@ void EnttecDMXUSBOpen::run()
     else
         m_granularity = Good;
 
-    if (iface()->type() == DMXInterface::QtSerial)
+    if (interface()->type() == DMXInterface::QtSerial)
     {
         if (DMXUSBWidget::open(0) == false)
         {
@@ -180,7 +181,7 @@ void EnttecDMXUSBOpen::run()
             return;
         }
 
-        if (iface()->clearRts() == false)
+        if (interface()->clearRts() == false)
         {
             close(0);
             return;
@@ -193,19 +194,19 @@ void EnttecDMXUSBOpen::run()
         // Measure how much time passes during these calls
         time.restart();
 
-        if (iface()->setBreak(true) == false)
+        if (interface()->setBreak(true) == false)
             goto framesleep;
 
         if (m_granularity == Good)
             usleep(DMX_BREAK);
 
-        if (iface()->setBreak(false) == false)
+        if (interface()->setBreak(false) == false)
             goto framesleep;
 
         if (m_granularity == Good)
             usleep(DMX_MAB);
 
-        if (iface()->write(m_outputLines[0].m_universeData) == false)
+        if (interface()->write(m_outputLines[0].m_universeData) == false)
             goto framesleep;
 
 framesleep:

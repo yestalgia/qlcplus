@@ -100,33 +100,6 @@ bool ModeEdit::deleteChannel(QLCChannel *channel)
     return res;
 }
 
-QStringList ModeEdit::actsOnChannels()
-{
-    QStringList list;
-    list << "-";
-
-    for (QLCChannel *channel : m_mode->channels())
-        list << channel->name();
-
-    return list;
-}
-
-int ModeEdit::actsOnChannel(int index)
-{
-    quint32 actsOnChannelIndex = m_mode->channelActsOn(index);
-
-    if (actsOnChannelIndex != QLCChannel::invalid())
-        return actsOnChannelIndex + 1;
-    else
-        return 0;
-}
-
-void ModeEdit::setActsOnChannel(int sourceIndex, int destIndex)
-{
-    quint32 actsOnChannel = destIndex == 0 ? QLCChannel::invalid() : destIndex - 1;
-    m_mode->setChannelActsOn(sourceIndex, actsOnChannel);
-}
-
 void ModeEdit::updateChannelList()
 {
     m_channelList->clear();
@@ -140,7 +113,6 @@ void ModeEdit::updateChannelList()
     }
 
     emit channelsChanged();
-    emit actsOnChannelsChanged();
 }
 
 /************************************************************************

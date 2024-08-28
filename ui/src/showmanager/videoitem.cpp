@@ -24,6 +24,7 @@
 
 #include "videoitem.h"
 #include "trackitem.h"
+#include "headeritems.h"
 
 VideoItem::VideoItem(Video *vid, ShowFunction *func)
     : ShowItem(func)
@@ -191,7 +192,7 @@ void VideoItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *)
         }
     }
     menu.addAction(m_fullscreenAction);
-    foreach (QAction *action, getDefaultActions())
+    foreach(QAction *action, getDefaultActions())
         menu.addAction(action);
 
     menu.exec(QCursor::pos());

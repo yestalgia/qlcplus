@@ -169,7 +169,7 @@ QString EnttecWing::inputInfo(quint32 input)
 }
 
 void EnttecWing::sendFeedBack(quint32 universe, quint32 input,
-                              quint32 channel, uchar value, const QVariant &)
+                              quint32 channel, uchar value, const QString &)
 {
     Q_UNUSED(universe)
 

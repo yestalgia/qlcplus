@@ -39,7 +39,6 @@ Rectangle
     property bool showPalette: false
 
     signal valueChanged(int value)
-    signal close()
 
     GridLayout
     {
@@ -60,11 +59,6 @@ Rectangle
             {
                 currentValue = Math.round((valueAt(position) * 255.0) / maxDegrees)
                 boxRoot.valueChanged(currentValue)
-            }
-            onPressedChanged:
-            {
-                if (!pressed && closeOnSelect)
-                    boxRoot.close()
             }
         }
 

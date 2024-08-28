@@ -64,12 +64,6 @@ public:
      */
     int getType();
 
-    /** Set the low limits from the fader as a preset filter */
-    void setLevelLowLimit(int min);
-
-    /** Set the high limits from the fader as a preset filter */
-    void setLevelHighLimit(int max);
-
     /**
      * Returns the color at pos position.
      * Used with primary colors linear gradient
@@ -129,8 +123,8 @@ private:
     public:
         QImage m_thumbnail;
         QString m_descr;
-        int m_resLowLimit;
-        int m_resHighLimit;
+        uchar m_min;
+        uchar m_max;
     };
 
 protected:
@@ -150,10 +144,6 @@ protected:
 
     QString m_title;
     QList<ClickAndGoWidget::PresetResource> m_resources;
-
-    /** Fader limits to also limit the presets */
-    int m_levelLowLimit;
-    int m_levelHighLimit;
 
     /** Used to group all the primary colors */
     bool m_linearColor;

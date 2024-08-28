@@ -54,19 +54,12 @@
 #define KXMLQLCWindowStateWidth     QString("Width")
 #define KXMLQLCWindowStateHeight    QString("Height")
 
-#define KXMLQLCVCWidgetKey                  QString("Key")
-#define KXMLQLCVCWidgetInput                QString("Input")
-#define KXMLQLCVCWidgetInputId              QString("ID")
-#define KXMLQLCVCWidgetInputUniverse        QString("Universe")
-#define KXMLQLCVCWidgetInputChannel         QString("Channel")
-#define KXMLQLCVCWidgetInputLowerValue      QString("LowerValue")
-#define KXMLQLCVCWidgetInputUpperValue      QString("UpperValue")
-#define KXMLQLCVCWidgetInputMonitorValue    QString("MonitorValue")
-#define KXMLQLCVCWidgetInputLowerParams     QString("LowerParams")
-#define KXMLQLCVCWidgetInputUpperParams     QString("UpperParams")
-#define KXMLQLCVCWidgetInputMonitorParams   QString("MonitorParams")
-
-#define VCWIDGET_AUTODETECT_INPUT_ID     0xFF
+#define KXMLQLCVCWidgetKey              QString("Key")
+#define KXMLQLCVCWidgetInput            QString("Input")
+#define KXMLQLCVCWidgetInputUniverse    QString("Universe")
+#define KXMLQLCVCWidgetInputChannel     QString("Channel")
+#define KXMLQLCVCWidgetInputLowerValue  QString("LowerValue")
+#define KXMLQLCVCWidgetInputUpperValue  QString("UpperValue")
 
 typedef struct
 {
@@ -166,7 +159,7 @@ public:
         XYPadWidget,
         FrameWidget,
         SoloFrameWidget,
-        SpeedWidget,
+        SpeedDialWidget,
         CueListWidget,
         LabelWidget,
         AudioTriggersWidget,
@@ -487,7 +480,7 @@ protected:
      * Input sources
      *********************************************************************/
 public:
-    enum SourceValueType { ExactValue, LowerValue, UpperValue, MonitorValue };
+    enum SourceValueType { ExactValue, LowerValue, UpperValue };
     Q_ENUM(SourceValueType)
 
     /**
@@ -627,7 +620,7 @@ protected:
 
     /** Save all the input sources and key combination with the given $controlId
      *  in a tag with the given $tagName */
-    bool saveXMLInputControl(QXmlStreamWriter *doc, quint8 controlId, bool unified = true, QString tagName = QString());
+    bool saveXMLInputControl(QXmlStreamWriter *doc, quint8 controlId, QString tagName = QString());
 };
 
 #endif

@@ -29,6 +29,9 @@
 #include <QUrl>
 #include <QAction>
 
+#include "qlcfixturedef.h"
+#include "qlcmacros.h"
+
 #include "functionselection.h"
 #include "speeddialwidget.h"
 #include "chasereditor.h"
@@ -36,6 +39,7 @@
 #include "chaserstep.h"
 #include "sequence.h"
 #include "apputil.h"
+#include "fixture.h"
 #include "chaser.h"
 #include "scene.h"
 #include "doc.h"
@@ -739,11 +743,11 @@ void ChaserEditor::slotPasteClicked()
         Sequence *sequence = qobject_cast<Sequence*>(m_chaser);
         quint32 sceneID = sequence->boundSceneID();
         Scene *scene = qobject_cast<Scene*>(m_doc->function(sceneID));
-        foreach (ChaserStep step, pasteList)
+        foreach(ChaserStep step, pasteList)
         {
             if (step.fid != sceneID) // if IDs are the same then it's a valid step
             {
-                foreach (SceneValue scv, step.values)
+                foreach(SceneValue scv, step.values)
                 {
                     if (scene->checkValue(scv) == false)
                     {

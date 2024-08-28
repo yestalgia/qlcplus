@@ -33,6 +33,7 @@
 
 #include "qlcinputprofile.h"
 #include "qlcioplugin.h"
+#include "qlcconfig.h"
 #include "qlcfile.h"
 
 #include "inputoutputpatcheditor.h"
@@ -41,6 +42,7 @@
 #include "inputoutputmap.h"
 #include "outputpatch.h"
 #include "inputpatch.h"
+#include "apputil.h"
 #include "doc.h"
 
 /* Plugin column structure */
@@ -722,7 +724,7 @@ edit:
 
         /* Create a new non-const copy of the profile and
            reparent it to the input map */
-        QLCInputProfile* profile = ite.profile()->createCopy();
+        QLCInputProfile* profile = new QLCInputProfile(*ite.profile());
 
         /* Save it to a file, go back to edit if save failed */
         if (profile->saveXML(path) == false)
@@ -896,7 +898,7 @@ void InputOutputPatchEditor::initAudioTab()
     if (var.isValid() == true)
         outputName = var.toString();
 
-    foreach (AudioDeviceInfo info, devList)
+    foreach( AudioDeviceInfo info, devList)
     {
         QTreeWidgetItem* item = new QTreeWidgetItem(m_audioMapTree);
         item->setText(KAudioColumnDeviceName, info.deviceName);

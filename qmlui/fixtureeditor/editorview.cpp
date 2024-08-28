@@ -21,7 +21,6 @@
 
 #include "qlcfixturemode.h"
 #include "qlcfixturedef.h"
-#include "qlccapability.h"
 
 #include "channeledit.h"
 #include "editorview.h"
@@ -74,11 +73,6 @@ EditorView::~EditorView()
 int EditorView::id() const
 {
     return m_id;
-}
-
-QLCFixtureDef *EditorView::fixtureDefinition()
-{
-    return m_fixtureDef;
 }
 
 bool EditorView::isUser() const
@@ -192,7 +186,6 @@ ChannelEdit *EditorView::requestChannelEditor(QString name)
         ch->setName(tr("New channel %1").arg(m_fixtureDef->channels().count() + 1));
         m_fixtureDef->addChannel(ch);
         updateChannelList();
-        setModified(true);
     }
     m_channelEdit = new ChannelEdit(ch);
     connect(m_channelEdit, SIGNAL(channelChanged()), this, SLOT(setModified()));
@@ -274,24 +267,9 @@ bool EditorView::deleteChannel(QLCChannel *channel)
 {
     // TODO: Tardis
     bool res = m_fixtureDef->removeChannel(channel);
+    updateChannelList();
     setModified(true);
     return res;
-}
-
-bool EditorView::deleteChannels(QVariantList channels)
-{
-    bool res;
-    for (int i = 0; i < channels.count(); i++)
-    {
-        QLCChannel *channel = channels.at(i).value<QLCChannel*>();
-        res = deleteChannel(channel);
-        if (res == false)
-            return false;
-    }
-    if (channels.count())
-        updateChannelList();
-
-    return true;
 }
 
 /************************************************************************
@@ -353,73 +331,21 @@ void EditorView::modeNameChanged()
  * Load & Save
  *********************************************************************/
 
-QString EditorView::checkFixture()
+bool EditorView::save()
 {
-    QString errors;
-
-    if (m_fixtureDef->channels().count() == 0)
-    {
-        errors.append(tr("<li>No channels provided</li>"));
-    }
-    else
-    {
-        for (QLCChannel *channel : m_fixtureDef->channels())
-        {
-            if (channel->capabilities().isEmpty())
-                errors.append(tr("<li>No capability provided in channel '%1'</li>").arg(channel->name()));
-
-            for (QLCCapability *cap : channel->capabilities())
-            {
-                if (cap->name().isEmpty())
-                    errors.append(tr("<li>Empty capability description provided in channel '%1'</li>").arg(channel->name()));
-            }
-        }
-
-        for (QLCFixtureMode *mode : m_fixtureDef->modes())
-        {
-            if (mode->name().isEmpty())
-                errors.append(tr("<li>Empty mode name provided</li>"));
-
-            if (mode->channels().count() == 0)
-                errors.append(tr("<li>Mode '%1' has no channels defined</li>").arg(mode->name()));
-
-            quint32 chIndex = 0;
-            for (QLCChannel *channel : mode->channels())
-            {
-
-                if (mode->channelActsOn(chIndex) == chIndex)
-                    errors.append(tr("<li>In mode '%1', channel '%2' cannot act on itself</li>").arg(mode->name(), channel->name()));
-                chIndex++;
-            }
-        }
-    }
-
-    if (m_fixtureDef->modes().count() == 0)
-        errors.append(tr("<li>No modes provided. Without modes, this fixture will not appear in the list!</li>"));
-
-    return errors;
-}
-
-QString EditorView::save()
-{
-    QString errors;
-
     if (m_fileName.isEmpty())
         setFilenameFromModel();
 
-    m_fixtureDef->setPhysical(m_globalPhy->physical());
-
-    errors.append(checkFixture());
-
+    //m_fixtureDef->setPhysical(m_phyEdit->physical());
     QFile::FileError error = m_fixtureDef->saveXML(m_fileName);
     if (error != QFile::NoError)
-        return tr("Could not save file! (%1)").arg(QLCFile::errorString(error));
+        return false;
 
     setModified(false);
-    return errors;
+    return true;
 }
 
-QString EditorView::saveAs(QString path)
+bool EditorView::saveAs(QString path)
 {
     QString localFilename = path;
     if (localFilename.startsWith("file:"))
@@ -431,7 +357,8 @@ QString EditorView::saveAs(QString path)
 
     m_fileName = localFilename;
 
-    return save();
+    save();
+    return true;
 }
 
 QString EditorView::fileName()

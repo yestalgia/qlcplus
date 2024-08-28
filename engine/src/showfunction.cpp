@@ -31,10 +31,9 @@
 #define KXMLShowFunctionColor "Color"
 #define KXMLShowFunctionLocked "Locked"
 
-ShowFunction::ShowFunction(quint32 id, QObject *parent)
+ShowFunction::ShowFunction(QObject *parent)
     : QObject(parent)
-    , m_id(id)
-    , m_functionId(Function::invalidId())
+    , m_id(Function::invalidId())
     , m_startTime(UINT_MAX)
     , m_duration(0)
     , m_color(QColor())
@@ -43,23 +42,18 @@ ShowFunction::ShowFunction(quint32 id, QObject *parent)
 {
 }
 
-quint32 ShowFunction::id() const
-{
-    return m_id;
-}
-
 void ShowFunction::setFunctionID(quint32 id)
 {
-    if (id == m_functionId)
+    if (id == m_id)
         return;
 
-    m_functionId = id;
+    m_id = id;
     emit functionIDChanged();
 }
 
 quint32 ShowFunction::functionID() const
 {
-    return m_functionId;
+    return m_id;
 }
 
 void ShowFunction::setStartTime(quint32 time)
@@ -98,7 +92,7 @@ quint32 ShowFunction::duration(const Doc *doc) const
     if (doc == NULL)
         return 0;
 
-    Function *f = doc->function(m_functionId);
+    Function *f = doc->function(m_id);
     if (f == NULL)
         return 0;
 
@@ -186,7 +180,7 @@ bool ShowFunction::loadXML(QXmlStreamReader &root)
     return true;
 }
 
-bool ShowFunction::saveXML(QXmlStreamWriter *doc, quint32 trackId) const
+bool ShowFunction::saveXML(QXmlStreamWriter *doc) const
 {
     Q_ASSERT(doc != NULL);
 
@@ -194,11 +188,6 @@ bool ShowFunction::saveXML(QXmlStreamWriter *doc, quint32 trackId) const
     doc->writeStartElement(KXMLShowFunction);
 
     /* Attributes */
-    if (trackId != UINT_MAX)
-    {
-        doc->writeAttribute(KXMLShowFunctionUid, QString::number(m_id));
-        doc->writeAttribute(KXMLShowFunctionTrackId, QString::number(trackId));
-    }
     doc->writeAttribute(KXMLShowFunctionID, QString::number(functionID()));
     doc->writeAttribute(KXMLShowFunctionStartTime, QString::number(startTime()));
     if (m_duration)

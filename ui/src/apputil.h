@@ -53,15 +53,6 @@ namespace AppUtil
     QStyle* saneStyle();
 
     /*********************************************************************
-     * Stylesheets
-     *********************************************************************/
-    /**
-     * Search the requested $component in a pre-determined
-     * stylesheet file on disk
-     */
-    QString getStyleSheet(QString component);
-
-    /*********************************************************************
      * Digits
      *********************************************************************/
     /**

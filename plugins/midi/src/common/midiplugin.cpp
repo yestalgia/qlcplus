@@ -66,7 +66,7 @@ QString MidiPlugin::name()
 
 int MidiPlugin::capabilities() const
 {
-    return QLCIOPlugin::Output | QLCIOPlugin::Input | QLCIOPlugin::Feedback | QLCIOPlugin::Beats;
+    return QLCIOPlugin::Output | QLCIOPlugin::Input | QLCIOPlugin::Feedback;
 }
 
 /*****************************************************************************
@@ -285,7 +285,7 @@ QString MidiPlugin::inputInfo(quint32 input)
     return str;
 }
 
-void MidiPlugin::sendFeedBack(quint32 universe, quint32 output, quint32 channel, uchar value, const QVariant &params)
+void MidiPlugin::sendFeedBack(quint32 universe, quint32 output, quint32 channel, uchar value, const QString &)
 {
     Q_UNUSED(universe)
 
@@ -297,11 +297,7 @@ void MidiPlugin::sendFeedBack(quint32 universe, quint32 output, quint32 channel,
         qDebug() << "[sendFeedBack] Dev:" << dev->name() << ", channel:" << channel << ", value:" << value << dev->sendNoteOff();
         uchar cmd = 0;
         uchar data1 = 0, data2 = 0;
-        int midiChannel = dev->midiChannel();
-        if (params.isValid() && params.toInt() >= 0)
-            midiChannel += params.toInt();
-
-        if (QLCMIDIProtocol::feedbackToMidi(channel, value, midiChannel, dev->sendNoteOff(),
+        if (QLCMIDIProtocol::feedbackToMidi(channel, value, dev->midiChannel(), dev->sendNoteOff(),
                                         &cmd, &data1, &data2) == true)
         {
             qDebug() << "[sendFeedBack] cmd:" << cmd << "data1:" << data1 << "data2:" << data2;
@@ -334,8 +330,7 @@ void MidiPlugin::slotValueChanged(const QVariant& uid, ushort channel, uchar val
         MidiInputDevice* dev = m_enumerator->inputDevices().at(i);
         if (dev->uid() == uid)
         {
-            emit valueChanged(UINT_MAX, i, channel, value,
-                              channel == CHANNEL_OFFSET_MBC_BEAT ? "beat" : "");
+            emit valueChanged(UINT_MAX, i, channel, value);
             break;
         }
     }
@@ -353,7 +348,7 @@ void MidiPlugin::configure()
 
     // walk the universe map to update/add the
     // plugin custom parameters
-    foreach (quint32 universe, m_universesMap.keys())
+    foreach(quint32 universe, m_universesMap.keys())
     {
         m_universesMap[universe].inputParameters.clear();
 

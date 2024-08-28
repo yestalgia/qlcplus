@@ -20,7 +20,6 @@
 #include <QDebug>
 #include <cmath>
 
-#include "qlcfixturemode.h"
 #include "fadechannel.h"
 #include "qlcchannel.h"
 #include "universe.h"
@@ -30,9 +29,8 @@ FadeChannel::FadeChannel()
     : m_flags(0)
     , m_fixture(Fixture::invalidId())
     , m_universe(Universe::invalid())
-    , m_primaryChannel(QLCChannel::invalid())
+    , m_channel(QLCChannel::invalid())
     , m_address(QLCChannel::invalid())
-    , m_channelRef(NULL)
     , m_start(0)
     , m_target(0)
     , m_current(0)
@@ -46,10 +44,8 @@ FadeChannel::FadeChannel(const FadeChannel& ch)
     : m_flags(ch.m_flags)
     , m_fixture(ch.m_fixture)
     , m_universe(ch.m_universe)
-    , m_primaryChannel(ch.m_primaryChannel)
-    , m_channels(ch.m_channels)
+    , m_channel(ch.m_channel)
     , m_address(ch.m_address)
-    , m_channelRef(ch.m_channelRef)
     , m_start(ch.m_start)
     , m_target(ch.m_target)
     , m_current(ch.m_current)
@@ -63,7 +59,7 @@ FadeChannel::FadeChannel(const FadeChannel& ch)
 FadeChannel::FadeChannel(const Doc *doc, quint32 fxi, quint32 channel)
     : m_flags(0)
     , m_fixture(fxi)
-    , m_channelRef(NULL)
+    , m_channel(channel)
     , m_start(0)
     , m_target(0)
     , m_current(0)
@@ -71,7 +67,6 @@ FadeChannel::FadeChannel(const Doc *doc, quint32 fxi, quint32 channel)
     , m_fadeTime(0)
     , m_elapsed(0)
 {
-    m_channels.append(channel);
     autoDetect(doc);
 }
 
@@ -86,9 +81,7 @@ FadeChannel &FadeChannel::operator=(const FadeChannel &fc)
         m_flags = fc.m_flags;
         m_fixture = fc.m_fixture;
         m_universe = fc.m_universe;
-        m_primaryChannel = fc.m_primaryChannel;
-        m_channels = fc.m_channels;
-        m_channelRef = fc.m_channelRef;
+        m_channel = fc.m_channel;
         m_address = fc.m_address;
         m_start = fc.m_start;
         m_target = fc.m_target;
@@ -103,7 +96,7 @@ FadeChannel &FadeChannel::operator=(const FadeChannel &fc)
 
 bool FadeChannel::operator==(const FadeChannel& ch) const
 {
-    return (m_fixture == ch.m_fixture && channel() == ch.channel());
+    return (m_fixture == ch.m_fixture && m_channel == ch.m_channel);
 }
 
 int FadeChannel::flags() const
@@ -150,46 +143,52 @@ void FadeChannel::autoDetect(const Doc *doc)
     }
     else
     {
-        QLCFixtureMode *mode = fixture->fixtureMode();
         m_universe = fixture->universe();
         m_address = fixture->address();
 
         // if the fixture was invalid at the beginning of this method
         // it means channel was an absolute address, so, fix it
         if (fixtureWasInvalid)
-            m_channels[0] -= fixture->address();
+            m_channel -= fixture->address();
 
-        quint32 chIndex = channel();
-        m_primaryChannel = mode ? mode->primaryChannel(chIndex) : QLCChannel::invalid();
-        m_channelRef = fixture->channel(chIndex);
+        const QLCChannel *channel = fixture->channel(m_channel);
 
         // non existing channel within fixture
-        if (m_channelRef == NULL)
+        if (channel == NULL)
         {
             addFlag(FadeChannel::HTP | FadeChannel::Intensity | FadeChannel::CanFade);
             return;
         }
 
         // autodetect the channel type
-        if (fixture->channelCanFade(chIndex))
+        if (fixture->channelCanFade(m_channel))
             addFlag(FadeChannel::CanFade);
 
-        if (m_channelRef != NULL && m_channelRef->group() == QLCChannel::Intensity)
+        if (channel != NULL && channel->group() == QLCChannel::Intensity)
             addFlag(FadeChannel::HTP | FadeChannel::Intensity);
         else
             addFlag(FadeChannel::LTP);
 
-        if (fixture->forcedHTPChannels().contains(int(chIndex)))
+        if (fixture->forcedHTPChannels().contains(int(m_channel)))
         {
             removeFlag(FadeChannel::LTP);
             addFlag(FadeChannel::HTP);
         }
-        else if (fixture->forcedLTPChannels().contains(int(chIndex)))
+        else if (fixture->forcedLTPChannels().contains(int(m_channel)))
         {
             removeFlag(FadeChannel::HTP);
             addFlag(FadeChannel::LTP);
         }
+
+        if (channel != NULL && channel->controlByte() == QLCChannel::LSB)
+            addFlag(FadeChannel::Fine);
     }
+}
+
+void FadeChannel::setFixture(const Doc *doc, quint32 id)
+{
+    m_fixture = id;
+    autoDetect(doc);
 }
 
 quint32 FadeChannel::fixture() const
@@ -204,42 +203,15 @@ quint32 FadeChannel::universe() const
     return m_universe;
 }
 
-void FadeChannel::addChannel(quint32 num)
+void FadeChannel::setChannel(const Doc *doc, quint32 num)
 {
-    m_channels.append(num);
-    qDebug() << "[FadeChannel] ADD channel" << num << "count:" << m_channels.count();
-
-    // on secondary channel, shift values 8bits up
-    if (m_channels.count() > 1)
-    {
-        m_start = m_start << 8;
-        m_target = m_target << 8;
-        m_current = m_current << 8;
-    }
-}
-
-int FadeChannel::channelCount() const
-{
-    if (m_channels.isEmpty())
-        return 1;
-
-    return m_channels.count();
+    m_channel = num;
+    autoDetect(doc);
 }
 
 quint32 FadeChannel::channel() const
 {
-    return m_channels.isEmpty() ? QLCChannel::invalid() : m_channels.first();
-}
-
-int FadeChannel::channelIndex(quint32 channel)
-{
-    int idx = m_channels.indexOf(channel);
-    return idx < 0 ? 0 : idx;
-}
-
-quint32 FadeChannel::primaryChannel() const
-{
-    return m_primaryChannel;
+    return m_channel;
 }
 
 quint32 FadeChannel::address() const
@@ -252,85 +224,42 @@ quint32 FadeChannel::address() const
 
 quint32 FadeChannel::addressInUniverse() const
 {
-    quint32 addr = address();
-    if (addr == QLCChannel::invalid())
-        return QLCChannel::invalid();
-
-    return addr % UNIVERSE_SIZE;
+    return address() % UNIVERSE_SIZE;
 }
 
-/************************************************************************
- * Values
- ************************************************************************/
-
-void FadeChannel::setStart(uchar value, int index)
-{
-    ((uchar *)&m_start)[channelCount() - 1 - index] = value;
-}
-
-void FadeChannel::setStart(quint32 value)
+void FadeChannel::setStart(uchar value)
 {
     m_start = value;
 }
 
-uchar FadeChannel::start(int index) const
+uchar FadeChannel::start() const
 {
-    return ((uchar *)&m_start)[channelCount() - 1 - index];
+    return uchar(m_start);
 }
 
-quint32 FadeChannel::start() const
-{
-    return m_start;
-}
-
-void FadeChannel::setTarget(uchar value, int index)
-{
-    ((uchar *)&m_target)[channelCount() - 1 - index] = value;
-}
-
-void FadeChannel::setTarget(quint32 value)
+void FadeChannel::setTarget(uchar value)
 {
     m_target = value;
 }
 
-uchar FadeChannel::target(int index) const
+uchar FadeChannel::target() const
 {
-    return ((uchar *)&m_target)[channelCount() - 1 - index];
+    return uchar(m_target);
 }
 
-quint32 FadeChannel::target() const
-{
-    return m_target;
-}
-
-void FadeChannel::setCurrent(uchar value, int index)
-{
-    ((uchar *)&m_current)[channelCount() - 1 - index] = value;
-}
-
-void FadeChannel::setCurrent(quint32 value)
+void FadeChannel::setCurrent(uchar value)
 {
     m_current = value;
 }
 
-uchar FadeChannel::current(int index) const
+uchar FadeChannel::current() const
 {
-    return ((uchar *)&m_current)[channelCount() - 1 - index];
+    return uchar(m_current);
 }
 
-quint32 FadeChannel::current() const
+uchar FadeChannel::current(qreal intensity) const
 {
-    return m_current;
-}
-
-uchar FadeChannel::current(qreal intensity, int index) const
-{
-    return uchar(floor((qreal(current(index)) * intensity) + 0.5));
-}
-
-quint32 FadeChannel::current(qreal intensity) const
-{
-    return quint32(floor((qreal(m_current) * intensity) + 0.5));
+    return uchar(floor((qreal(m_current) * intensity) + 0.5));
 }
 
 void FadeChannel::setReady(bool rdy)
@@ -372,7 +301,6 @@ uchar FadeChannel::nextStep(uint ms)
 {
     if (elapsed() < UINT_MAX)
         setElapsed(elapsed() + ms);
-
     return calculateCurrent(fadeTime(), elapsed());
 }
 
@@ -391,11 +319,14 @@ uchar FadeChannel::calculateCurrent(uint fadeTime, uint elapsedTime)
     }
     else
     {
-        bool rampUp = m_target > m_start ? true : false;
-        m_current = rampUp ? m_target - m_start : m_start - m_target;
-        m_current = m_current * (qreal(elapsedTime) / qreal(fadeTime));
-        m_current = rampUp ? m_start + m_current : m_start - m_current;
-        //qDebug() << "channel" << channel() << "start" << m_start << "target" << m_target << "current" << m_current << "fade" << fadeTime << "elapsed" << elapsedTime ;
+        // 16 bit fading works as long as MSB and LSB channels
+        // are targeting the same value. E.g. Red and Red Fine both at 158
+        float val = (float(m_target - m_start) * (float(elapsedTime) / float(fadeTime))) + float(m_start);
+        long rval = lrintf(val * 256);
+        if (m_flags & Fine)
+            m_current = rval & 0xff;
+        else
+            m_current = rval / 256;
     }
 
     return uchar(m_current);

@@ -19,12 +19,7 @@
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="configurehid.ui" line="62"/>
-        <source>Merger Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="configurehid.ui" line="70"/>
+        <location filename="configurehid.ui" line="65"/>
         <source>Refresh</source>
         <translation>Rafraîchir</translation>
     </message>

@@ -23,6 +23,7 @@
 
 #include "vcspeeddialpreset.h"
 #include "vcwidget.h"
+#include "qlcfile.h"
 
 VCSpeedDialPreset::VCSpeedDialPreset(quint8 id)
     : m_id(id)
@@ -52,9 +53,7 @@ VCSpeedDialPreset &VCSpeedDialPreset::operator=(const VCSpeedDialPreset &preset)
         {
             m_inputSource = QSharedPointer<QLCInputSource>(new QLCInputSource(preset.m_inputSource->universe(),
                                                            preset.m_inputSource->channel()));
-
-            m_inputSource->setFeedbackValue(QLCInputFeedback::LowerValue, preset.m_inputSource->feedbackValue(QLCInputFeedback::LowerValue));
-            m_inputSource->setFeedbackValue(QLCInputFeedback::UpperValue, preset.m_inputSource->feedbackValue(QLCInputFeedback::UpperValue));
+            m_inputSource->setRange(preset.m_inputSource->lowerValue(), preset.m_inputSource->upperValue());
         }
     }
     return *this;

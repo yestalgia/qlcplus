@@ -44,7 +44,7 @@ Rectangle
         visible: patch ? (patch.profileName === "None" ? false : true) : false
 
         border.width: 2
-        border.color: UISettings.borderColorDark
+        border.color: "#222"
         color: "#269ABA"
         radius: 10
 
@@ -96,14 +96,14 @@ Rectangle
             height: width
             radius: height / 2
             border.width: 2
-            border.color: UISettings.bgMedium
-            color: UISettings.bgLight
+            border.color: "#333"
+            color: "#666"
 
             ColorAnimation on color
             {
                 id: cAnim
                 from: "#00FF00"
-                to: UISettings.bgLight
+                to: "#666"
                 duration: 500
                 running: false
             }

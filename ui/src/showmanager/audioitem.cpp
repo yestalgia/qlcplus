@@ -25,6 +25,7 @@
 
 #include "audioitem.h"
 #include "trackitem.h"
+#include "headeritems.h"
 #include "audiodecoder.h"
 #include "audioplugincache.h"
 
@@ -199,7 +200,7 @@ void AudioItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *)
         menu.addSeparator();
     }
 
-    foreach (QAction *action, getDefaultActions())
+    foreach(QAction *action, getDefaultActions())
         menu.addAction(action);
 
     menu.exec(QCursor::pos());
@@ -287,7 +288,7 @@ void PreviewThread::run()
                 dataRead = ad->read((char *)audioData + audioDataOffset, onePixelReadLen * 2);
                 if (dataRead > 0)
                 {
-                    if ((quint32)dataRead + audioDataOffset >= onePixelReadLen)
+                    if((quint32)dataRead + audioDataOffset >= onePixelReadLen)
                     {
                         tmpExceedData = (dataRead + audioDataOffset) - onePixelReadLen;
                         dataRead = onePixelReadLen;

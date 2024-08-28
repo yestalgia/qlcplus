@@ -51,9 +51,7 @@ VCMatrixControl &VCMatrixControl::operator=(const VCMatrixControl &vcmc)
         {
             m_inputSource = QSharedPointer<QLCInputSource>(new QLCInputSource(vcmc.m_inputSource->universe(),
                                                    vcmc.m_inputSource->channel()));
-
-            m_inputSource->setFeedbackValue(QLCInputFeedback::LowerValue, vcmc.m_inputSource->feedbackValue(QLCInputFeedback::LowerValue));
-            m_inputSource->setFeedbackValue(QLCInputFeedback::UpperValue, vcmc.m_inputSource->feedbackValue(QLCInputFeedback::UpperValue));
+            m_inputSource->setRange(vcmc.m_inputSource->lowerValue(), vcmc.m_inputSource->upperValue());
         }
     }
 
@@ -233,7 +231,7 @@ bool VCMatrixControl::saveXML(QXmlStreamWriter *doc)
     if (!m_properties.isEmpty())
     {
         QHashIterator<QString, QString> it(m_properties);
-        while (it.hasNext())
+        while(it.hasNext())
         {
             it.next();
             doc->writeStartElement(KXMLQLCVCMatrixControlProperty);

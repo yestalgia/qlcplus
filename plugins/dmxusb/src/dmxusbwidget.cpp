@@ -25,19 +25,19 @@
 #include "enttecdmxusbpro.h"
 #include "enttecdmxusbopen.h"
 #include "dmxusbopenrx.h"
-#if defined(Q_WS_X11) || defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+#if defined(Q_WS_X11) || defined(Q_OS_LINUX) || defined(Q_OS_OSX)
   #include "nanodmx.h"
   #include "euroliteusbdmxpro.h"
 #endif
 #include "stageprofi.h"
 #include "vinceusbdmx512.h"
 
-DMXUSBWidget::DMXUSBWidget(DMXInterface *iface, quint32 outputLine, int frequency)
-    : m_interface(iface)
+DMXUSBWidget::DMXUSBWidget(DMXInterface *interface, quint32 outputLine, int frequency)
+    : m_interface(interface)
     , m_outputBaseLine(outputLine)
     , m_inputBaseLine(0)
 {
-    Q_ASSERT(iface != NULL);
+    Q_ASSERT(interface != NULL);
 
     QMap <QString, QVariant> freqMap(DMXInterface::frequencyMap());
     if (freqMap.contains(m_interface->serial()))
@@ -54,7 +54,7 @@ DMXUSBWidget::~DMXUSBWidget()
     delete m_interface;
 }
 
-DMXInterface *DMXUSBWidget::iface() const
+DMXInterface *DMXUSBWidget::interface() const
 {
     return m_interface;
 }
@@ -65,26 +65,6 @@ QString DMXUSBWidget::interfaceTypeString() const
         return QString();
 
     return m_interface->typeString();
-}
-
-bool DMXUSBWidget::detectDMXKingDevice(DMXInterface *iface,
-                                       QString &manufName, QString &deviceName,
-                                       int &ESTA_ID, int &DEV_ID)
-{
-    if (iface->readLabel(DMXKING_USB_DEVICE_MANUFACTURER, ESTA_ID, manufName) == false)
-        return false;
-
-    qDebug() << "--------> Device Manufacturer: " << manufName;
-    if (iface->readLabel(DMXKING_USB_DEVICE_NAME, DEV_ID, deviceName) == false)
-        return false;
-
-    qDebug() << "--------> Device Name: " << deviceName;
-    qDebug() << "--------> ESTA Code: " << QString::number(ESTA_ID, 16) << ", Device ID: " << QString::number(DEV_ID, 16);
-
-    if (ESTA_ID == DMXKING_ESTA_ID)
-        return true;
-
-    return false;
 }
 
 QList<DMXUSBWidget *> DMXUSBWidget::widgets()
@@ -110,9 +90,9 @@ QList<DMXUSBWidget *> DMXUSBWidget::widgets()
     {
         QString productName = iface->name().toUpper();
 
-        // check if protocol must be forced on an interface
         if (types.contains(iface->serial()) == true)
         {
+            // Force a widget with a specific serial to either type
             DMXUSBWidget::Type type = (DMXUSBWidget::Type) types[iface->serial()].toInt();
             switch (type)
             {
@@ -147,7 +127,7 @@ QList<DMXUSBWidget *> DMXUSBWidget::widgets()
                 case DMXUSBWidget::VinceTX:
                     widgetList << new VinceUSBDMX512(iface, output_id++);
                 break;
-#if defined(Q_WS_X11) || defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+#if defined(Q_WS_X11) || defined(Q_OS_LINUX) || defined(Q_OS_OSX)
                 case DMXUSBWidget::Eurolite:
                     widgetList << new EuroliteUSBDMXPro(iface, output_id++);
                 break;
@@ -167,32 +147,18 @@ QList<DMXUSBWidget *> DMXUSBWidget::widgets()
             input_id += 2;
             widgetList << promkii;
         }
-        else if (iface->vendorID() == DMXInterface::NXPVID && iface->productID() == DMXInterface::DMXKINGMAXPID)
+        else if (productName.contains("DMX USB PRO") || productName.contains("ULTRADMX") ||
+                 (iface->vendorID() == DMXInterface::NXPVID && iface->productID() == DMXInterface::DMXKINGMAXPID))
         {
-            int ESTAID = 0, DEVID = 0, outNumber;
-            QString manName, devName;
-            bool isDmxKing = detectDMXKingDevice(iface, manName, devName, ESTAID, DEVID);
-
-            // read also ports count
-            if (isDmxKing && iface->readLabel(DMXKING_DMX_PORT_COUNT, outNumber, manName))
-            {
-                qDebug() << "Number of outputs detected:" << outNumber;
-
-                EnttecDMXUSBPro *ultra = new EnttecDMXUSBPro(iface, output_id, input_id++);
-                ultra->setOutputsNumber(outNumber);
-                ultra->setDMXKingMode();
-                ultra->setRealName(devName);
-                output_id += outNumber;
-                widgetList << ultra;
-            }
-        }
-        else if (productName.contains("DMX USB PRO") || productName.contains("ULTRADMX"))
-        {
-            int ESTAID = 0, DEVID = 0;
-            QString manName, devName;
-            bool isDmxKing = detectDMXKingDevice(iface, manName, devName, ESTAID, DEVID);
-
-            if (isDmxKing)
+            /** Check if the device responds to label 77 and 78, so it might be a DMXking adapter */
+            int ESTAID = 0;
+            int DEVID = 0;
+            QString manName = iface->readLabel(DMXKING_USB_DEVICE_MANUFACTURER, &ESTAID);
+            qDebug() << "--------> Device Manufacturer: " << manName;
+            QString devName = iface->readLabel(DMXKING_USB_DEVICE_NAME, &DEVID);
+            qDebug() << "--------> Device Name: " << devName;
+            qDebug() << "--------> ESTA Code: " << QString::number(ESTAID, 16) << ", Device ID: " << QString::number(DEVID, 16);
+            if (ESTAID == DMXKING_ESTA_ID)
             {
                 if (DEVID == ULTRADMX_PRO_DEV_ID)
                 {
@@ -234,7 +200,7 @@ QList<DMXUSBWidget *> DMXUSBWidget::widgets()
         {
             widgetList << new Stageprofi(iface, output_id++);
         }
-#if defined(Q_WS_X11) || defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+#if defined(Q_WS_X11) || defined(Q_OS_LINUX) || defined(Q_OS_OSX)
         else if (iface->vendorID() == DMXInterface::ATMELVID &&
                  iface->productID() == DMXInterface::NANODMXPID)
         {

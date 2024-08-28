@@ -33,7 +33,6 @@ Rectangle
     color: UISettings.bgMedium
 
     property bool closeOnSelect: false
-    property var dragTarget: null
     property int colorsMask: 0
     property color currentRGB
     property color currentWAUV
@@ -165,7 +164,7 @@ Rectangle
                 {
                     Layout.fillWidth: true
                     height: colorToolBar.height
-                    drag.target: paletteBox.isEditing ? null : (colorToolBox.dragTarget ? colorToolBox.dragTarget : colorToolBox)
+                    drag.target: paletteBox.isEditing ? null : colorToolBox
                 }
                 GenericButton
                 {

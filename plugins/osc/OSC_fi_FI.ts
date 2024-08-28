@@ -40,42 +40,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="configureosc.ui" line="90"/>
-        <source>Seconds to wait for an interface to be ready</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="configureosc.ui" line="122"/>
+        <location filename="configureosc.ui" line="88"/>
         <source>Channel number calculator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="configureosc.ui" line="130"/>
+        <location filename="configureosc.ui" line="96"/>
         <source>OSC path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="configureosc.ui" line="140"/>
+        <location filename="configureosc.ui" line="106"/>
         <source>Channel number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="configureosc.cpp" line="88"/>
+        <location filename="configureosc.cpp" line="83"/>
         <source>Inputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="configureosc.cpp" line="94"/>
+        <location filename="configureosc.cpp" line="89"/>
         <source>Outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="configureosc.cpp" line="176"/>
+        <location filename="configureosc.cpp" line="171"/>
         <source>Invalid IP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="configureosc.cpp" line="176"/>
+        <location filename="configureosc.cpp" line="171"/>
         <source>%1 is not a valid IP.
 Please fix it before confirming.</source>
         <translation type="unfinished"></translation>
@@ -84,39 +79,39 @@ Please fix it before confirming.</source>
 <context>
     <name>OSCPlugin</name>
     <message>
-        <location filename="oscplugin.cpp" line="96"/>
+        <location filename="oscplugin.cpp" line="91"/>
         <source>This plugin provides input for devices supporting the OSC transmission protocol.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="oscplugin.cpp" line="147"/>
-        <location filename="oscplugin.cpp" line="280"/>
+        <location filename="oscplugin.cpp" line="142"/>
+        <location filename="oscplugin.cpp" line="276"/>
         <source>Status: Not open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="oscplugin.cpp" line="150"/>
-        <location filename="oscplugin.cpp" line="283"/>
+        <location filename="oscplugin.cpp" line="145"/>
+        <location filename="oscplugin.cpp" line="279"/>
         <source>Status: Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="oscplugin.cpp" line="152"/>
+        <location filename="oscplugin.cpp" line="147"/>
         <source>Packets sent: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="oscplugin.cpp" line="285"/>
+        <location filename="oscplugin.cpp" line="281"/>
         <source>Packets received: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="oscplugin.cpp" line="143"/>
+        <location filename="oscplugin.cpp" line="138"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="oscplugin.cpp" line="276"/>
+        <location filename="oscplugin.cpp" line="272"/>
         <source>Input</source>
         <translation type="unfinished"></translation>
     </message>

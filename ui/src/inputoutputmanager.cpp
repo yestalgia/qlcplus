@@ -40,6 +40,7 @@
 #include "inputoutputmap.h"
 #include "outputpatch.h"
 #include "inputpatch.h"
+#include "apputil.h"
 #include "doc.h"
 
 #define KColumnUniverse     0
@@ -371,7 +372,7 @@ void InputOutputManager::slotDeleteUniverse()
     if (uniID == m_ioMap->invalidUniverse())
         return;
 
-    foreach (Fixture *fx, m_doc->fixtures())
+    foreach(Fixture *fx, m_doc->fixtures())
     {
         if (fx->universe() == uniID)
         {

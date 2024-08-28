@@ -25,9 +25,7 @@
 typedef struct
 {
     bool enabled;
-    QString devName;
-    QString connName;
-    QString connUUID;
+    QString name;
     bool isStatic;
     bool isWireless;
     QString address;
@@ -51,11 +49,13 @@ public:
     QString getNetworkHTML();
     QString getHTML();
 
-    bool updateNetworkSettings(QStringList cmdList);
+    bool updateNetworkFile(QStringList cmdList);
 
 protected:
-    QStringList getNmcliOutput(QStringList args, bool verbose = false);
-    void refreshConnectionsList();
+    void parseWPAConfFile(InterfaceInfo *iface);
+    bool writeNetworkFile();
+    QString netmaskToString(int mask);
+    int stringToNetmask(QString mask);
 
 protected:
     QList<InterfaceInfo>m_interfaces;

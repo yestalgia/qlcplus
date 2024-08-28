@@ -127,7 +127,6 @@ protected slots:
     void slotAddAliasClicked();
     void slotRemoveAliasClicked();
     void refreshAliasModes();
-    void updateAliasModeName(QString oldName, QString newName);
     void refreshAliasModeChannels();
 
 protected:

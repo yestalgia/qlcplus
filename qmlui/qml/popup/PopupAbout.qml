@@ -57,8 +57,6 @@ CustomPopupDialog
                       " <a href='https://www.apache.org/licenses/LICENSE-2.0'>" +
                       qsTr("Apache 2.0 license") + "</a>."
                 onLinkActivated: Qt.openUrlExternally(link)
-                Layout.fillWidth: true
-                wrapMode: Text.WordWrap
 
                 MouseArea
                 {
