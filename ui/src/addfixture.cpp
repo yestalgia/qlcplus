@@ -335,10 +335,19 @@ void AddFixture::fillModeCombo(const QString& text)
 
     if (m_fixtureDef == NULL)
     {
-        m_modeCombo->setEnabled(false);
-        m_modeCombo->addItem(text);
+        m_modeCombo->setEnabled(true);
+        //m_modeCombo->addItem(text);
+        Q_UNUSED(text);
+        // Add the normal mode option
+        m_modeCombo->addItem(tr("Normal (8-Bit)"), QVariant::fromValue<int>(1)); // 1 represents 8-bit dimming
+
+        // Add the 16-bit mode option
+        m_modeCombo->addItem(tr("Fine (16-bit)"), QVariant::fromValue<int>(2)); // 2 represents 16-bit dimming
+
+        /* Select the first mode by default */
         m_modeCombo->setCurrentIndex(0);
-        m_mode = NULL;
+        slotModeActivated(0);
+        //m_mode = NULL;
     }
     else
     {
@@ -450,29 +459,71 @@ bool AddFixture::checkAddressAvailability(int value, int channels)
 
 void AddFixture::slotModeActivated(int modeIndex)
 {
-    if (m_fixtureDef == NULL)
-        return;
-
-    m_mode = m_fixtureDef->modes().at(modeIndex);
-    if (m_mode == NULL)
+    if (m_fixtureDef != NULL)  // Handle predefined fixtures
     {
-        /* Generic dimmers don't have modes, so bail out */
-        // slotSelectionChanged();
+        m_mode = m_fixtureDef->modes().at(modeIndex);
+        if (m_mode == NULL)
+        {
+            /* Generic dimmers don't have modes, so bail out */
+            // slotSelectionChanged();
+            return;
+        }
+
+        m_channelsSpin->setValue(m_mode->channels().size());
+
+        /* Show all selected mode channels in the list */
+        m_channelList->clear();
+        for (int i = 0; i < m_mode->channels().size(); i++)
+        {
+            QLCChannel* channel = m_mode->channel(i);
+            Q_ASSERT(channel != NULL);
+
+            new QListWidgetItem(
+                QString("%1: %2").arg(i + 1).arg(channel->name()),
+                m_channelList);
+        }
         return;
     }
+    int selectedMode = m_modeCombo->itemData(modeIndex).toInt();  // 1 for 8-bit, 2 for 16-bit
 
-    m_channelsSpin->setValue(m_mode->channels().size());
-
-    /* Show all selected mode channels in the list */
-    m_channelList->clear();
-    for (int i = 0; i < m_mode->channels().size(); i++)
+    if (selectedMode == 2)  // 16-bit mode
     {
-        QLCChannel* channel = m_mode->channel(i);
-        Q_ASSERT(channel != NULL);
+        // Assuming the user has set the number of dimmers (not channels)
+        int numDmmers = m_channelsSpin->value();
 
-        new QListWidgetItem(
-            QString("%1: %2").arg(i + 1).arg(channel->name()),
-            m_channelList);
+        m_channelList->clear();
+        for (int i = 0; i < numDmmers; i++)
+        {
+            // Coarse Channel
+            QString coarseName = tr("Dimmer %1 Coarse").arg(i + 1);
+            new QListWidgetItem(coarseName, m_channelList);
+
+            // Fine Channel
+            QString fineName = tr("Dimmer %1 Fine").arg(i + 1);
+            new QListWidgetItem(fineName, m_channelList);
+        }
+
+        // Set the total number of channels (coarse + fine)
+        m_channelsSpin->setValue(numDmmers * 2);
+        checkOverlapping();
+    }
+    else if (selectedMode == 1)  // 8-bit mode
+    {
+        int numDmmers = m_channelsSpin->value();
+        // If the previous mode was 16 bit, we need to divide by 2. 
+        if (numDmmers % 2 == 0)  // Check if the number of channels is even
+        {
+            numDmmers /= 2; // 
+        }
+        
+        m_channelList->clear();
+        for (int i = 0; i < numDmmers; i++)
+        {
+            QString channelName = tr("Dimmer %1").arg(i + 1);
+            new QListWidgetItem(channelName, m_channelList);
+        }
+        m_channelsSpin->setValue(numDmmers);
+        checkOverlapping();
     }
 }
 
@@ -614,8 +665,11 @@ void AddFixture::slotSelectionChanged()
         {
             m_fixtureDef = NULL;
         }
-        fillModeCombo();
+        
         m_modeCombo->setEnabled(false);
+        // Enable the mode combo box for generic dimmer to allow mode selection
+        m_modeCombo->setEnabled(true); 
+        fillModeCombo();
         m_channelsSpin->setValue(1);
         m_channelsSpin->setEnabled(true);
         m_channelList->clear();
