@@ -643,28 +643,51 @@ void AddFixture::slotSelectionChanged()
     if (manuf == KXMLFixtureGeneric && model == KXMLFixtureGeneric)
     {
         /* Generic dimmer selected. User enters number of channels. */
-        if (m_fixtureID != Fixture::invalidId())
-        {
-            Fixture *fxi = m_doc->fixture(m_fixtureID);
-            if (fxi != NULL)
-            {
-                m_fixtureDef = fxi->fixtureDef();
-                m_mode = fxi->fixtureMode();
+        m_fixtureDef = NULL;
 
-                if (m_fixtureDef->manufacturer() != manuf || m_fixtureDef->model() != model)
-                {
-                    m_fixtureDef = NULL;
-                }
-            }
-            else
-            {
-                m_fixtureDef = NULL;
-            }
-        }
-        else
+        int selectedMode = m_modeCombo->currentData().toInt();
+        if (selectedMode == 2) // 16-bit mode
         {
-            m_fixtureDef = NULL;
+            // Set the spinbox to the number of dimmers (each dimmer is 2 channels)
+            int numDimmers = m_channelsSpin->value() / 2;
+            if (numDimmers < 1)
+                numDimmers = 1;
+            m_channelsSpin->setValue(numDimmers);
         }
+        else // 8-bit mode
+        {
+            // Set the spinbox to the number of channels directly
+            int numChannels = m_channelsSpin->value();
+            if (numChannels < 1)
+                numChannels = 1;
+            m_channelsSpin->setValue(numChannels);
+        }
+
+        // Enable editing for dimmers
+        m_channelsSpin->setEnabled(true);
+        /*End*/
+        //if (m_fixtureID != Fixture::invalidId())
+        //{
+        //    Fixture *fxi = m_doc->fixture(m_fixtureID);
+        //    if (fxi != NULL)
+        //    {
+        //        m_fixtureDef = fxi->fixtureDef();
+        //        m_mode = fxi->fixtureMode();
+//
+        //        if (m_fixtureDef->manufacturer() != manuf || m_fixtureDef->model() != model)
+        //        {
+        //            m_fixtureDef = NULL;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        m_fixtureDef = NULL;
+        //    }
+        //}
+        //else
+        //{
+        //    m_fixtureDef = NULL;
+        //}
         
         m_modeCombo->setEnabled(false);
         // Enable the mode combo box for generic dimmer to allow mode selection
@@ -672,7 +695,7 @@ void AddFixture::slotSelectionChanged()
         fillModeCombo();
         m_channelsSpin->setValue(1);
         m_channelsSpin->setEnabled(true);
-        m_channelList->clear();
+        //m_channelList->clear();
 
         /* Set the model name as the fixture's friendly name ONLY
            if the user hasn't modified the friendly name field. */
