@@ -490,7 +490,7 @@ jobs:
           path: ${{matrix.task}}-${{env.OUTFILE}}
 
   build-macos:
-    runs-on: macos-12
+    runs-on: macos-latest # Updated to use the latest macOS version
     name: QLCplus macOS ${{matrix.task}}
     strategy:
       fail-fast: false
@@ -503,13 +503,13 @@ jobs:
       QT_VERSION: "5.15.2"
       QT_MODULES:
         qtscript
-
+  
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: false
-
+  
       - name: Add more ENV variables
         shell: bash
         run: |
@@ -518,9 +518,10 @@ jobs:
           echo "GIT_REV=`git rev-parse --short HEAD`" >> $GITHUB_ENV
           echo "QTDIR=${{ github.workspace }}/qt/Qt/${{ env.QT_VERSION }}/clang_64" >> $GITHUB_ENV
           echo "NPROC=`sysctl -n hw.ncpu`" >> $GITHUB_ENV
+  
       - name: Upgrade Homebrew
         run: brew upgrade || true
-        
+  
       - name: Print ENV vars
         shell: bash
         run: |
@@ -532,7 +533,7 @@ jobs:
           echo "TASK: ${TASK}"
           echo "QTDIR: ${QTDIR}"
           echo "NPROC: ${NPROC}"
-
+  
       - name: Dependencies
         run: | 
           brew update
@@ -540,34 +541,34 @@ jobs:
           brew install mad || true    # Avoid reinstalling mad if already installed
           brew install libsndfile || true # Avoid reinstalling libsndfile if already installed
           brew install libftdi || true # Avoid reinstalling libftdi if already installed
-          brew link --overwrite python@3.12  # Ensure Python is correctly linked
-    
+          brew link --overwrite python@3.12  # Updated to link latest Python version (adjust if needed)
+  
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
           version: ${{ env.QT_VERSION }}
           dir: "${{ github.workspace }}/qt/"
           modules: ${{ env.QT_MODULES }}
-
+  
       - name: Configure build
         shell: bash
         run: |-
           mkdir build
           cd build
           cmake -DCMAKE_PREFIX_PATH="${{ env.QTDIR }}/lib/cmake" ..
-
+  
       - name: Build
         shell: bash
         run: |-
           cd build
           make -j${{ env.NPROC }}
-
+  
       - name: Install
         shell: bash
         run: |-
           cd build
           make install/fast
-
+  
       - name: Run macosdeploy
         shell: bash
         run: |-
@@ -578,8 +579,8 @@ jobs:
         run: |-
           install_name_tool -change /usr/local/opt/fftw/lib/libfftw3.3.dylib @executable_path/../Frameworks/libfftw3.3.dylib ~/QLC+.app/Contents/MacOS/qlcplus
           install_name_tool -change /usr/local/opt/fftw/lib/libfftw3.3.dylib @executable_path/../Frameworks/libfftw3.3.dylib ~/QLC+.app/Contents/MacOS/qlcplus-fixtureeditor 
-
-      - name: create DMG
+  
+      - name: Create DMG
         shell: bash
         run: |-
           OUTDIR=$PWD
@@ -594,7 +595,7 @@ jobs:
           --app-drop-link 200 150 \
           $OUTDIR/QLC+_${{ matrix.task }}.dmg \
           ~/QLC+.app
-
+  
       - name: Store DMG artifact
         uses: actions/upload-artifact@v4
         with:
