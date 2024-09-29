@@ -537,10 +537,10 @@ jobs:
       - name: Dependencies
         run: | 
           brew update
-          brew install fftw --build-from-source --arch=arm64 || true   # Ensure arm64 compatibility
-          brew install mad --build-from-source --arch=arm64 || true
-          brew install libsndfile --build-from-source --arch=arm64 || true
-          brew install libftdi --build-from-source --arch=arm64 || true
+          brew install fftw --build-from-source --arch=x86_64 || true   # Build dependencies for x86_64
+          brew install mad --build-from-source --arch=x86_64 || true
+          brew install libsndfile --build-from-source --arch=x86_64 || true
+          brew install libftdi --build-from-source --arch=x86_64 || true
           brew link --overwrite python@3.12  # Ensure Python is correctly linked
   
       - name: Install Qt
@@ -549,7 +549,7 @@ jobs:
           version: ${{ env.QT_VERSION }}
           dir: "${{ github.workspace }}/qt/"
           modules: ${{ env.QT_MODULES }}
-          arch: "arm64"  # Specify the architecture for Apple Silicon Macs
+          arch: "x86_64"
   
       - name: Configure build
         shell: bash
@@ -602,4 +602,5 @@ jobs:
         with:
           name: QLC+-${{env.APPVERSION}}-${{env.BUILD_DATE}}-${{env.GIT_REV}}.dmg
           path: QLC+_${{ matrix.task }}.dmg
+
 
