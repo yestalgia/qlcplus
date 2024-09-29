@@ -490,7 +490,7 @@ jobs:
           path: ${{matrix.task}}-${{env.OUTFILE}}
 
   build-macos:
-    runs-on: macos-12
+    runs-on: macos-latest
     name: QLCplus macOS ${{matrix.task}}
     strategy:
       fail-fast: false
@@ -518,7 +518,9 @@ jobs:
           echo "GIT_REV=`git rev-parse --short HEAD`" >> $GITHUB_ENV
           echo "QTDIR=${{ github.workspace }}/qt/Qt/${{ env.QT_VERSION }}/clang_64" >> $GITHUB_ENV
           echo "NPROC=`sysctl -n hw.ncpu`" >> $GITHUB_ENV
-
+      - name: Upgrade Homebrew
+        run: brew upgrade || true
+        
       - name: Print ENV vars
         shell: bash
         run: |
@@ -534,8 +536,11 @@ jobs:
       - name: Dependencies
         run: | 
           brew update
-          brew install fftw mad libsndfile libftdi
-          brew link --overwrite python@3.12
+          brew install fftw || true   # Avoid reinstalling fftw if already installed
+          brew install mad || true    # Avoid reinstalling mad if already installed
+          brew install libsndfile || true # Avoid reinstalling libsndfile if already installed
+          brew install libftdi || true # Avoid reinstalling libftdi if already installed
+          brew link --overwrite python@3.12  # Ensure Python is correctly linked
     
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
