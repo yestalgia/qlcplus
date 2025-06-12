@@ -222,7 +222,11 @@ def update_fixture(path, filename, destpath):
 
             # wait for user input until a preset can be resolved
             while 1:
-                select = raw_input("Replacement preset code (0 = keep) (enter = " + preset + "): ")
+                try:
+                    select = raw_input("Replacement preset code (0 = keep) (enter = " + preset + "): ")
+                except NameError:
+                    # Python 3 compatibility
+                    select = input("Replacement preset code (0 = keep) (enter = " + preset + "): ")
                 if select == "":
                     if preset == "":
                         print("Select an option!")
@@ -888,8 +892,8 @@ if args.convert is not None:
         print("Usage " + sys.argv[0] + "--convert <source folder> <destination folder>")
         sys.exit()
 
-    path = sys.args.convert[1]
-    destpath = args.convert[2]
+    path = args.convert[0]
+    destpath = args.convert[1]
     print("Converting fixtures in " + path + "...")
 
     for filename in os.listdir(path):
