@@ -67,6 +67,15 @@ Click the badge below to see the currently confirmed issues with QLC+. Perhaps y
 [![Help Wanted](https://img.shields.io/github/issues/mcallegari/qlcplus/issue%20confirmed?logo=github&color=red)](https://github.com/mcallegari/qlcplus/issues?q=is%3Aopen+is%3Aissue+label%3A%22issue+confirmed%22)
 
 
+## Safety disclaimer
+
+QLC+ can drive high-powered lighting fixtures and effect devices. Some
+equipment can generate intense heat, strobe flashes or other potentially
+dangerous outputs. Improper use may cause personal injury, property damage
+or even start a fire. Always follow your hardware manufacturer's
+instructions and observe all local safety regulations when using QLC+.
+
+
 ## Building QLC+
 
 Compilation guides and platform-specific instructions are available in our [GitHub Wiki](https://github.com/mcallegari/qlcplus/wiki).
